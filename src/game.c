@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "game.h"
 #include "ui.h"
 #include "input.h"
@@ -56,7 +57,7 @@ void executar_desafio(int indice) {
         resposta = ler_resposta();
     }
 
-    int acertou = (resposta == desafios[indice].resposta_correta);
+    int acertou = (toupper((unsigned char)resposta) == desafios[indice].resposta_correta);
     if (acertou) {
         jogador.acertos++;
         jogador.pontuacao += desafios[indice].nivel * 10;

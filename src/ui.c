@@ -4,7 +4,6 @@
 #include "ui.h"
 #include "game.h"
 #include "input.h"
-#include "colors.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -12,13 +11,8 @@
 #include <unistd.h>
 #endif
 
-void limpar_tela(void) {
-#ifdef _WIN32
-    system("cls");
-#else
-    system("clear");
-#endif
-}
+static double g_b    = 1.0;
+static int    g_idx  = 0;
 
 static void pausa_ms(int ms) {
 #ifdef _WIN32
@@ -28,270 +22,313 @@ static void pausa_ms(int ms) {
 #endif
 }
 
-static void typar(const char *s, int ms) {
-    for (; *s; s++) {
-        putchar((unsigned char)*s);
-        fflush(stdout);
-        pausa_ms(ms);
-    }
+void limpar_tela(void) {
+    printf("\033[2J\033[H");
+    fflush(stdout);
+}
+
+static void set_cor(int r, int g, int b) {
+    printf("\033[38;2;%d;%d;%dm",
+           (int)(r * g_b), (int)(g * g_b), (int)(b * g_b));
+}
+static void rst(void) { printf("\033[0m"); }
+
+static void p(int r, int g, int b, const char *s) {
+    set_cor(r, g, b); printf("%s", s); rst();
 }
 
 static void linha_divisoria(void) {
-    printf(COR_AZUL_DIM
-        "    \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-        "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-        "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-        "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-        COR_RESET "\n");
+    set_cor(60, 90, 180);
+    printf("    ────────────────────────────────────────────────\n");
+    rst();
+}
+
+static void mostrar_cursor(void)  { printf("\033[?25h"); fflush(stdout); }
+static void esconder_cursor(void) { printf("\033[?25l"); fflush(stdout); }
+
+static void fade_tela(void (*render)(void)) {
+    static const double steps[] = {0.05, 0.15, 0.3, 0.5, 0.7, 0.87, 1.0};
+    int n = 7, i;
+    esconder_cursor();
+    limpar_tela();
+    for (i = 0; i < n; i++) {
+        if (i > 0) { printf("\033[H"); fflush(stdout); }
+        g_b = steps[i];
+        render();
+        fflush(stdout);
+        pausa_ms(32);
+    }
+    g_b = 1.0;
+    mostrar_cursor();
 }
 
 static void loading_item(const char *texto) {
-    const char *frames[] = {
+    static const char *frames[] = {
         "\xe2\xa0\x8b", "\xe2\xa0\x99", "\xe2\xa0\xb9", "\xe2\xa0\xb8",
         "\xe2\xa0\xbc", "\xe2\xa0\xb4", "\xe2\xa0\xa6", "\xe2\xa0\xa7",
         "\xe2\xa0\x87", "\xe2\xa0\x8f"
     };
     int i;
     for (i = 0; i < 12; i++) {
-        printf("\r" COR_CINZA "    %s  %s" COR_RESET, frames[i % 10], texto);
-        fflush(stdout);
+        set_cor(100, 120, 160);
+        printf("\r    %s  %s", frames[i % 10], texto);
+        rst(); fflush(stdout);
         pausa_ms(70);
     }
-    printf("\r" COR_AZUL "    \u2714   " COR_RESET "%s\n", texto);
+    set_cor(100, 140, 255);
+    printf("\r    ✔   "); rst();
+    printf("%s\n", texto);
     fflush(stdout);
 }
 
+static void render_menu(void) {
+    printf("\n");
+    p(100,140,255, "    LOGI - Decifra.IA");
+    p(120,125,160, "  Logica e Seguranca em IA\n\n");
+    linha_divisoria();
+    printf("\n");
+    p(100,140,255, "    1"); p(200,210,230, "   Jogar\n");
+    p(100,140,255, "    2"); p(200,210,230, "   Como Jogar\n");
+    p(100,140,255, "    3"); p(200,210,230, "   Sair\n");
+    printf("\n");
+    linha_divisoria();
+    printf("\n");
+    p(120,125,160, "    opcao: ");
+}
+
 void tela_menu(void) {
-    limpar_tela();
+    fade_tela(render_menu);
+}
+
+static void render_como_jogar(void) {
     printf("\n");
-    printf("    " COR_AZUL);
-    typar("LOGI - Decifra.IA", 28);
-    printf(COR_RESET COR_CINZA);
-    typar("  Logica e Seguranca em IA", 12);
-    printf(COR_RESET "\n\n");
+    p(100,140,255, "    Como Jogar\n\n");
     linha_divisoria();
     printf("\n");
-    printf("    " COR_AZUL "1" COR_RESET "   "); typar("Jogar\n", 18);
-    printf("    " COR_AZUL "2" COR_RESET "   "); typar("Como Jogar\n", 18);
-    printf("    " COR_AZUL "3" COR_RESET "   "); typar("Sair\n", 18);
-    printf("\n");
+    p(200,210,230, "    Voce recebera desafios de logica proposicional e seguranca em IA.\n");
+    p(200,210,230, "    Para os desafios de logica, responda V (Verdadeiro) ou F (Falso).\n\n");
+    p(200,210,230, "    Durante o desafio, pressione ");
+    p(100,140,255, "H");
+    p(200,210,230, " para pedir ajuda ao LOGI,\n");
+    p(200,210,230, "    a IA tutora do jogo.\n\n");
+    p(120,125,160, "    Operadores logicos:\n\n");
+    p(100,140,255, "      AND            "); p(200,210,230, "verdadeiro quando ambos os lados sao V\n");
+    p(100,140,255, "      OR             "); p(200,210,230, "verdadeiro quando pelo menos um lado e V\n");
+    p(100,140,255, "      NOT            "); p(200,210,230, "inverte o valor logico\n");
+    p(100,140,255, "      IMPLICA        "); p(200,210,230, "falso apenas quando P = V e Q = F\n");
+    p(100,140,255, "      BICONDICIONAL  "); p(200,210,230, "verdadeiro quando os dois lados sao iguais\n\n");
+    p(200,210,230, "    Cada acerto vale pontos de acordo com o nivel do desafio.\n");
+    p(100,140,255, "    Boa sorte!\n\n");
     linha_divisoria();
-    printf("\n");
-    printf("    opcao: ");
+    p(120,125,160, "\n    Pressione ENTER para continuar...");
 }
 
 void tela_como_jogar(void) {
-    limpar_tela();
-    printf("\n");
-    printf("    " COR_AZUL);
-    typar("Como Jogar", 28);
-    printf(COR_RESET "\n\n");
-    linha_divisoria();
-    printf("\n");
-    typar("    Voce recebera desafios de logica proposicional e seguranca em IA.\n", 12);
-    typar("    Para os desafios de logica, responda V (Verdadeiro) ou F (Falso).\n\n", 12);
-    printf("    Durante o desafio, pressione " COR_AZUL "H" COR_RESET " ");
-    typar("para pedir ajuda ao LOGI,\n", 12);
-    typar("    a IA tutora do jogo.\n\n", 12);
-    typar("    Operadores logicos:\n\n", 14);
-    printf("      " COR_AZUL "AND" COR_RESET "            "); typar("verdadeiro quando ambos os lados sao V\n", 10);
-    printf("      " COR_AZUL "OR" COR_RESET "             "); typar("verdadeiro quando pelo menos um lado e V\n", 10);
-    printf("      " COR_AZUL "NOT" COR_RESET "            "); typar("inverte o valor logico\n", 10);
-    printf("      " COR_AZUL "IMPLICA" COR_RESET "        "); typar("falso apenas quando P = V e Q = F\n", 10);
-    printf("      " COR_AZUL "BICONDICIONAL" COR_RESET "  "); typar("verdadeiro quando os dois lados tem o mesmo valor\n\n", 10);
-    typar("    Cada acerto vale pontos de acordo com o nivel do desafio.\n", 12);
-    typar("    Boa sorte!\n", 14);
-    printf("\n");
-    linha_divisoria();
-    aguardar_enter();
+    fade_tela(render_como_jogar);
+    mostrar_cursor();
+    getchar();
+    esconder_cursor();
 }
 
 void tela_loading(void) {
+    esconder_cursor();
     limpar_tela();
     printf("\n");
-    printf("    " COR_AZUL);
-    typar("LOGI - Decifra.IA", 28);
-    printf(COR_RESET "\n\n");
+    p(100,140,255, "    LOGI - Decifra.IA\n\n");
 
     loading_item("Inicializando sistema de logica e IA");
     loading_item("Carregando banco de questoes");
     loading_item("Conectando a IA tutora");
     loading_item("Pronto");
     printf("\n");
-    pausa_ms(200);
+    pausa_ms(180);
 
-    printf("    " COR_AZUL_DIM
-           "\u250c\u2500 sistema "
-           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-           "\u2510" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM "\u2502" COR_RESET
-           "  " COR_CINZA "Jogo    " COR_RESET "    "
-           COR_AZUL); typar("LOGI - Decifra.IA", 14);
-    printf(COR_RESET "                       " COR_AZUL_DIM "\u2502" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM "\u2502" COR_RESET
-           "  " COR_CINZA "Versao  " COR_RESET "    "
-           COR_AZUL); typar("1.0  PI2", 14);
-    printf(COR_RESET "                                " COR_AZUL_DIM "\u2502" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM "\u2502" COR_RESET
-           "  " COR_CINZA "Modo    " COR_RESET "    "
-           COR_AZUL); typar("Logica Proposicional e Seguranca em IA", 14);
-    printf(COR_RESET "  " COR_AZUL_DIM "\u2502" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM "\u2502" COR_RESET
-           "  " COR_CINZA "Status  " COR_RESET "    "
-           COR_AZUL); typar("PRONTO", 14);
-    printf(COR_RESET "                                  " COR_AZUL_DIM "\u2502" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM
-           "\u2514"
-           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
-           "\u2500\u2500\u2500\u2500\u2500\u2500"
-           "\u2518" COR_RESET "\n");
+    set_cor(60, 90, 180);
+    printf("    ┌─ sistema ────────────────────────────────────────────────┐\n");
+    printf("    │"); rst();
+    printf("  "); p(120,125,160,"Jogo    "); printf("    "); p(100,140,255,"LOGI - Decifra.IA");
+    printf("                       "); set_cor(60,90,180); printf("│\n"); rst();
+    printf("    │"); rst();
+    printf("  "); p(120,125,160,"Versao  "); printf("    "); p(100,140,255,"1.0  PI2");
+    printf("                                "); set_cor(60,90,180); printf("│\n"); rst();
+    printf("    │"); rst();
+    printf("  "); p(120,125,160,"Modo    "); printf("    "); p(100,140,255,"Logica Proposicional e Seguranca em IA");
+    printf("  "); set_cor(60,90,180); printf("│\n"); rst();
+    printf("    │"); rst();
+    printf("  "); p(120,125,160,"Status  "); printf("    "); p(100,140,255,"PRONTO");
+    printf("                                  "); set_cor(60,90,180); printf("│\n"); rst();
+    set_cor(60, 90, 180);
+    printf("    └──────────────────────────────────────────────────────────┘\n");
+    rst();
 
-    aguardar_enter();
+    p(120,125,160, "\n    Pressione ENTER para continuar...");
+    mostrar_cursor();
+    getchar();
+    esconder_cursor();
+}
+
+static void render_nome(void) {
+    printf("\n");
+    p(100,140,255, "    LOGI - Decifra.IA\n\n");
+    linha_divisoria();
+    printf("\n");
+    p(200,210,230, "    Como voce se chama?\n\n");
+    p(120,125,160, "    Nome: ");
 }
 
 void tela_nome(void) {
-    limpar_tela();
+    fade_tela(render_nome);
+}
+
+static void render_desafio(void) {
+    char buf[256];
     printf("\n");
-    printf("    " COR_AZUL);
-    typar("LOGI - Decifra.IA", 28);
-    printf(COR_RESET "\n\n");
+    snprintf(buf, sizeof(buf),
+             "    LOGI - Decifra.IA  |  Desafio %d de %d  |  Nivel %d  |  Pontos: %d\n",
+             g_idx + 1, NUM_DESAFIOS, desafios[g_idx].nivel, jogador.pontuacao);
+    p(100,140,255, buf);
+    printf("\n");
     linha_divisoria();
     printf("\n");
-    typar("    Como voce se chama?\n\n", 16);
-    printf("    Nome: ");
+    p(200,210,230, "    ");
+    p(200,210,230, desafios[g_idx].enunciado);
+    printf("\n\n");
+    linha_divisoria();
+    printf("\n");
+    p(100,140,255, "    [V]"); p(200,210,230, " Verdadeiro");
+    p(100,140,255, "     [F]"); p(200,210,230, " Falso");
+    p(100,140,255, "     [H]"); p(200,210,230, " Pedir ajuda ao LOGI\n\n");
+    p(120,125,160, "    resposta: ");
 }
 
 void tela_desafio(int indice) {
-    char buf[128];
-    limpar_tela();
+    g_idx = indice;
+    fade_tela(render_desafio);
+}
+
+static const char *dicas_l1[NUM_DESAFIOS] = {
+    "AND so e verdadeiro quando os dois lados sao V.",
+    "OR e verdadeiro quando pelo menos um lado e V.",
+    "NOT inverte o valor logico.",
+    "P IMPLICA Q e falso apenas quando P = V e Q = F.",
+    "BICONDICIONAL e V quando os dois lados tem o mesmo valor."
+};
+static const char *dicas_l2[NUM_DESAFIOS] = {
+    "Se qualquer lado for F, o resultado e F.",
+    "So e falso quando os dois lados sao F.",
+    "NOT V = F  e  NOT F = V.",
+    "Em todos os outros casos o resultado e V.",
+    "V BICON V = V  e  F BICON F = V."
+};
+
+static void render_logi(void) {
+    char buf[48];
     printf("\n");
-    printf("    " COR_AZUL "LOGI - Decifra.IA" COR_RESET COR_CINZA);
-    snprintf(buf, sizeof(buf), "  |  Desafio %d de %d  |  Nivel %d  |  Pontos: %d",
-        indice + 1, NUM_DESAFIOS, desafios[indice].nivel, jogador.pontuacao);
-    typar(buf, 8);
-    printf(COR_RESET "\n\n");
+    p(100,140,255, "    LOGI");
+    p(120,125,160, "  Tutora de Logica e Seguranca em IA\n\n");
     linha_divisoria();
     printf("\n");
-    printf("    " COR_AZUL);
-    typar(desafios[indice].enunciado, 16);
-    printf(COR_RESET "\n\n");
+    snprintf(buf, sizeof(buf), "    Dica para o desafio %d:\n\n", g_idx + 1);
+    p(120,125,160, buf);
+    p(100,140,255, "    "); p(100,140,255, dicas_l1[g_idx]); printf("\n");
+    p(100,140,255, "    "); p(100,140,255, dicas_l2[g_idx]); printf("\n\n");
     linha_divisoria();
-    printf("\n");
-    printf("    [" COR_AZUL "V" COR_RESET "] Verdadeiro"
-           "     [" COR_AZUL "F" COR_RESET "] Falso"
-           "     [" COR_AZUL "H" COR_RESET "] Pedir ajuda ao LOGI\n\n");
-    printf("    resposta: ");
+    p(120,125,160, "\n    Pressione ENTER para continuar...");
 }
 
 void tela_painel_logi(int indice) {
-    const char *dicas[NUM_DESAFIOS] = {
-        "AND so e verdadeiro quando os dois lados sao V.\n    Se qualquer lado for F, o resultado e F.",
-        "OR e verdadeiro quando pelo menos um lado e V.\n    So e falso quando os dois lados sao F.",
-        "NOT inverte o valor logico.\n    NOT V = F  e  NOT F = V.",
-        "P IMPLICA Q e falso apenas quando P = V e Q = F.\n    Em todos os outros casos o resultado e V.",
-        "BICONDICIONAL e V quando os dois lados tem o mesmo valor.\n    V BICON V = V  e  F BICON F = V."
-    };
+    g_idx = indice;
+    fade_tela(render_logi);
+    mostrar_cursor();
+    getchar();
+    esconder_cursor();
+}
 
-    limpar_tela();
+static int g_acertou = 0;
+
+static void render_feedback(void) {
+    char buf[64];
     printf("\n");
-    printf("    " COR_AZUL);
-    typar("LOGI", 28);
-    printf(COR_RESET COR_CINZA);
-    typar("  Tutora de Logica e Seguranca em IA", 12);
-    printf(COR_RESET "\n\n");
+    snprintf(buf, sizeof(buf), "    LOGI - Decifra.IA  |  Desafio %d de %d\n",
+             g_idx + 1, NUM_DESAFIOS);
+    p(100,140,255, buf);
+    printf("\n");
     linha_divisoria();
     printf("\n");
-    char buf[32];
-    snprintf(buf, sizeof(buf), "    Dica para o desafio %d:\n\n", indice + 1);
-    typar(buf, 14);
-    printf("    " COR_AZUL);
-    typar(dicas[indice], 14);
-    printf(COR_RESET "\n\n");
+    if (g_acertou) {
+        snprintf(buf, sizeof(buf), "    CORRETO  +%d pontos\n\n",
+                 desafios[g_idx].nivel * 10);
+        p(80,200,120, buf);
+    } else {
+        snprintf(buf, sizeof(buf), "    INCORRETO  resposta correta: %c\n\n",
+                 desafios[g_idx].resposta_correta);
+        p(220,70,70, buf);
+    }
+    p(120,125,160, "    Explicacao:\n");
+    p(200,210,230, "    "); p(200,210,230, desafios[g_idx].explicacao); printf("\n\n");
     linha_divisoria();
-    aguardar_enter();
+    p(120,125,160, "\n    Pressione ENTER para continuar...");
 }
 
 void tela_feedback(int acertou, int indice) {
-    limpar_tela();
+    g_idx    = indice;
+    g_acertou = acertou;
+    fade_tela(render_feedback);
+    mostrar_cursor();
+    getchar();
+    esconder_cursor();
+}
+
+static void render_resultado(void) {
+    char buf[64];
     printf("\n");
-    printf("    " COR_AZUL "LOGI - Decifra.IA" COR_RESET COR_CINZA);
-    char buf[32];
-    snprintf(buf, sizeof(buf), "  |  Desafio %d de %d", indice + 1, NUM_DESAFIOS);
-    typar(buf, 10);
-    printf(COR_RESET "\n\n");
+    p(100,140,255, "    LOGI - Decifra.IA");
+    p(120,125,160, "  Resultado Final\n\n");
     linha_divisoria();
     printf("\n");
-    if (acertou) {
-        printf("    " COR_VERDE);
-        typar("CORRETO", 22);
-        printf(COR_RESET);
-        char pts[24];
-        snprintf(pts, sizeof(pts), "  +%d pontos\n\n", desafios[indice].nivel * 10);
-        typar(pts, 14);
-    } else {
-        printf("    " COR_VERMELHO);
-        typar("INCORRETO", 22);
-        printf(COR_RESET "  resposta correta: " COR_AZUL);
-        char r[4];
-        snprintf(r, sizeof(r), "%c", desafios[indice].resposta_correta);
-        typar(r, 20);
-        printf(COR_RESET "\n\n");
-    }
-    typar("    Explicacao:\n    ", 12);
-    printf(COR_CINZA);
-    typar(desafios[indice].explicacao, 12);
-    printf(COR_RESET "\n\n");
+    snprintf(buf, sizeof(buf), "    Jogador    %s\n", jogador.nome);
+    p(120,125,160, buf);
+    snprintf(buf, sizeof(buf), "    Acertos    %d de %d\n", jogador.acertos, NUM_DESAFIOS);
+    p(100,140,255, buf);
+    snprintf(buf, sizeof(buf), "    Pontos     %d\n\n", jogador.pontuacao);
+    p(100,140,255, buf);
+    if (jogador.acertos == NUM_DESAFIOS)
+        p(80,200,120, "    PERFEITO  Voce domina a logica proposicional!\n");
+    else if (jogador.acertos >= 3)
+        p(100,140,255, "    BOM  Continue praticando!\n");
+    else
+        p(120,125,160, "    INICIANTE  Nao desista, a logica leva tempo.\n");
+    printf("\n");
     linha_divisoria();
-    aguardar_enter();
+    p(120,125,160, "\n    Pressione ENTER para continuar...");
 }
 
 void tela_resultado_final(void) {
-    char buf[64];
+    fade_tela(render_resultado);
+    mostrar_cursor();
+    getchar();
+    esconder_cursor();
+}
+
+void tela_saida(void) {
+    static const char *frames[] = {
+        "\xe2\xa0\x8b", "\xe2\xa0\x99", "\xe2\xa0\xb9", "\xe2\xa0\xb8",
+        "\xe2\xa0\xbc", "\xe2\xa0\xb4", "\xe2\xa0\xa6", "\xe2\xa0\xa7",
+        "\xe2\xa0\x87", "\xe2\xa0\x8f"
+    };
+    int i;
     limpar_tela();
     printf("\n");
-    printf("    " COR_AZUL);
-    typar("LOGI - Decifra.IA", 28);
-    printf(COR_RESET COR_CINZA);
-    typar("  Resultado Final", 14);
-    printf(COR_RESET "\n\n");
-    linha_divisoria();
-    printf("\n");
-    printf("    " COR_CINZA "Jogador" COR_RESET "    ");
-    typar(jogador.nome, 14);
-    printf("\n");
-    printf("    " COR_CINZA "Acertos" COR_RESET "    " COR_AZUL);
-    snprintf(buf, sizeof(buf), "%d", jogador.acertos);
-    typar(buf, 20);
-    printf(COR_RESET " de %d\n", NUM_DESAFIOS);
-    printf("    " COR_CINZA "Pontos " COR_RESET "    " COR_AZUL);
-    snprintf(buf, sizeof(buf), "%d", jogador.pontuacao);
-    typar(buf, 20);
-    printf(COR_RESET "\n\n");
-
-    if (jogador.acertos == NUM_DESAFIOS) {
-        printf("    " COR_VERDE);
-        typar("PERFEITO", 22);
-        printf(COR_RESET "  ");
-        typar("Voce domina a logica proposicional!\n", 14);
-    } else if (jogador.acertos >= 3) {
-        printf("    " COR_AZUL);
-        typar("BOM", 22);
-        printf(COR_RESET "  ");
-        typar("Continue praticando!\n", 14);
-    } else {
-        printf("    " COR_CINZA);
-        typar("INICIANTE", 22);
-        printf(COR_RESET "  ");
-        typar("Nao desista, a logica leva tempo.\n", 14);
+    for (i = 0; i < 16; i++) {
+        set_cor(100 * (i + 1) / 16, 140 * (i + 1) / 16, 255 * (i + 1) / 16);
+        printf("\r    %s  Ate logo!", frames[i % 10]);
+        rst();
+        fflush(stdout);
+        pausa_ms(80);
     }
-
-    printf("\n");
-    linha_divisoria();
-    aguardar_enter();
+    set_cor(100, 140, 255);
+    printf("\r    ✔   Ate logo!\n\n");
+    rst();
+    fflush(stdout);
+    pausa_ms(400);
 }

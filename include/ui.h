@@ -10,5 +10,6 @@ void tela_desafio(int indice);
 void tela_painel_logi(int indice);
 void tela_feedback(int acertou, int indice);
 void tela_resultado_final(void);
+void tela_saida(void);
 
 #endif
