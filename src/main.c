@@ -1,19 +1,33 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
 #include "game.h"
 #include "ui.h"
 #include "input.h"
 
+static void restaurar_terminal(int sig) {
+    (void)sig;
+    printf("\033[?25h\033[?1049l");
+    fflush(stdout);
+    exit(0);
+}
+
 int main(void) {
     int opcao;
     int i;
+
+    signal(SIGINT,  restaurar_terminal);
+    signal(SIGTERM, restaurar_terminal);
+
+    printf("\033[?1049h\033[?25l");
+    fflush(stdout);
 
     while (1) {
         tela_menu();
         opcao = ler_opcao();
 
         if (opcao == 3) {
-            limpar_tela();
-            printf("\n    Ate logo!\n\n");
+            tela_saida();
             break;
         }
 
@@ -39,6 +53,9 @@ int main(void) {
 
         finalizar_jogo();
     }
+
+    printf("\033[?25h\033[?1049l");
+    fflush(stdout);
 
     return 0;
 }
