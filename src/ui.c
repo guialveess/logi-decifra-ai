@@ -186,22 +186,25 @@ void tela_loading(void) {
     loading_item_em(mid,     "Pronto");
     pausa_ms(180);
 
+    /* Caixa de 58 colunas: borda esq em c, borda dir em c+57.
+     * ir() posiciona a borda direita em coluna fixa — sem contar espacos. */
+    int bR = c + 57;
     set_cor(60, 90, 180);
-    ir(mid+2, c); printf("┌─ sistema ────────────────────────────────────────────────┐");
-    ir(mid+3, c); printf("│"); rst();
-    printf("  "); p(120,125,160,"Jogo    "); printf("    "); p(100,140,255,"LOGI - Decifra.IA");
-    printf("                       "); set_cor(60,90,180); printf("│"); rst();
-    ir(mid+4, c); set_cor(60,90,180); printf("│"); rst();
-    printf("  "); p(120,125,160,"Versao  "); printf("    "); p(100,140,255,"1.0  PI2");
-    printf("                                "); set_cor(60,90,180); printf("│"); rst();
-    ir(mid+5, c); set_cor(60,90,180); printf("│"); rst();
-    printf("  "); p(120,125,160,"Modo    "); printf("    "); p(100,140,255,"Logica Proposicional e Seguranca em IA");
-    printf("  "); set_cor(60,90,180); printf("│"); rst();
-    ir(mid+6, c); set_cor(60,90,180); printf("│"); rst();
-    printf("  "); p(120,125,160,"Status  "); printf("    "); p(100,140,255,"PRONTO");
-    printf("                                  "); set_cor(60,90,180); printf("│"); rst();
+    ir(mid+2, c);   printf("┌─ sistema ──────────────────────────────────────────────┐");
+    ir(mid+3, c);   set_cor(60,90,180); printf("│"); rst();
+    ir(mid+3, c+1); printf("  "); p(120,125,160,"Jogo    "); printf("    "); p(100,140,255,"LOGI - Decifra.IA");
+    ir(mid+3, bR);  set_cor(60,90,180); printf("│"); rst();
+    ir(mid+4, c);   set_cor(60,90,180); printf("│"); rst();
+    ir(mid+4, c+1); printf("  "); p(120,125,160,"Versao  "); printf("    "); p(100,140,255,"1.0  PI2");
+    ir(mid+4, bR);  set_cor(60,90,180); printf("│"); rst();
+    ir(mid+5, c);   set_cor(60,90,180); printf("│"); rst();
+    ir(mid+5, c+1); printf("  "); p(120,125,160,"Modo    "); printf("    "); p(100,140,255,"Logica Proposicional e Seguranca em IA");
+    ir(mid+5, bR);  set_cor(60,90,180); printf("│"); rst();
+    ir(mid+6, c);   set_cor(60,90,180); printf("│"); rst();
+    ir(mid+6, c+1); printf("  "); p(120,125,160,"Status  "); printf("    "); p(100,140,255,"PRONTO");
+    ir(mid+6, bR);  set_cor(60,90,180); printf("│"); rst();
     set_cor(60, 90, 180);
-    ir(mid+7, c); printf("└──────────────────────────────────────────────────────────┘");
+    ir(mid+7, c);   printf("└────────────────────────────────────────────────────────┘");
     rst(); fflush(stdout);
 
     ir(mid+9, c);
