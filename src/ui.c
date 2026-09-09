@@ -64,20 +64,16 @@ static void mostrar_cursor(void)  { printf("\033[?25h"); fflush(stdout); }
 static void esconder_cursor(void) { printf("\033[?25l"); fflush(stdout); }
 
 static void ler_enter(void) {
-#ifndef _WIN32
-    struct termios orig, raw;
     int c;
-    tcgetattr(STDIN_FILENO, &orig);
-    raw = orig;
-    raw.c_lflag &= ~(unsigned)(ECHO | ICANON);
-    raw.c_cc[VMIN] = 1;
-    raw.c_cc[VTIME] = 0;
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
-    do { c = getchar(); } while (c != '\n' && c != '\r' && c != EOF);
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig);
-#else
-    getchar();
-#endif
+    while (1) {
+        c = getchar();
+        if (c == EOF || c == '\n' || c == '\r') return;
+        if (c == '\033') {
+            c = getchar();
+            if (c == '[' || c == 'O')
+                while ((c = getchar()) != EOF && !(c >= 0x40 && c <= 0x7E));
+        }
+    }
 }
 
 static void fade_tela(void (*render)(void)) {
