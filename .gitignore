@@ -29,3 +29,7 @@ cabal.project.local
 
 # Dependencias
 node_modules/
+
+# Arquivos locais (nao commitar)
+docs/contexto-claude.md
+jogo
