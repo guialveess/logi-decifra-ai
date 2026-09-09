@@ -38,9 +38,17 @@ static void linha_divisoria(void) {
 }
 
 static void loading_item(const char *texto) {
-    printf(COR_CINZA "    ..  %s" COR_RESET, texto);
-    fflush(stdout);
-    pausa_ms(500);
+    const char *frames[] = {
+        "\xe2\xa0\x8b", "\xe2\xa0\x99", "\xe2\xa0\xb9", "\xe2\xa0\xb8",
+        "\xe2\xa0\xbc", "\xe2\xa0\xb4", "\xe2\xa0\xa6", "\xe2\xa0\xa7",
+        "\xe2\xa0\x87", "\xe2\xa0\x8f"
+    };
+    int i;
+    for (i = 0; i < 12; i++) {
+        printf("\r" COR_CINZA "    %s  %s" COR_RESET, frames[i % 10], texto);
+        fflush(stdout);
+        pausa_ms(70);
+    }
     printf("\r" COR_AZUL "    \u2714   " COR_RESET "%s\n", texto);
     fflush(stdout);
 }
@@ -96,12 +104,41 @@ void tela_loading(void) {
     printf("\n");
     pausa_ms(200);
 
-    printf("    " COR_AZUL_DIM "\u250c\u2500 sistema \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM "\u2502" COR_RESET "  " COR_CINZA "Jogo    " COR_RESET "        " COR_AZUL "LOGI - Decifra.IA" COR_RESET "               " COR_AZUL_DIM "\u2502" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM "\u2502" COR_RESET "  " COR_CINZA "Versao  " COR_RESET "        " COR_AZUL "1.0  PI2" COR_RESET "                        " COR_AZUL_DIM "\u2502" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM "\u2502" COR_RESET "  " COR_CINZA "Modo    " COR_RESET "        " COR_AZUL "Logica Proposicional e Seguranca em IA" COR_RESET "  " COR_AZUL_DIM "\u2502" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM "\u2502" COR_RESET "  " COR_CINZA "Status  " COR_RESET "        " COR_AZUL "PRONTO" COR_RESET "                          " COR_AZUL_DIM "\u2502" COR_RESET "\n");
-    printf("    " COR_AZUL_DIM "\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518" COR_RESET "\n");
+    printf("    " COR_AZUL_DIM
+           "\u250c\u2500 sistema "
+           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+           "\u2510" COR_RESET "\n");
+    printf("    " COR_AZUL_DIM "\u2502" COR_RESET
+           "  " COR_CINZA "Jogo    " COR_RESET "    "
+           COR_AZUL "LOGI - Decifra.IA" COR_RESET
+           "                       "
+           COR_AZUL_DIM "\u2502" COR_RESET "\n");
+    printf("    " COR_AZUL_DIM "\u2502" COR_RESET
+           "  " COR_CINZA "Versao  " COR_RESET "    "
+           COR_AZUL "1.0  PI2" COR_RESET
+           "                                "
+           COR_AZUL_DIM "\u2502" COR_RESET "\n");
+    printf("    " COR_AZUL_DIM "\u2502" COR_RESET
+           "  " COR_CINZA "Modo    " COR_RESET "    "
+           COR_AZUL "Logica Proposicional e Seguranca em IA" COR_RESET
+           "  "
+           COR_AZUL_DIM "\u2502" COR_RESET "\n");
+    printf("    " COR_AZUL_DIM "\u2502" COR_RESET
+           "  " COR_CINZA "Status  " COR_RESET "    "
+           COR_AZUL "PRONTO" COR_RESET
+           "                                  "
+           COR_AZUL_DIM "\u2502" COR_RESET "\n");
+    printf("    " COR_AZUL_DIM
+           "\u2514"
+           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+           "\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500"
+           "\u2500\u2500\u2500\u2500\u2500\u2500"
+           "\u2518" COR_RESET "\n");
 
     aguardar_enter();
 }
