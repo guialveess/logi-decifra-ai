@@ -19,7 +19,7 @@ int main(void) {
     signal(SIGINT,  restaurar_terminal);
     signal(SIGTERM, restaurar_terminal);
 
-    printf("\033[?1049h\033[2J\033[H\033[?25l");
+    printf("\033[?1049h\033[H\033[3J\033[2J\033[H\033[?25l");
     fflush(stdout);
 
     while (1) {

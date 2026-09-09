@@ -36,7 +36,7 @@ static void atualizar_tamanho(void) {
 }
 
 void limpar_tela(void) {
-    printf("\033[2J\033[H");
+    printf("\033[H\033[3J\033[2J\033[H");
     fflush(stdout);
 }
 
@@ -86,7 +86,7 @@ static void fade_tela(void (*render)(void)) {
     atualizar_tamanho();
     esconder_cursor();
     for (i = 0; i < n; i++) {
-        printf("\033[2J\033[H");
+        printf("\033[H\033[3J\033[2J\033[H");
         fflush(stdout);
         g_b = steps[i];
         render();
