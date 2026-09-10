@@ -67,6 +67,30 @@ Menu principal
 
 ---
 
+## Screenshots
+
+**Menu principal**
+
+![Menu principal](docs/screenshots/01-menu-principal.png)
+
+**Tela de inicialização**
+
+![Inicialização do LOGI](docs/screenshots/03-inicializacao.png)
+
+**Como Jogar**
+
+![Como Jogar](docs/screenshots/02-como-jogar.png)
+
+**Feedback de resposta correta**
+
+![Resposta correta com explicação](docs/screenshots/04-resposta-correta.png)
+
+**Tutora LOGI — dica contextual**
+
+![Tutora LOGI](docs/screenshots/05-tutora-logi.png)
+
+---
+
 ## Funcionalidades da UI
 
 - **Alternate screen buffer** — o jogo roda como uma CLI isolada, sem rolar o terminal
@@ -109,7 +133,8 @@ decifra-ai-e5/
 │   ├── ui.h        # Protótipos das telas
 │   ├── input.h     # Protótipos de leitura
 │   └── colors.h    # Constantes de cor ANSI (referência)
-├── docs/           # Documentação técnica e decisões de arquitetura
+├── docs/
+│   └── screenshots/  # Prints das telas do jogo
 ├── tests/          # Testes de unidade
 └── Makefile        # Compilação do projeto em C
 ```
