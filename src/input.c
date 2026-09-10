@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "input.h"
 
 #ifndef _WIN32
@@ -10,32 +11,64 @@ static void flush_stdin(void) { tcflush(STDIN_FILENO, TCIFLUSH); }
 static void flush_stdin(void) {}
 #endif
 
+/* Consome sequencia de escape CSI (\033[...) ou SS3 (\033O...). */
+static void consumir_escape(void) {
+    int c = getchar();
+    if (c == '[' || c == 'O')
+        while ((c = getchar()) != EOF && !(c >= 0x40 && c <= 0x7E));
+}
+
+/* Le digito 1-9 sem Enter (ICANON off). Descarta escapes de seta/scroll. */
 int ler_opcao(void) {
-    int opcao = 0;
+    int c;
     flush_stdin();
-    scanf("%d", &opcao);
-    while (getchar() != '\n');
-    return opcao;
-}
-
-char ler_resposta(void) {
-    char r;
-    flush_stdin();
-    scanf(" %c", &r);
-    while (getchar() != '\n');
-    return r;
-}
-
-void ler_nome(char *nome, int tamanho) {
-    flush_stdin();
-    fgets(nome, tamanho, stdin);
-    int len = (int)strlen(nome);
-    if (len > 0 && nome[len - 1] == '\n') {
-        nome[len - 1] = '\0';
+    while (1) {
+        c = getchar();
+        if (c == EOF) return 0;
+        if (c == '\033') { consumir_escape(); continue; }
+        if (c >= '1' && c <= '9') return c - '0';
     }
 }
 
+/* Le V, F ou H sem Enter. Descarta escapes. */
+char ler_resposta(void) {
+    int c, up;
+    flush_stdin();
+    while (1) {
+        c = getchar();
+        if (c == EOF) return 'F';
+        if (c == '\033') { consumir_escape(); continue; }
+        up = toupper((unsigned char)c);
+        if (up == 'V' || up == 'F' || up == 'H') return (char)c;
+    }
+}
+
+/* Le nome com echo manual (ECHO off globalmente). Backspace apaga. */
+void ler_nome(char *nome, int tamanho) {
+    int c, i = 0;
+    flush_stdin();
+    while (i < tamanho - 1) {
+        c = getchar();
+        if (c == EOF || c == '\n' || c == '\r') break;
+        if (c == '\033') { consumir_escape(); continue; }
+        if (c == 127 || c == '\b') {
+            if (i > 0) { i--; printf("\b \b"); fflush(stdout); }
+            continue;
+        }
+        nome[i++] = (char)c;
+        putchar(c);
+        fflush(stdout);
+    }
+    nome[i] = '\0';
+}
+
 void aguardar_enter(void) {
+    int c;
     printf("\n    Pressione ENTER para continuar...");
-    getchar();
+    fflush(stdout);
+    while (1) {
+        c = getchar();
+        if (c == EOF || c == '\n' || c == '\r') break;
+        if (c == '\033') consumir_escape();
+    }
 }
