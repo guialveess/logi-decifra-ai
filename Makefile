@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -g -Iinclude
+CFLAGS = -Wall -Wextra -std=c11 -g -Iinclude -D_POSIX_C_SOURCE=200809L
 TARGET = jogo
 SOURCES = src/main.c src/game.c src/ui.c src/input.c
 OBJECTS = $(SOURCES:.c=.o)
