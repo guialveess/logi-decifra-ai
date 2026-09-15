@@ -4,6 +4,7 @@
 #include "ui.h"
 #include "game.h"
 #include "input.h"
+#include "ai_client.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -13,10 +14,12 @@
 #include <sys/ioctl.h>
 #endif
 
-static double g_b     = 1.0;
-static int    g_idx   = 0;
+static double g_b       = 1.0;
+static int    g_idx     = 0;
 static int    g_acertou = 0;
-static int    g_rows  = 24;
+static int    g_rows    = 24;
+static char   g_dica_ai[AI_RESP_MAX] = "";
+static int    g_tem_ai  = 0;
 
 static void pausa_ms(int ms) {
 #ifdef _WIN32
@@ -282,14 +285,29 @@ static void render_logi(void) {
     ir(r+2,  c); linha_div();
     snprintf(buf, sizeof(buf), "Dica para o desafio %d:", g_idx + 1);
     ir(r+4,  c); p(120,125,160, buf);
-    ir(r+6,  c); p(100,140,255, dicas_l1[g_idx]);
-    ir(r+7,  c); p(100,140,255, dicas_l2[g_idx]);
+    if (g_tem_ai) {
+        ir(r+6, c); p(100,140,255, g_dica_ai);
+    } else {
+        ir(r+6, c); p(100,140,255, dicas_l1[g_idx]);
+        ir(r+7, c); p(100,140,255, dicas_l2[g_idx]);
+    }
     ir(r+9,  c); linha_div();
     ir(r+10, c); p(120,125,160, "Pressione ENTER para continuar...");
 }
 
 void tela_painel_logi(int indice) {
-    g_idx = indice;
+    g_idx  = indice;
+    g_tem_ai = 0;
+    g_dica_ai[0] = '\0';
+
+    ir(g_rows / 2, 5);
+    p(100,140,255, "LOGI");
+    p(120,125,160, "   consultando...");
+    fflush(stdout);
+
+    if (ai_consultar(desafios[indice].enunciado, g_dica_ai, sizeof(g_dica_ai)) == 0)
+        g_tem_ai = 1;
+
     fade_tela(render_logi);
     mostrar_cursor();
     ler_enter();
