@@ -30,6 +30,11 @@ cabal.project.local
 # Dependencias
 node_modules/
 
+# Ambiente Python
+.venv/
+__pycache__/
+*.pyc
+
 # Arquivos locais (nao commitar)
 docs/contexto-claude.md
 jogo
