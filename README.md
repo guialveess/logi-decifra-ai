@@ -213,7 +213,7 @@ https://docs.google.com/document/d/14-Qs1IytAIkQkP5Q3xof79yqZfvHkl9T4z30iwl_f30/
 <details>
   <summary>Clique para visualizar o Diagrama HU1</summary>
   
-  ![Diagrama HU1](./docs/diagrams/HU1.png)
+  ![Diagrama HU1](./docs/diagrams/diagramahu1_.png)
 </details>
 
 ### HU2 - Conectivos Binários no Nível 1
