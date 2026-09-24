@@ -220,63 +220,63 @@ https://docs.google.com/document/d/14-Qs1IytAIkQkP5Q3xof79yqZfvHkl9T4z30iwl_f30/
 <details>
   <summary>Clique para visualizar o Diagrama HU2</summary>
   
-  ![Diagrama HU2](./docs/diagrams/HU2.png)
+  ![Diagrama HU2](./docs/diagrams/DIAGRAMAHU2.png)
 </details>
 
 ### HU3 - Fórmulas com Implicação e Bicondicional
 <details>
   <summary>Clique para visualizar o Diagrama HU3</summary>
   
-  ![Diagrama HU3](./docs/diagrams/HU3.png)
+  ![Diagrama HU3](./docs/diagrams/DIAGRAMAHU3.png)
 </details>
 
 ### HU4 - Feedback e Explicações Lógicas
 <details>
   <summary>Clique para visualizar o Diagrama HU4</summary>
   
-  ![Diagrama HU4](./docs/diagrams/HU4.png)
+  ![Diagrama HU4](./docs/diagrams/DIAGRAMAHU4.png)
 </details>
 
 ### HU5 - Regras de Progressão de Nível
 <details>
   <summary>Clique para visualizar o Diagrama HU5</summary>
   
-  ![Diagrama HU5](./docs/diagrams/HU5.png)
+  ![Diagrama HU5](./docs/diagrams/DIAGRAMAHU5.png)
 </details>
 
 ### HU6 - Notação Padronizada dos Operadores
 <details>
   <summary>Clique para visualizar o Diagrama HU6</summary>
   
-  ![Diagrama HU6](./docs/diagrams/HU6.png)
+  ![Diagrama HU6](./docs/diagrams/DIAGRAMAHU6.png)
 </details>
 
 ### HU7 - Precedência Lógica nos Enunciados
 <details>
   <summary>Clique para visualizar o Diagrama HU7</summary>
   
-  ![Diagrama HU7](./docs/diagrams/HU7.png)
+  ![Diagrama HU7](./docs/diagrams/DIAGRAMAHU7_.png)
 </details>
 
 ### HU8 - Sistema de Ajuda Contextual (Tutora LOGI)
 <details>
   <summary>Clique para visualizar o Diagrama HU8</summary>
   
-  ![Diagrama HU8](./docs/diagrams/HU8.png)
+  ![Diagrama HU8](./docs/diagrams/DIAGRAMAHU8.png)
 </details>
 
 ### HU9 - Exemplos Didáticos de Escopo
 <details>
   <summary>Clique para visualizar o Diagrama HU9</summary>
   
-  ![Diagrama HU9](./docs/diagrams/HU9.png)
+  ![Diagrama HU9](./docs/diagrams/DIAGRAMAHU9.png)
 </details>
 
 ### HU10 - Cobertura de Combinações (2^n)
 <details>
   <summary>Clique para visualizar o Diagrama HU10</summary>
   
-  ![Diagrama HU10](./docs/diagrams/HU10.png)
+  ![Diagrama HU10](./docs/diagrams/DIAGRAMAHU10.png)
 </details>
 
 ---
