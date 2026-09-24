@@ -281,6 +281,10 @@ https://docs.google.com/document/d/14-Qs1IytAIkQkP5Q3xof79yqZfvHkl9T4z30iwl_f30/
 
 ---
 
+## Screencast
+
+https://youtu.be/IIYWuKim7L0
+
 ### Protótipos e Telas do Jogo (Screenshots)
 *(Como você já tem a pasta `screenshots`, pode adicionar os prints aqui também)*
 
