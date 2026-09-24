@@ -207,6 +207,91 @@ make clean    # Limpa arquivos compilados
 
 https://docs.google.com/document/d/14-Qs1IytAIkQkP5Q3xof79yqZfvHkl9T4z30iwl_f30/edit?tab=t.0
 
+### Diagramas de Fluxo (HU1 a HU10)
+
+### HU1 - Proposições Compostas com o operador AND
+<details>
+  <summary>Clique para visualizar o Diagrama HU1</summary>
+  
+  ![Diagrama HU1](./docs/diagrams/HU1.png)
+</details>
+
+### HU2 - Conectivos Binários no Nível 1
+<details>
+  <summary>Clique para visualizar o Diagrama HU2</summary>
+  
+  ![Diagrama HU2](./docs/diagrams/HU2.png)
+</details>
+
+### HU3 - Fórmulas com Implicação e Bicondicional
+<details>
+  <summary>Clique para visualizar o Diagrama HU3</summary>
+  
+  ![Diagrama HU3](./docs/diagrams/HU3.png)
+</details>
+
+### HU4 - Feedback e Explicações Lógicas
+<details>
+  <summary>Clique para visualizar o Diagrama HU4</summary>
+  
+  ![Diagrama HU4](./docs/diagrams/HU4.png)
+</details>
+
+### HU5 - Regras de Progressão de Nível
+<details>
+  <summary>Clique para visualizar o Diagrama HU5</summary>
+  
+  ![Diagrama HU5](./docs/diagrams/HU5.png)
+</details>
+
+### HU6 - Notação Padronizada dos Operadores
+<details>
+  <summary>Clique para visualizar o Diagrama HU6</summary>
+  
+  ![Diagrama HU6](./docs/diagrams/HU6.png)
+</details>
+
+### HU7 - Precedência Lógica nos Enunciados
+<details>
+  <summary>Clique para visualizar o Diagrama HU7</summary>
+  
+  ![Diagrama HU7](./docs/diagrams/HU7.png)
+</details>
+
+### HU8 - Sistema de Ajuda Contextual (Tutora LOGI)
+<details>
+  <summary>Clique para visualizar o Diagrama HU8</summary>
+  
+  ![Diagrama HU8](./docs/diagrams/HU8.png)
+</details>
+
+### HU9 - Exemplos Didáticos de Escopo
+<details>
+  <summary>Clique para visualizar o Diagrama HU9</summary>
+  
+  ![Diagrama HU9](./docs/diagrams/HU9.png)
+</details>
+
+### HU10 - Cobertura de Combinações (2^n)
+<details>
+  <summary>Clique para visualizar o Diagrama HU10</summary>
+  
+  ![Diagrama HU10](./docs/diagrams/HU10.png)
+</details>
+
+---
+
+### Protótipos e Telas do Jogo (Screenshots)
+*(Como você já tem a pasta `screenshots`, pode adicionar os prints aqui também)*
+
+| Tela | Descrição | Link |
+| :--- | :--- | :--- |
+| **01** | Menu Principal | [Ver Print](./docs/screenshots/01-menu-principal.png) |
+| **02** | Como Jogar | [Ver Print](./docs/screenshots/02-como-jogar.png) |
+| **03** | Inicialização | [Ver Print](./docs/screenshots/03-inicializacao.png) |
+| **04** | Resposta Correta | [Ver Print](./docs/screenshots/04-resposta-correta.png) |
+| **05** | Tutora LOGI | [Ver Print](./docs/screenshots/05-tutora-logi.png) |
+
 ## Backlog
 
 <img width="1920" height="968" alt="Captura de Tela (262)" src="https://github.com/user-attachments/assets/bafc4976-c9a4-4516-8d1f-60b9643f258e" />
