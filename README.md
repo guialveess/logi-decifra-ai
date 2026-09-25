@@ -185,7 +185,7 @@ make clean    # Limpa arquivos compilados
 - [x] Animações fade-in simultâneo com ANSI true-color
 - [x] Spinner braille e alternate screen buffer
 - [x] Posicionamento absoluto de cursor (sem scroll em nenhuma tela)
-- [x] Integração com modelo LOGI (bridge C → Python + LoRA Qwen2.5-3B)
+- [🔄] Integração com modelo LOGI (bridge C → Python + LoRA Qwen2.5-3B) — em andamento: modelo fine-tunado e funcional para os desafios atuais; treinamento contínuo com novos cenários e expansão do dataset em progresso
 - [ ] Motor de lógica proposicional em Haskell (Unidade 2)
 - [ ] Banco de questões expandido com geração via IA
 - [ ] Modo narrativo com falas contextuais da LOGI
