@@ -283,14 +283,20 @@ https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/
 <details>
   <summary>Clique para visualizar o Diagrama HU10</summary>
   
-  ![Diagrama HU10](./docs/diagrams/diagramahu11.png)
+  ![Diagrama HU11](./docs/diagrams/diagramahu11.png)
+</details>
+
+### HU12 - Nível Avançado com Parênteses
+<details>
+  <summary>Clique para visualizar o Diagrama HU10</summary>
+  
+  ![Diagrama HU12](./docs/diagrams/diagramahu12_.png)
 </details>
 
 ---
 
 ## Screencast
-
-https://youtu.be/IIYWuKim7L0
+https://youtu.be/Iltjfxjm8z0 
 
 ### Protótipos e Telas do Jogo (Screenshots)
 *(Como você já tem a pasta `screenshots`, pode adicionar os prints aqui também)*
