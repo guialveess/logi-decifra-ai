@@ -207,7 +207,7 @@ make clean    # Limpa arquivos compilados
 
 https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/edit?usp=sharing
 
-### Diagramas de Fluxo (HU1 a HU10)
+### Diagramas de Fluxo (HU1 a HU12)
 
 ### HU1 - Proposições Compostas com o operador AND
 <details>
@@ -281,14 +281,14 @@ https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/
 
 ### HU11 - Modo Contra-Tempo
 <details>
-  <summary>Clique para visualizar o Diagrama HU10</summary>
+  <summary>Clique para visualizar o Diagrama HU11</summary>
   
   ![Diagrama HU11](./docs/diagrams/diagramahu11.png)
 </details>
 
 ### HU12 - Nível Avançado com Parênteses
 <details>
-  <summary>Clique para visualizar o Diagrama HU10</summary>
+  <summary>Clique para visualizar o Diagrama HU12</summary>
   
   ![Diagrama HU12](./docs/diagrams/diagramahu12_.png)
 </details>
@@ -296,7 +296,10 @@ https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/
 ---
 
 ## Screencast
-https://youtu.be/Iltjfxjm8z0 
+https://youtu.be/Iltjfxjm8z0
+
+## Storyboard(figma)
+https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes-IHC?node-id=45-103&t=IGlyCabXOWPoepC9-1
 
 ### Protótipos e Telas do Jogo (Screenshots)
 *(Como você já tem a pasta `screenshots`, pode adicionar os prints aqui também)*
