@@ -52,17 +52,23 @@ O jogo aborda de forma narrativa temas como:
 ## Fluxo do jogo
 
 ```
-Menu principal
-  ├─ Jogar
-  │     └─ Loading (LOGI inicializa)
-  │           └─ Informe seu nome
-  │                 └─ Desafio 1 → [V/F] ou [H] pedir dica ao LOGI
-  │                 └─ Feedback (acerto/erro + explicação)
-  │                 └─ Desafio 2 ... Desafio 5
-  │                 └─ Resultado final (pontuação + classificação)
-  │                 └─ Volta ao menu
-  ├─ Como Jogar (regras e operadores)
-  └─ Sair (animação "Até logo!")
+Menu principal (6 opções)
+  ├─ 1. Jogar (nível básico)
+  │     └─ Loading → Informe seu nome
+  │           └─ Desafios 1-5 (AND/OR/NOT/IMPLICA/BICONDICIONAL, 2 variáveis)
+  │                 └─ [V/F] resposta  |  [H] pedir dica à LOGI
+  │                 └─ Feedback: acerto/erro + explicação + pontuação
+  │           └─ Resultado final
+  ├─ 2. Como Jogar (regras e operadores)
+  ├─ 3. Exemplos de Escopo (casos didáticos)
+  ├─ 4. Nível Avançado
+  │     └─ Desafios 6-10 (expressões compostas, 3 variáveis, parênteses)
+  │           └─ Mesmo fluxo V/F/H do nível básico
+  ├─ 5. Contra-Tempo
+  │     └─ Timer de 20s por desafio
+  │           └─ Bônus +50% se responder em até 10s, +25% em até 15s
+  │           └─ Sem bônus se usou dica da LOGI
+  └─ 6. Sair (animação "Até logo!")
 ```
 
 ---
@@ -124,19 +130,28 @@ Menu principal
 ```
 decifra-ai-e5/
 ├── src/
-│   ├── main.c      # Ponto de entrada, loop principal, sinais
-│   ├── game.c      # Lógica do jogo, desafios mockados, pontuação
-│   ├── ui.c        # Todas as telas, animações, fade-in, paleta de cores
-│   └── input.c     # Leitura de opção, nome e resposta V/F
+│   ├── main.c         # Ponto de entrada, loop principal, sinais SIGINT/SIGTERM
+│   ├── game.c         # Parser recursivo, geração dinâmica de desafios, modos básico/avançado/contra-tempo
+│   ├── ui.c           # Todas as telas, animações fade-in, paleta de cores ANSI
+│   ├── input.c        # Leitura de opção, nome, resposta V/F e timer
+│   └── ai_client.c    # Bridge C → Python: consulta ao modelo LOGI via popen
 ├── include/
-│   ├── game.h      # Structs Desafio e Jogador, constantes, protótipos
-│   ├── ui.h        # Protótipos das telas
-│   ├── input.h     # Protótipos de leitura
-│   └── colors.h    # Constantes de cor ANSI (referência)
+│   ├── game.h         # Structs Desafio e Jogador, constantes NUM_DESAFIOS, TIMER_SEGUNDOS, BONUS_*
+│   ├── ui.h           # Protótipos das telas
+│   ├── input.h        # Protótipos de leitura
+│   ├── ai_client.h    # Protótipo ai_consultar()
+│   └── colors.h       # Constantes de cor ANSI
 ├── docs/
-│   └── screenshots/  # Prints das telas do jogo
-├── tests/          # Testes de unidade
-└── Makefile        # Compilação do projeto em C
+│   ├── relatorio-tecnico.md        # Arquitetura do sistema e integração LOGI
+│   ├── casos_testes_logicos.md     # Casos de teste lógico por nível (LMC)
+│   ├── plano_de_testes.md          # Plano de testes unitários
+│   ├── tabelas-verdade.md          # Tabelas-verdade dos operadores
+│   ├── fundamentos_logica_proposicional.md
+│   ├── proposicoes-logicas.md
+│   ├── screenshots/                # Prints das telas do jogo
+│   └── diagrams/                   # Diagramas de fluxo HU1–HU12
+├── tests/                          # Testes de unidade (assert)
+└── Makefile                        # Compilação com gcc -Wall -Wextra -std=c11
 ```
 
 ---
@@ -181,15 +196,48 @@ make clean    # Limpa arquivos compilados
 
 ## Roadmap
 
-- [x] Telas mockadas com navegação completa (UI Unidade 1)
-- [x] Animações fade-in simultâneo com ANSI true-color
-- [x] Spinner braille e alternate screen buffer
-- [x] Posicionamento absoluto de cursor (sem scroll em nenhuma tela)
-- [x] Integração com modelo LOGI (bridge C → Python + GGUF via llama-cpp-python) — modelo v5 treinado com 13.000 exemplos (QLoRA, Qwen2.5-1.5B-Instruct, rank 32) · [ver modelo no HuggingFace](https://huggingface.co/guiiwfz/logi-1.5b-gguf)
-- [ ] Motor de lógica proposicional em Haskell (Unidade 2)
-- [ ] Banco de questões expandido com geração via IA
-- [ ] Modo narrativo com falas contextuais da LOGI
-- [ ] Histórico de partidas e evolução do jogador
+### Unidade 1 — concluído
+
+- [x] Telas com navegação completa e alternate screen buffer
+- [x] Animações fade-in simultâneo com ANSI true-color e spinner braille
+- [x] Parser recursivo de descida para expressões lógicas (`eval_expr` / `eval_or` / `eval_and` / `eval_not` / `eval_impl` — `src/game.c`)
+- [x] Geração dinâmica de desafios via RNG (`/dev/urandom`) com cobertura de 2^n combinações (HU10)
+- [x] Banco de 10 desafios cobrindo AND, OR, NOT, IMPLICA, BICONDICIONAL e expressões com 3 variáveis (HU1–HU6)
+- [x] Nível Avançado com expressões compostas e parênteses (opção 4 do menu, HU12)
+- [x] Modo Contra-Tempo com bônus de velocidade e timer de 20s (opção 5 do menu, HU11)
+- [x] Dica contextual inline da LOGI ao pressionar H (HU8)
+- [x] Integração com modelo LOGI via bridge C → Python + GGUF (llama-cpp-python) — modelo v5 treinado com 13.000 exemplos (QLoRA, Qwen2.5-1.5B-Instruct, rank 32) · [ver modelo no HuggingFace](https://huggingface.co/guiiwfz/logi-1.5b-gguf)
+- [x] Persistência local do highscore em `~/.decifra_score` (Unidade 2, sprint 12)
+
+### Unidade 2 — em andamento
+
+- [ ] Motor de lógica proposicional em Haskell
+- [ ] Modo narrativo com falas contextuais da LOGI entre desafios
+- [ ] Tela de ranking com top-5 histórico
+
+---
+
+## Integração LOGI — Decisão de plataforma
+
+O modelo LOGI é um fine-tune QLoRA sobre Qwen2.5-1.5B-Instruct, treinado com 13.000 exemplos de lógica proposicional. Foi testado em duas plataformas de deploy durante o SPIKE (PI2-125):
+
+| Plataforma | Latência média | Custo | Status |
+|---|---|---|---|
+| **HuggingFace Spaces** (llama-cpp-python + GGUF v5) | ~2–4 s/req | gratuito (tier free) | Testado — PI2-150 |
+| **Local** (llama-cpp-python direto) | ~1–3 s/req | zero | Opção de fallback |
+| Modal | — | pago por requisição | Descartado para U2 |
+
+**Decisão:** o jogo usa o modelo localmente via `llama-cpp-python` + bridge `popen` em `src/ai_client.c`. O deploy no HuggingFace Spaces serve como fallback para ambientes sem GPU. O Modal foi descartado para esta unidade por exigir faturamento e não adicionar benefício técnico sobre o deploy local.
+
+Para rodar com LOGI ativo, instale as dependências Python e exporte o caminho do modelo:
+
+```bash
+pip install llama-cpp-python
+export LOGI_MODEL_PATH=/caminho/para/logi-1.5b-v5.gguf
+make run
+```
+
+Sem `LOGI_MODEL_PATH`, o jogo roda normalmente mas a dica da LOGI exibe a explicação estática do campo `explicacao[]` do struct `Desafio`.
 
 ---
 
