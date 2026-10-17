@@ -21,6 +21,7 @@ static double g_b       = 1.0;
 static int    g_idx     = 0;
 static int    g_acertou = 0;
 static int    g_rows    = 24;
+static int    g_cols    = 80;
 static char   g_dica_ai[AI_RESP_MAX] = "";
 static int    g_tem_ai  = 0;
 static int g_timer_row = 0;
@@ -41,8 +42,10 @@ static void pausa_ms(int ms) {
 static void atualizar_tamanho(void) {
 #ifndef _WIN32
     struct winsize ws;
-    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_row > 4)
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_row > 4) {
         g_rows = ws.ws_row;
+        if (ws.ws_col > 20) g_cols = ws.ws_col;
+    }
 #endif
 }
 
@@ -65,6 +68,39 @@ static void linha_div(void) {
     set_cor(60, 90, 180);
     printf("────────────────────────────────────────────────");
     rst();
+}
+
+/* Imprime `texto` com quebra de palavra a partir da linha `row_ini`.
+   Retorna o numero de linhas impressas. */
+static int p_wrap(int cr, int cg, int cb,
+                  const char *texto, int row_ini, int col, int largura) {
+    int linhas = 0;
+    const char *cur = texto;
+    while (*cur) {
+        while (*cur == ' ') cur++;
+        if (!*cur) break;
+        const char *fim = cur;
+        const char *ult_sp = NULL;
+        int len = 0;
+        while (*fim && len < largura) {
+            if (*fim == ' ') ult_sp = fim;
+            fim++; len++;
+        }
+        if (*fim && ult_sp) fim = ult_sp;
+        int n = (int)(fim - cur);
+        if (n <= 0) break;
+        char buf[512];
+        if (n >= (int)sizeof(buf)) n = (int)sizeof(buf) - 1;
+        memcpy(buf, cur, n);
+        buf[n] = '\0';
+        ir(row_ini + linhas, col);
+        set_cor(cr, cg, cb);
+        printf("%s", buf);
+        rst();
+        linhas++;
+        cur = fim;
+    }
+    return linhas ? linhas : 1;
 }
 
 static void mostrar_cursor(void)  { printf("\033[?25h"); fflush(stdout); }
@@ -411,6 +447,7 @@ static void render_desafio(void) {
     ir(r+9,  c); p(100,140,255, "[V]"); p(200,210,230, " Verdadeiro");
                  p(100,140,255, "     [F]"); p(200,210,230, " Falso");
                  p(100,140,255, "     [H]"); p(200,210,230, " Pedir ajuda ao LOGI");
+                 p(100,140,255, "     [Q]"); p(200,210,230, " Sair");
     ir(r+11, c); p(120,125,160, "resposta: ");
 }
 
@@ -431,6 +468,7 @@ static void render_desafio_avancado(void) {
     ir(r+11, c); p(100,140,255, "[V]"); p(200,210,230, " Verdadeiro");
                  p(100,140,255, "     [F]"); p(200,210,230, " Falso");
                  p(100,140,255, "     [H]"); p(200,210,230, " Pedir ajuda ao LOGI");
+                 p(100,140,255, "     [Q]"); p(200,210,230, " Sair");
     ir(r+13, c); p(120,125,160, "resposta: ");
 }
 
@@ -488,6 +526,7 @@ static void render_desafio_contra_tempo(void) {
     ir(r+11, c); p(100,140,255, "[V]"); p(200,210,230, " Verdadeiro");
                  p(100,140,255, "    [F]"); p(200,210,230, " Falso");
                  p(100,140,255, "    [H]"); p(200,210,230, " Ajuda (pausa timer)");
+                 p(100,140,255, "    [Q]"); p(200,210,230, " Sair");
 
     /* Linha de input — isolada, com cursor posicionado */
     g_input_row = r + 13;
@@ -597,20 +636,24 @@ static void render_logi(void) {
     int r = (g_rows - 11) / 2;
     int c = 5;
     if (r < 1) r = 1;
+    int largura = g_cols - c - 4;
+    if (largura < 20) largura = 20;
     ir(r,    c); p(100,140,255, "LOGI");
                  p(120,125,160, "  Tutora de Logica e Seguranca em IA");
     ir(r+2,  c); linha_div();
     snprintf(buf, sizeof(buf), "Dica para o desafio %d:",
              g_idx + 1 - offset_do_nivel(desafios[g_idx].nivel));
     ir(r+4,  c); p(120,125,160, buf);
+    int linhas;
     if (g_tem_ai) {
-        ir(r+6, c); p(100,140,255, g_dica_ai);
+        linhas = p_wrap(100,140,255, g_dica_ai, r+6, c, largura);
     } else {
-        ir(r+6, c); p(100,140,255, dicas_l1[g_idx]);
-        ir(r+7, c); p(100,140,255, dicas_l2[g_idx]);
+        linhas  = p_wrap(100,140,255, dicas_l1[g_idx], r+6, c, largura);
+        linhas += p_wrap(100,140,255, dicas_l2[g_idx], r+6+linhas, c, largura);
     }
-    ir(r+9,  c); linha_div();
-    ir(r+10, c); p(120,125,160, "Pressione ENTER para continuar...");
+    int rodape = r + 6 + linhas + 1;
+    ir(rodape,   c); linha_div();
+    ir(rodape+1, c); p(120,125,160, "Pressione ENTER para continuar...");
 }
 
 void tela_painel_logi(int indice) {
