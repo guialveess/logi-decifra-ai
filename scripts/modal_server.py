@@ -44,13 +44,12 @@ SYSTEM_PROMPT = (
 
 image = (
     modal.Image.debian_slim(python_version="3.11")
-    .pip_install("llama-cpp-python", "huggingface_hub")
+    .pip_install("llama-cpp-python", "huggingface_hub", "fastapi[standard]")
     .run_commands(
         "python -c \""
         "from huggingface_hub import hf_hub_download; "
-        "import glob; "
         "hf_hub_download(repo_id='guiiwfz/logi-1.5b-gguf', "
-        "filename='logi-1.5b-v5-Q4_K_M.gguf', "
+        "filename='qwen2.5-1.5b-instruct.Q4_K_M.gguf', "
         "local_dir='/model')"
         "\""
     )
@@ -63,8 +62,8 @@ app = modal.App(APP_NAME, image=image)
     cpu=4,
     memory=4096,
     timeout=120,
-    allow_concurrent_inputs=4,
 )
+@modal.concurrent(max_inputs=4)
 class LoGI:
     @modal.enter()
     def carregar(self):
@@ -95,7 +94,7 @@ class LoGI:
         resposta = resultado["choices"][0]["message"]["content"]
         return {"resposta": resposta, "latencia_ms": latencia_ms}
 
-    @modal.web_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST")
     def ask(self, body: dict) -> dict:
         pergunta = body.get("pergunta", "")
         if not pergunta:
