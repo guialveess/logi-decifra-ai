@@ -218,12 +218,15 @@ static void rodar_desafio(int indice) {
     tela_desafio(indice);
     resposta = ler_resposta();
 
+    if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
+
     /* Jogador pediu ajuda: exibe dica da LOGI e aguarda nova resposta */
     if (resposta == 'H' || resposta == 'h') {
         tela_painel_logi(indice);
         tela_desafio(indice);
         resposta = ler_resposta();
         jogador.usou_ajuda[indice] = 1;
+        if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
     }
 
     acertou = (toupper((unsigned char)resposta) ==
@@ -233,7 +236,7 @@ static void rodar_desafio(int indice) {
 
     if (acertou) {
         jogador.acertos++;
-        jogador.pontuacao += desafios[indice].nivel * 10; /* pontos = nível × 10 */
+        jogador.pontuacao += desafios[indice].nivel * 10;
     }
     tela_feedback(acertou, indice);
 }
@@ -267,6 +270,8 @@ static void rodar_desafio_contra_tempo(int indice) {
     tela_desafio_contra_tempo(indice, segs_restantes);
     resposta = ler_resposta_contra_tempo(segs_restantes, &usados);
 
+    if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
+
     if (resposta == 'H' || resposta == 'h') {
         jogador.usou_ajuda[indice] = 1;
         tela_painel_logi(indice);
@@ -277,6 +282,7 @@ static void rodar_desafio_contra_tempo(int indice) {
             tela_desafio_contra_tempo(indice, segs_restantes);
             resposta = ler_resposta_contra_tempo(segs_restantes, &usados);
             usados += (TIMER_SEGUNDOS - segs_restantes);
+            if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
         }
     }
 
