@@ -44,7 +44,11 @@ SYSTEM_PROMPT = (
 
 image = (
     modal.Image.debian_slim(python_version="3.11")
-    .pip_install("llama-cpp-python", "huggingface_hub", "fastapi[standard]")
+    .pip_install("huggingface_hub", "fastapi[standard]", "pydantic")
+    .pip_install(
+        "llama-cpp-python",
+        extra_index_url="https://abetlen.github.io/llama-cpp-python/whl/cu121",
+    )
     .run_commands(
         "python -c \""
         "from huggingface_hub import hf_hub_download; "
@@ -59,8 +63,9 @@ app = modal.App(APP_NAME, image=image)
 
 
 @app.cls(
-    cpu=4,
+    cpu=2,
     memory=4096,
+    gpu="t4",
     timeout=120,
 )
 @modal.concurrent(max_inputs=4)
@@ -75,7 +80,7 @@ class LoGI:
         self.llm = Llama(
             model_path=arquivos[0],
             n_ctx=1024,
-            n_gpu_layers=0,
+            n_gpu_layers=-1,
             verbose=False,
         )
 
