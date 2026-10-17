@@ -17,9 +17,13 @@ e retorna { "resposta": "...", "latencia_ms": ... }
 """
 
 import time
-import json
 
 import modal
+from pydantic import BaseModel
+
+
+class Pergunta(BaseModel):
+    pergunta: str
 
 MODEL_REPO = "guiiwfz/logi-1.5b-gguf"
 MODEL_FILE = "*Q4_K_M.gguf"
@@ -44,7 +48,7 @@ SYSTEM_PROMPT = (
 
 image = (
     modal.Image.debian_slim(python_version="3.11")
-    .pip_install("llama-cpp-python", "huggingface_hub", "fastapi[standard]")
+    .pip_install("llama-cpp-python", "huggingface_hub", "fastapi[standard]", "pydantic")
     .run_commands(
         "python -c \""
         "from huggingface_hub import hf_hub_download; "
@@ -79,8 +83,7 @@ class LoGI:
             verbose=False,
         )
 
-    @modal.method()
-    def gerar(self, pergunta: str) -> dict:
+    def _inferir(self, pergunta: str) -> dict:
         t0 = time.time()
         resultado = self.llm.create_chat_completion(
             messages=[
@@ -94,12 +97,13 @@ class LoGI:
         resposta = resultado["choices"][0]["message"]["content"]
         return {"resposta": resposta, "latencia_ms": latencia_ms}
 
+    @modal.method()
+    def gerar(self, pergunta: str) -> dict:
+        return self._inferir(pergunta)
+
     @modal.fastapi_endpoint(method="POST")
-    def ask(self, body: dict) -> dict:
-        pergunta = body.get("pergunta", "")
-        if not pergunta:
-            return {"erro": "campo 'pergunta' obrigatorio"}
-        return self.gerar(pergunta)
+    def ask(self, body: Pergunta) -> dict:
+        return self._inferir(body.pergunta)
 
 
 # Entrypoint para testes locais com `modal run scripts/modal_server.py`
