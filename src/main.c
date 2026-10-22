@@ -54,20 +54,23 @@ int main(void) {
     configurar_terminal();
 
     /* Loop principal: exibe menu e processa a opção escolhida pelo jogador */
+    
+
     while (1) {
         tela_menu();
         opcao = ler_opcao();
 
-        if (opcao == 6) { tela_saida(); break; }
+        if (opcao == 7) { tela_saida(); break; }
+        if (opcao == 6) { executar_loja(); continue; } // NOVO: Loja
 
-        if (opcao == 5) {                          
+        if (opcao == 5) {
             tela_nome();
             ler_nome(jogador.nome, NOME_MAX);
             executar_nivel_contra_tempo();
             continue;
         }
 
-        if (opcao == 4) {                          /* Nível Avançado */
+        if (opcao == 4) {
             tela_nome();
             ler_nome(jogador.nome, NOME_MAX);
             executar_nivel_avancado();
@@ -81,11 +84,22 @@ int main(void) {
         tela_loading();
         tela_nome();
         ler_nome(jogador.nome, NOME_MAX);
+        
+        // Preserva itens comprados na loja
+        int moedas_antigas = jogador.moedas;
+        int dicas_antigas = jogador.dicas_gratis;
+
         inicializar_jogo();
+        
+        jogador.moedas = moedas_antigas;
+        jogador.dicas_gratis = dicas_antigas;
+
         for (i = 0; i < NUM_DESAFIOS_BASE; i++)
             executar_desafio(i);
         finalizar_jogo(NUM_DESAFIOS_BASE);
     }
+
+
 
     /* Restaura terminal e alternate screen ao encerrar normalmente */
     restaurar_termios();

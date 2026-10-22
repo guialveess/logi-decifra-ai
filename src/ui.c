@@ -23,10 +23,19 @@ static int    g_acertou = 0;
 static int    g_rows    = 24;
 static char   g_dica_ai[AI_RESP_MAX] = "";
 static int    g_tem_ai  = 0;
+
+/* Variáveis do Contra-Tempo */
 static int g_timer_row = 0;
 static int g_timer_col = 5;
 static int g_input_row = 0;
 static int g_input_col = 15;
+
+/* Variáveis de Feedback e Resultado */
+static int g_ft_acertou = 0;
+static int g_ft_usados  = 0;
+static int g_ft_timeout = 0;
+static int g_ft_ajuda   = 0;
+static int g_total_rodada = 0;
 
 /* ═══════════════ Utilitários ═══════════════ */
 
@@ -63,7 +72,7 @@ static void ir(int r, int c) { printf("\033[%d;%dH", r, c); }
 
 static void linha_div(void) {
     set_cor(60, 90, 180);
-    printf("────────────────────────────────────────────────");
+    printf("────────────────────────────────────────────────────────");
     rst();
 }
 
@@ -138,10 +147,10 @@ static int offset_do_nivel(int nivel) {
     return (nivel == NIVEL_AVANCADO) ? NUM_DESAFIOS_BASE : 0;
 }
 
-/* ═══════════════ MENU (6 opções) ═══════════════ */
+/* ═══════════════ MENU (7 opções) ═══════════════ */
 
 static void render_menu(void) {
-    int r = (g_rows - 13) / 2;
+    int r = (g_rows - 14) / 2;
     int c = 5;
     if (r < 1) r = 1;
     ir(r,    c); p(100,140,255, "LOGI - Decifra.IA");
@@ -152,9 +161,10 @@ static void render_menu(void) {
     ir(r+6,  c); p(100,140,255, "3"); p(200,210,230, "   Exemplos de Escopo");
     ir(r+7,  c); p(255,180, 60, "4"); p(200,210,230, "   Nivel Avancado (Parenteses)");
     ir(r+8,  c); p(255,120, 60, "5"); p(200,210,230, "   Contra-Tempo (Avancado)");
-    ir(r+9,  c); p(100,140,255, "6"); p(200,210,230, "   Sair");
-    ir(r+11, c); linha_div();
-    ir(r+13, c); p(120,125,160, "opcao: ");
+    ir(r+9,  c); p(150,255,150, "6"); p(200,210,230, "   Loja de Itens e Lootbox");
+    ir(r+10, c); p(100,140,255, "7"); p(200,210,230, "   Sair");
+    ir(r+12, c); linha_div();
+    ir(r+14, c); p(120,125,160, "opcao: ");
 }
 
 void tela_menu(void) { fade_tela(render_menu); }
@@ -162,33 +172,31 @@ void tela_menu(void) { fade_tela(render_menu); }
 /* ═══════════════ COMO JOGAR ═══════════════ */
 
 static void render_como_jogar(void) {
-    int r = (g_rows - 20) / 2;
+    int r = (g_rows - 21) / 2;
     int c = 5;
     if (r < 1) r = 1;
     ir(r,    c); p(100,140,255, "Como Jogar");
     ir(r+1,  c); linha_div();
-    ir(r+3,  c); p(200,210,230, "Voce recebera desafios de logica proposicional e seguranca em IA.");
-    ir(r+4,  c); p(200,210,230, "Para os desafios de logica, responda V (Verdadeiro) ou F (Falso).");
-    ir(r+6,  c); p(200,210,230, "Pressione "); p(100,140,255, "H");
-                 p(200,210,230, " para pedir ajuda ao LOGI, a IA tutora do jogo.");
-    ir(r+8,  c); p(200,210,230, "No modo "); p(255,180,60, "Contra-Tempo");
-                 p(200,210,230, ", acertos rapidos valem bonus (50% em ate 10s, 25% em ate 15s).");
-    ir(r+9,  c); p(200,210,230, "Usar [H] pausa o timer, mas desativa o bonus da questao.");
-    ir(r+11, c); p(120,125,160, "Operadores logicos:");
-    ir(r+13, c); p(100,140,255, "AND            "); p(200,210,230, "verdadeiro quando ambos os lados sao V");
-    ir(r+14, c); p(100,140,255, "OR             "); p(200,210,230, "verdadeiro quando pelo menos um lado e V");
-    ir(r+15, c); p(100,140,255, "NOT            "); p(200,210,230, "inverte o valor logico");
-    ir(r+16, c); p(100,140,255, "IMPLICA        "); p(200,210,230, "falso apenas quando P = V e Q = F");
-    ir(r+17, c); p(100,140,255, "BICONDICIONAL  "); p(200,210,230, "verdadeiro quando os dois lados sao iguais");
-    ir(r+19, c); linha_div();
-    ir(r+20, c); p(120,125,160, "Pressione ENTER para continuar...");
+    ir(r+3,  c); p(200,210,230, "Responda V (Verdadeiro) ou F (Falso) para cada formula.");
+    ir(r+4,  c); p(200,210,230, "Pressione "); p(100,140,255, "[H]");
+                 p(200,210,230, " para pedir ajuda a LOGI (IA tutora).");
+    ir(r+6,  c); p(200,210,230, "Ganhe Moedas ao acertar e use na Loja (Opcao 6)");
+    ir(r+7,  c); p(200,210,230, "para comprar Lootboxes ou Dicas Gratis.");
+    ir(r+9,  c); p(120,125,160, "Operadores logicos:");
+    ir(r+11, c); p(100,140,255, "AND            "); p(200,210,230, "verdadeiro quando ambos os lados sao V");
+    ir(r+12, c); p(100,140,255, "OR             "); p(200,210,230, "verdadeiro quando pelo menos um lado e V");
+    ir(r+13, c); p(100,140,255, "NOT            "); p(200,210,230, "inverte o valor logico");
+    ir(r+14, c); p(100,140,255, "IMPLICA        "); p(200,210,230, "falso apenas quando P = V e Q = F");
+    ir(r+15, c); p(100,140,255, "BICONDICIONAL  "); p(200,210,230, "verdadeiro quando os dois lados sao iguais");
+    ir(r+17, c); p(200,210,230, "No "); p(255,180,60, "Contra-Tempo");
+                 p(200,210,230, ", acertos rapidos geram bonus (50% em 10s).");
+    ir(r+20, c); linha_div();
+    ir(r+21, c); p(120,125,160, "Pressione ENTER para continuar...");
 }
 
 void tela_como_jogar(void) {
     fade_tela(render_como_jogar);
-    mostrar_cursor();
-    ler_enter();
-    esconder_cursor();
+    mostrar_cursor(); ler_enter(); esconder_cursor();
 }
 
 /* ═══════════════ EXEMPLOS DE ESCOPO (HU9) ═══════════════ */
@@ -278,7 +286,7 @@ void tela_exemplos_escopo(void) {
     }
 }
 
-/* ═══════════════ INTRO NÍVEL AVANÇADO ═══════════════ */
+/* ═══════════════ INTROS ═══════════════ */
 
 static void render_intro_avancado(void) {
     int r = (g_rows - 14) / 2;
@@ -302,8 +310,6 @@ void tela_intro_avancado(void) {
     fade_tela(render_intro_avancado);
     mostrar_cursor(); ler_enter(); esconder_cursor();
 }
-
-/* ═══════════════ INTRO CONTRA-TEMPO (HU11) ═══════════════ */
 
 static void render_intro_contra_tempo(void) {
     char buf[80];
@@ -389,7 +395,7 @@ static void render_nome(void) {
 
 void tela_nome(void) { fade_tela(render_nome); }
 
-/* ═══════════════ DESAFIO (normal + avançado) ═══════════════ */
+/* ═══════════════ DESAFIOS ═══════════════ */
 
 static void render_desafio(void) {
     char buf[256];
@@ -397,13 +403,15 @@ static void render_desafio(void) {
     int c = 5;
     if (r < 1) r = 1;
     snprintf(buf, sizeof(buf),
-             "LOGI - Decifra.IA  |  Desafio %d de %d  |  Nivel %d  |  Pontos: %d  |  Linha %d/%d",
+             "LOGI | Desafio %d/%d | Nv %d | Pts: %d | Moedas: %d | Linha %d/%d",
              g_idx + 1 - offset_do_nivel(desafios[g_idx].nivel),
              total_do_nivel(desafios[g_idx].nivel),
-             desafios[g_idx].nivel,
-             jogador.pontuacao,
+             desafios[g_idx].nivel, 
+             jogador.pontuacao, 
+             jogador.moedas,
              desafios[g_idx].linha_tabela + 1,
              desafios[g_idx].total_linhas);
+             
     ir(r,    c); p(100,140,255, buf);
     ir(r+2,  c); linha_div();
     ir(r+4,  c); p(200,210,230, desafios[g_idx].enunciado);
@@ -420,10 +428,14 @@ static void render_desafio_avancado(void) {
     int c = 5;
     if (r < 1) r = 1;
     snprintf(buf, sizeof(buf),
-             "LOGI - Decifra.IA  |  AVANCADO %d de %d  |  Nivel %d  |  Pontos: %d  |  Linha %d/%d",
+             "LOGI | AVANCADO %d/%d | Nv %d | Pts: %d | Moedas: %d | Linha %d/%d",
              g_idx - NUM_DESAFIOS_BASE + 1, NUM_DESAFIOS_AVANC,
-             desafios[g_idx].nivel, jogador.pontuacao,
-             desafios[g_idx].linha_tabela + 1, desafios[g_idx].total_linhas);
+             desafios[g_idx].nivel, 
+             jogador.pontuacao, 
+             jogador.moedas,
+             desafios[g_idx].linha_tabela + 1,
+             desafios[g_idx].total_linhas);
+             
     ir(r,    c); p(255, 180, 60, buf);
     ir(r+2,  c); linha_div();
     ir(r+4,  c); print_com_parenteses_destacados(desafios[g_idx].enunciado);
@@ -442,11 +454,8 @@ void tela_desafio(int indice) {
         fade_tela(render_desafio);
 }
 
+/* ═══════════════ DESAFIO CONTRA-TEMPO ═══════════════ */
 
-
-
-
-/* Só desenha o timer — NÃO mexe no cursor. O caller decide onde ele fica. */
 static void render_timer_inline(int segs) {
     char buf[40];
     ir(g_timer_row, g_timer_col);
@@ -454,8 +463,7 @@ static void render_timer_inline(int segs) {
     else if (segs > 5)  p(255, 200, 80, "⏱ ");
     else                p(220, 70, 70,  "⏱ ");
     snprintf(buf, sizeof(buf), "%2ds restantes   ", segs);
-    printf("%s", buf); rst();
-    fflush(stdout);
+    printf("%s", buf); rst(); fflush(stdout);
 }
 
 static void render_desafio_contra_tempo(void) {
@@ -464,32 +472,28 @@ static void render_desafio_contra_tempo(void) {
     int c = 5;
     if (r < 1) r = 1;
 
-    /* Cabeçalho — inclui a linha da tabela-verdade (HU10) */
     snprintf(buf, sizeof(buf),
-             "LOGI - Decifra.IA  |  CONTRA-TEMPO %d de %d  |  Nivel %d  |  "
-             "Pontos: %d  |  Linha %d/%d",
+             "LOGI | CONTRA-TEMPO %d/%d | Nv %d | Pts: %d | Moedas: %d | Linha %d/%d",
              g_idx - NUM_DESAFIOS_BASE + 1, NUM_DESAFIOS_AVANC,
-             desafios[g_idx].nivel, jogador.pontuacao,
+             desafios[g_idx].nivel, 
+             jogador.pontuacao, 
+             jogador.moedas,
              desafios[g_idx].linha_tabela + 1,
              desafios[g_idx].total_linhas);
+             
     ir(r,    c); p(255, 120, 60, buf);
 
-    /* Linha do timer */
     g_timer_row = r + 1;
     g_timer_col = c;
     render_timer_inline(TIMER_SEGUNDOS);
 
-    /* Corpo */
     ir(r+3,  c); linha_div();
     ir(r+5,  c); print_com_parenteses_destacados(desafios[g_idx].enunciado);
     ir(r+9,  c); linha_div();
-
-    /* Opções — texto curto para não quebrar em 80 colunas */
     ir(r+11, c); p(100,140,255, "[V]"); p(200,210,230, " Verdadeiro");
                  p(100,140,255, "    [F]"); p(200,210,230, " Falso");
                  p(100,140,255, "    [H]"); p(200,210,230, " Ajuda (pausa timer)");
 
-    /* Linha de input — isolada, com cursor posicionado */
     g_input_row = r + 13;
     g_input_col = c + 10;
     ir(g_input_row, c); p(120,125,160, "resposta: ");
@@ -500,7 +504,7 @@ void tela_desafio_contra_tempo(int indice, int segs_restantes) {
     g_idx = indice;
     fade_tela(render_desafio_contra_tempo);
     render_timer_inline(segs_restantes);
-    ir(g_input_row, g_input_col);      /* devolve o cursor à linha de resposta */
+    ir(g_input_row, g_input_col);
     fflush(stdout);
 }
 
@@ -552,7 +556,6 @@ char ler_resposta_contra_tempo(int segundos, int *usados_out) {
             {
                 int up = toupper((int)ch);
                 if (up == 'V' || up == 'F' || up == 'H') {
-                    /* Eco visual na linha de input */
                     ir(g_input_row, g_input_col);
                     printf("%c", ch); fflush(stdout);
                     *usados_out = inicio - restantes;
@@ -623,15 +626,14 @@ void tela_painel_logi(int indice) {
     p(120,125,160, "   consultando...");
     fflush(stdout);
 
-    if (ai_consultar(desafios[indice].enunciado,
-                     g_dica_ai, sizeof(g_dica_ai)) == 0)
+    if (ai_consultar(desafios[indice].enunciado, g_dica_ai, sizeof(g_dica_ai)) == 0)
         g_tem_ai = 1;
 
     fade_tela(render_logi);
     mostrar_cursor(); ler_enter(); esconder_cursor();
 }
 
-/* ═══════════════ FEEDBACK (normal) ═══════════════ */
+/* ═══════════════ FEEDBACK ═══════════════ */
 
 static void render_feedback(void) {
     char buf[128];
@@ -640,17 +642,14 @@ static void render_feedback(void) {
     int total = total_do_nivel(desafios[g_idx].nivel);
     int off   = offset_do_nivel(desafios[g_idx].nivel);
     if (r < 1) r = 1;
-    snprintf(buf, sizeof(buf), "LOGI - Decifra.IA  |  Desafio %d de %d",
-             g_idx + 1 - off, total);
+    snprintf(buf, sizeof(buf), "LOGI | Desafio %d/%d", g_idx + 1 - off, total);
     ir(r,    c); p(100,140,255, buf);
     ir(r+2,  c); linha_div();
     if (g_acertou) {
-        snprintf(buf, sizeof(buf), "CORRETO  +%d pontos",
-                 desafios[g_idx].nivel * 10);
+        snprintf(buf, sizeof(buf), "CORRETO  +%d pontos", desafios[g_idx].nivel * 10);
         ir(r+4, c); p(80,200,120, buf);
     } else {
-        snprintf(buf, sizeof(buf), "INCORRETO  resposta correta: %c",
-                 desafios[g_idx].resposta_correta);
+        snprintf(buf, sizeof(buf), "INCORRETO  resposta correta: %c", desafios[g_idx].resposta_correta);
         ir(r+4, c); p(220,70,70, buf);
     }
     ir(r+6,  c); p(120,125,160, "Explicacao:");
@@ -666,12 +665,7 @@ void tela_feedback(int acertou, int indice) {
     mostrar_cursor(); ler_enter(); esconder_cursor();
 }
 
-/* ═══════════════ FEEDBACK CONTRA-TEMPO (HU11) ═══════════════ */
-
-static int g_ft_acertou = 0;
-static int g_ft_usados  = 0;
-static int g_ft_timeout = 0;
-static int g_ft_ajuda   = 0;
+/* ═══════════════ FEEDBACK CONTRA-TEMPO ═══════════════ */
 
 static void render_feedback_contra_tempo(void) {
     char buf[160];
@@ -682,7 +676,7 @@ static void render_feedback_contra_tempo(void) {
     if (r < 1) r = 1;
 
     snprintf(buf, sizeof(buf),
-             "LOGI - Decifra.IA  |  CONTRA-TEMPO  |  Desafio %d de %d",
+             "LOGI | CONTRA-TEMPO | Desafio %d/%d",
              g_idx - NUM_DESAFIOS_BASE + 1, NUM_DESAFIOS_AVANC);
     ir(r,    c); p(255, 120, 60, buf);
     ir(r+2,  c); linha_div();
@@ -722,9 +716,7 @@ void tela_feedback_contra_tempo(int acertou, int indice,
     mostrar_cursor(); ler_enter(); esconder_cursor();
 }
 
-/* ═══════════════ RESULTADO FINAL (normal) ═══════════════ */
-
-static int g_total_rodada = 0;
+/* ═══════════════ RESULTADO FINAL ═══════════════ */
 
 static void render_resultado(void) {
     char buf[64];
@@ -756,7 +748,7 @@ void tela_resultado_final(int total_rodada) {
     mostrar_cursor(); ler_enter(); esconder_cursor();
 }
 
-/* ═══════════════ RESULTADO CONTRA-TEMPO (HU11) ═══════════════ */
+/* ═══════════════ RESULTADO CONTRA-TEMPO ═══════════════ */
 
 static int media_tempo(int total) {
     int i, soma = 0, n = 0;
@@ -780,8 +772,7 @@ static void render_resultado_contra_tempo(void) {
 
     snprintf(buf, sizeof(buf), "Jogador       %s", jogador.nome);
     ir(r+4,  c); p(120,125,160, buf);
-    snprintf(buf, sizeof(buf), "Acertos       %d de %d",
-             jogador.acertos, NUM_DESAFIOS_AVANC);
+    snprintf(buf, sizeof(buf), "Acertos       %d de %d", jogador.acertos, NUM_DESAFIOS_AVANC);
     ir(r+5,  c); p(100,140,255, buf);
     snprintf(buf, sizeof(buf), "Pontos        %d", jogador.pontuacao);
     ir(r+6,  c); p(100,140,255, buf);
@@ -806,6 +797,56 @@ void tela_resultado_contra_tempo(int total_rodada) {
     (void)total_rodada;
     fade_tela(render_resultado_contra_tempo);
     mostrar_cursor(); ler_enter(); esconder_cursor();
+}
+
+/* ═══════════════ LOJA E LOOTBOX (US13/US14) ═══════════════ */
+
+void tela_aviso(const char *msg) {
+    int r = (g_rows - 6) / 2;
+    int c = 5;
+    if (r < 1) r = 1;
+    limpar_tela();
+    ir(r+2, c); p(255, 200, 80, "AVISO:");
+    ir(r+3, c); p(200, 210, 230, msg);
+    ir(r+5, c); p(120, 125, 160, "Pressione ENTER...");
+    mostrar_cursor(); ler_enter(); esconder_cursor();
+}
+
+void tela_lootbox_animacao(void) {
+    int i, r = (g_rows - 10) / 2, c = 5;
+    limpar_tela();
+    for (i = 0; i < 15; i++) {
+        ir(r+2, c); p(255, 180, 60, i % 2 == 0 ? "[ ? ]" : "[   ]");
+        p(120, 125, 160, "  Abrindo caixa...");
+        fflush(stdout);
+        pausa_ms(100);
+    }
+    ir(r+2, c); p(255, 180, 60, " [*] ");
+}
+
+void tela_lootbox_resultado(const char *premio) {
+    int r = (g_rows - 10) / 2, c = 5;
+    ir(r+4, c); p(80, 200, 120, "VOCE GANHOU:");
+    ir(r+6, c); p(255, 220, 80, premio);
+    ir(r+9, c); p(120, 125, 160, "Pressione ENTER...");
+    mostrar_cursor(); ler_enter(); esconder_cursor();
+}
+
+void tela_loja(void) {
+    int r = (g_rows - 12) / 2, c = 5;
+    limpar_tela();
+    ir(r,    c); p(150, 255, 150, "LOJA DE ITENS");
+    ir(r+1,  c); linha_div();
+    ir(r+3,  c); p(120, 125, 160, "Seu saldo: "); 
+                 printf("%d Moedas", jogador.moedas); rst();
+    ir(r+4,  c); p(120, 125, 160, "Dicas gratis: "); 
+                 printf("%d", jogador.dicas_gratis); rst();
+    ir(r+6,  c); p(100,140,255, "1"); p(200,210,230, " Comprar Lootbox  (30 Moedas)");
+    ir(r+7,  c); p(100,140,255, "2"); p(200,210,230, " Comprar Dica     (15 Moedas)");
+    ir(r+8,  c); p(100,140,255, "3"); p(200,210,230, " Sair da Loja");
+    ir(r+10, c); linha_div();
+    ir(r+12, c); p(120, 125, 160, "opcao: ");
+    mostrar_cursor();
 }
 
 /* ═══════════════ SAIDA ═══════════════ */
