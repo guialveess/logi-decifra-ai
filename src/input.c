@@ -34,11 +34,16 @@ char ler_resposta(void) {
     limpar_stdin();
     while (1) {
         c = getchar();
-        if (c == EOF) return 'F';                  /* fallback seguro em EOF */
-        if (c == '\033') { consumir_escape(); continue; }
-        up = toupper((unsigned char)c);            /* normaliza maiúsculas/minúsculas */
+        if (c == EOF) return 'Q';
+        if (c == '\033') {
+            int next = getchar();
+            if (next == '[' || next == 'O')
+                while ((c = getchar()) != EOF && !(c >= 0x40 && c <= 0x7E));
+            return 'Q'; /* ESC puro = sair */
+        }
+        up = toupper((unsigned char)c);
         if (up == 'V' || up == 'F' || up == 'H') return (char)c;
-        /* qualquer outro caractere é silenciosamente descartado */
+        if (up == 'Q') return 'Q';
     }
 }
 
