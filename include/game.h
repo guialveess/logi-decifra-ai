@@ -11,6 +11,10 @@
 #define BONUS_RAPIDO_SEG     10
 #define BONUS_MEDIO_SEG      15
 
+/* Custos da Loja (US14) */
+#define CUSTO_LOOTBOX        30
+#define CUSTO_DICA           15
+
 #define DESAFIO_ENUNCIADO_MAX  256
 #define DESAFIO_EXPLICACAO_MAX 384
 #define DESAFIO_VARS_MAX        64
@@ -31,6 +35,9 @@ typedef struct {
     char nome[NOME_MAX];
     int  pontuacao;
     int  acertos;
+    int  moedas;          /* NOVO US14 */
+    int  dicas_gratis;    /* NOVO US14 */
+    
     char resposta_jogador[NUM_DESAFIOS];
     int  acertou[NUM_DESAFIOS];
     int  tempo_por_desafio[NUM_DESAFIOS];
@@ -45,5 +52,9 @@ void executar_desafio(int indice);
 void executar_nivel_avancado(void);
 void executar_nivel_contra_tempo(void);
 void finalizar_jogo(int total_rodada);
+
+/* Novas funções US13/US14 */
+void executar_loja(void);
+void processar_lootbox(void);
 
 #endif
