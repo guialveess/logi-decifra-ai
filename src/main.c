@@ -4,25 +4,24 @@
 #include "game.h"
 #include "ui.h"
 #include "input.h"
+#include "audio.h" /* NOVO: US15 */
 
 #ifndef _WIN32
 #include <unistd.h>
 #include <termios.h>
 
-/* Salva configuração original do terminal para restaurar ao sair */
 static struct termios g_orig_term;
 
 static void configurar_terminal(void) {
     struct termios raw;
     tcgetattr(STDIN_FILENO, &g_orig_term);
     raw = g_orig_term;
-    raw.c_lflag &= ~(unsigned)(ECHO | ICANON); /* desliga eco e modo canônico */
-    raw.c_cc[VMIN]  = 1; /* aguarda ao menos 1 caractere */
-    raw.c_cc[VTIME] = 0; /* sem timeout */
+    raw.c_lflag &= ~(unsigned)(ECHO | ICANON);
+    raw.c_cc[VMIN]  = 1;
+    raw.c_cc[VTIME] = 0;
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
-/* Restaura o terminal para o estado anterior ao raw mode */
 static void restaurar_termios(void) {
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &g_orig_term);
 }
@@ -31,37 +30,34 @@ static void configurar_terminal(void) {}
 static void restaurar_termios(void)   {}
 #endif
 
-/* Handler de sinal: restaura terminal e encerra ao receber SIGINT/SIGTERM */
 static void restaurar_terminal(int sig) {
     (void)sig;
+    audio_parar(); /* NOVO: US15 (Garante que o áudio pare no Ctrl+C) */
     restaurar_termios();
-    printf("\033[?25h\033[?1049l"); /* exibe cursor e sai do alternate screen */
+    printf("\033[?25h\033[?1049l");
     fflush(stdout);
     exit(0);
 }
 
 int main(void) {
-    int opcao; /* opção escolhida no menu principal (1=Jogar, 2=Como Jogar, 3=Sair) */
-    int i;     /* índice do desafio atual no loop de jogo */
+    int opcao;
+    int i;
 
-    /* Captura sinais para garantir que o terminal seja restaurado mesmo com Ctrl+C */
     signal(SIGINT,  restaurar_terminal);
     signal(SIGTERM, restaurar_terminal);
 
-    /* Ativa alternate screen buffer e oculta cursor antes de iniciar a UI */
     printf("\033[?1049h\033[H\033[3J\033[2J\033[H\033[?25l");
     fflush(stdout);
     configurar_terminal();
-
-    /* Loop principal: exibe menu e processa a opção escolhida pelo jogador */
-    
+    audio_init(); /* NOVO: US15 (Inicializa o subsistema de som) */
 
     while (1) {
         tela_menu();
         opcao = ler_opcao();
 
         if (opcao == 7) { tela_saida(); break; }
-        if (opcao == 6) { executar_loja(); continue; } // NOVO: Loja
+        
+        if (opcao == 6) { executar_loja(); continue; } 
 
         if (opcao == 5) {
             tela_nome();
@@ -85,7 +81,6 @@ int main(void) {
         tela_nome();
         ler_nome(jogador.nome, NOME_MAX);
         
-        // Preserva itens comprados na loja
         int moedas_antigas = jogador.moedas;
         int dicas_antigas = jogador.dicas_gratis;
 
@@ -99,10 +94,8 @@ int main(void) {
         finalizar_jogo(NUM_DESAFIOS_BASE);
     }
 
-
-
-    /* Restaura terminal e alternate screen ao encerrar normalmente */
     restaurar_termios();
+    audio_parar(); /* NOVO: US15 (Garante que o áudio pare na saída limpa) */
     printf("\033[?25h\033[?1049l");
     fflush(stdout);
     return 0;

@@ -1,7 +1,7 @@
 CC      = gcc
 CFLAGS  = -Wall -Wextra -std=c11 -g -Iinclude -D_GNU_SOURCE -MMD -MP
 TARGET  = jogo
-SOURCES = src/main.c src/game.c src/ui.c src/input.c src/ai_client.c
+SOURCES = src/main.c src/game.c src/ui.c src/input.c src/ai_client.c src/audio.c
 OBJECTS = $(SOURCES:.c=.o)
 DEPS    = $(OBJECTS:.o=.d)
 
