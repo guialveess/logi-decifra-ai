@@ -48,27 +48,28 @@ O jogo aborda de forma narrativa temas como:
 - Papel humano — o lugar do pensamento crítico e da responsabilidade em sistemas híbridos
 
 ---
-
-## Fluxo do jogo
+## Fluxo do Jogo
 
 ```
-Menu principal (6 opções)
-  ├─ 1. Jogar (nível básico)
-  │     └─ Loading → Informe seu nome
-  │           └─ Desafios 1-5 (AND/OR/NOT/IMPLICA/BICONDICIONAL, 2 variáveis)
-  │                 └─ [V/F] resposta  |  [H] pedir dica à LOGI
-  │                 └─ Feedback: acerto/erro + explicação + pontuação
-  │           └─ Resultado final
-  ├─ 2. Como Jogar (regras e operadores)
-  ├─ 3. Exemplos de Escopo (casos didáticos)
-  ├─ 4. Nível Avançado
-  │     └─ Desafios 6-10 (expressões compostas, 3 variáveis, parênteses)
-  │           └─ Mesmo fluxo V/F/H do nível básico
-  ├─ 5. Contra-Tempo
-  │     └─ Timer de 20s por desafio
-  │           └─ Bônus +50% se responder em até 10s, +25% em até 15s
-  │           └─ Sem bônus se usou dica da LOGI
-  └─ 6. Sair (animação "Até logo!")
+Menu principal (7 opções)
+├── 1. Jogar (nível básico)
+│   ├── Loading -> Informe seu nome
+│   ├── Desafios 1-5 (AND/OR/NOT/IMPLICA/BICONDICIONAL, 2 variáveis)
+│   │   ├── [V]/[F] resposta | [H] pedir dica à LOGI
+│   │   └── Feedback: acerto/erro + explicação + pontuação + moedas
+│   └── Resultado final
+├── 2. Como Jogar (regras e operadores)
+├── 3. Exemplos de Escopo (casos didáticos)
+├── 4. Nível Avançado
+│   ├── Desafios 6-10 (expressões compostas, 3 variáveis, parênteses)
+│   └── Mesmo fluxo V/F/H do nível básico
+├── 5. Contra-Tempo
+│   ├── Timer de 20s por desafio
+│   └── Bônus +50% se responder em até 10s, +25% em até 15s
+├── 6. Loja de Itens e Lootbox
+│   ├── Comprar Dica (15 moedas) | Comprar Lootbox (30 moedas)
+│   └── Animação e sorteio de prêmios aleatórios
+└── 7. Sair
 ```
 
 ---
@@ -125,33 +126,62 @@ Menu principal (6 opções)
 
 ---
 
-## Estrutura do projeto
+## Estrutura do Projeto
 
 ```
-decifra-ai-e5/
-├── src/
-│   ├── main.c         # Ponto de entrada, loop principal, sinais SIGINT/SIGTERM
-│   ├── game.c         # Parser recursivo, geração dinâmica de desafios, modos básico/avançado/contra-tempo
-│   ├── ui.c           # Todas as telas, animações fade-in, paleta de cores ANSI
-│   ├── input.c        # Leitura de opção, nome, resposta V/F e timer
-│   └── ai_client.c    # Bridge C → Python: consulta ao modelo LOGI via popen
-├── include/
-│   ├── game.h         # Structs Desafio e Jogador, constantes NUM_DESAFIOS, TIMER_SEGUNDOS, BONUS_*
-│   ├── ui.h           # Protótipos das telas
-│   ├── input.h        # Protótipos de leitura
-│   ├── ai_client.h    # Protótipo ai_consultar()
-│   └── colors.h       # Constantes de cor ANSI
-├── docs/
-│   ├── relatorio-tecnico.md        # Arquitetura do sistema e integração LOGI
-│   ├── casos_testes_logicos.md     # Casos de teste lógico por nível (LMC)
-│   ├── plano_de_testes.md          # Plano de testes unitários
-│   ├── tabelas-verdade.md          # Tabelas-verdade dos operadores
+logi-decifra-ai/
+│
+├── .github/
+│   └── workflows/
+│       └── build.yml         # CI/CD: Compilação automática no GitHub Actions
+│
+├── assets/
+│   └── audio/                # Recursos de áudio (US15)
+│       ├── menu.mp3          # Trilha sonora do menu principal
+│       ├── gameplay.mp3      # Trilha sonora durante os desafios
+│       ├── win.mp3           # Efeito sonoro de acerto
+│       └── lose.mp3          # Efeito sonoro de erro/timeout
+│
+├── docs/                     # Documentação técnica e acadêmica (PI2-98 / PI2-99)
+│   ├── diagrams/             # Diagramas de atividades e arquitetura (PNG)
+│   ├── screenshots/          # Evidências visuais (prints do terminal e Jira)
+│   ├── arquitetura.md        # Documento de arquitetura do sistema
+│   ├── casos_testes_logicos.md
 │   ├── fundamentos_logica_proposicional.md
+│   ├── plano_de_testes.md    # Plano de testes unitários e de sistema
 │   ├── proposicoes-logicas.md
-│   ├── screenshots/                # Prints das telas do jogo
-│   └── diagrams/                   # Diagramas de fluxo HU1–HU12
-├── tests/                          # Testes de unidade (assert)
-└── Makefile                        # Compilação com gcc -Wall -Wextra -std=c11
+│   ├── relatorio-tecnico.md
+│   ├── requisitos_relatorio.md # Documento de Requisitos (RF e RNF)
+│   ├── tabelas_verdade_proposicoes_logicas.md
+│   └── tabelas-verdade.md
+│
+├── include/                  # Arquivos de cabeçalho (.h) - Contratos das APIs
+│   ├── ai_client.h           # Interface de comunicação com a LOGI
+│   ├── audio.h               # Gerenciamento de áudio (US15)
+│   ├── colors.h              # Definições de cores ANSI (RGB)
+│   ├── game.h                # Structs, enums e protótipos do núcleo do jogo
+│   ├── input.h               # Leitura de teclado em modo raw (sem Enter)
+│   └── ui.h                  # Protótipos das telas e renderizações
+│
+├── scripts/                  # Scripts auxiliares (Integração Python/IA)
+│   ├── ai_client.py          # Bridge de comunicação com o modelo LLM
+│   ├── local_server.py       # Servidor local para testes da IA
+│   ├── modal_server.py       # Deploy do modelo no Modal (Cloud)
+│   └── requirements.txt      # Dependências Python
+│
+├── src/                      # Código-fonte em C (.c)
+│   ├── main.c                # Ponto de entrada, loop principal e roteamento do menu
+│   ├── game.c                # Parser lógico, geração de tabela-verdade, economia e regras
+│   ├── ui.c                  # Renderização ANSI, animações (fade/loading/timer) e telas
+│   ├── input.c               # Captura de inputs do usuário (V, F, H, N)
+│   ├── ai_client.c           # Cliente C para requisição de dicas (com fallback local)
+│   └── audio.c               # Execução assíncrona de áudio (ffplay/system)
+│
+├── tests/                    # Testes de software
+│
+├── .gitignore                # Arquivos ignorados pelo Git (binários, objetos)
+├── Makefile                  # Automação de build (make, make run, make clean)
+└── README.md                 # Documentação principal do repositório
 ```
 
 ---
