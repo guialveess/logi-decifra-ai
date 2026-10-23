@@ -419,7 +419,7 @@ O desenvolvimento da Entrega 3 de FDS foi conduzido de forma colaborativa. A equ
 *   **Arthur Vieira Neiva Souza:** Propôs a inclusão de **Trilha Sonora e Áudio (US15)** para aumentar a imersão do jogador.
 *   **Ademir Pedro da Silva Filho:** Idealizou o **Sistema Monetário e a Loja (US14)** para dar sentido à progressão do jogador.
 *   **Augusto Freitas Wanderley:** Atuou durante a implementação no VS Code e na gravação das últimas três histórias (US13, US14 e US15).
-  *Nota: Toda equipe trabalhou em conjunto, estes 4 acima foram essenciais na idealização das histórias de usuário na disciplina de FDS(Fundamentos de Desenvolvimento de Software*
+  *Nota: Toda equipe trabalhou em conjunto, estes 4 acima foram essenciais na idealização das histórias de usuário na disciplina de FDS(Fundamentos de Desenvolvimento de Software)*
 
 ## Evidências de Colaboração
 As interações da equipe, a validação das ideias e a divisão de tarefas podem ser comprovadas através do nosso board e histórico de comentários no Jira.
