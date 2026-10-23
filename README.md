@@ -375,7 +375,9 @@ https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/
 
 ## Screencast
 https://youtu.be/Iltjfxjm8z0
+
 **demo HU13eHU14: https://www.youtube.com/watch?v=My1l-SniFo8
+
 **demo HU15: https://www.youtube.com/watch?v=jyQQGYnBtwE
 
 ## Storyboard(figma)
@@ -403,6 +405,11 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 <img width="1920" height="786" alt="board_historias_parte1" src="https://github.com/user-attachments/assets/9d7bfd95-a3b1-40f0-811f-a61607c3ac06" />
 
 <img width="1920" height="805" alt="board_historias_parte2" src="https://github.com/user-attachments/assets/81406681-07ce-4256-8b78-900c88c0a5bb" />
+
+## Bug Tracker
+
+<img width="1920" height="718" alt="Captura de Tela (564)" src="https://github.com/user-attachments/assets/c2433a0e-44bd-4374-9871-5068b951e937" />
+
 
 ## Programação em Pares
 
