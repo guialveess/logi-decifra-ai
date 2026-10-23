@@ -121,7 +121,6 @@ static void rodar_desafio(int indice) {
 
     if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
 
-    /* Jogador pediu ajuda: exibe dica da LOGI e aguarda nova resposta */
     if (resposta == 'H' || resposta == 'h') {
         if (jogador.dicas_gratis > 0) {
             jogador.dicas_gratis--;
@@ -141,6 +140,7 @@ static void rodar_desafio(int indice) {
     if (acertou) {
         jogador.acertos++;
         jogador.pontuacao += desafios[indice].nivel * 10;
+        jogador.moedas += desafios[indice].nivel * 2; /* <--- ADICIONE ESTA LINHA AQUI */
     }
     tela_feedback(acertou, indice);
 }
