@@ -375,9 +375,8 @@ https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/
 
 ## Screencast
 https://youtu.be/Iltjfxjm8z0
-
+**demo HU13eHU14: https://www.youtube.com/watch?v=My1l-SniFo8
 **demo HU15: https://www.youtube.com/watch?v=DDeNj0anDGs
-
 
 ## Storyboard(figma)
 https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes-IHC?node-id=45-103&t=IGlyCabXOWPoepC9-1
@@ -404,6 +403,20 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 <img width="1920" height="786" alt="board_historias_parte1" src="https://github.com/user-attachments/assets/9d7bfd95-a3b1-40f0-811f-a61607c3ac06" />
 
 <img width="1920" height="805" alt="board_historias_parte2" src="https://github.com/user-attachments/assets/81406681-07ce-4256-8b78-900c88c0a5bb" />
+
+## Programação em Pares
+
+O desenvolvimento da Entrega 3 de FDS foi conduzido de forma colaborativa. A equipe utilizou o **Jira** para centralizar as discussões, registrar as ideias de features (brainstorming) e distribuir as tarefas, caracterizando um trabalho conjunto entre a concepção e a implementação.
+
+*   **João Antonio Calazans:** Idealizou a mecânica de recompensas e o **Sistema de Lootbox (US13)**.
+*   **Arthur Vieira Neiva Souza:** Propôs a inclusão de **Trilha Sonora e Áudio (US15)** para aumentar a imersão do jogador.
+*   **Ademir Pedro da Silva Filho:** Idealizou o **Sistema Monetário e a Loja (US14)** para dar sentido à progressão do jogador.
+*   **Augusto Freitas Wanderley:** Atuou durante a implementação no VS Code e na gravação das últimas três histórias (US13, US14 e US15).
+  *Nota: Toda equipe trabalhou em conjunto, estes 4 acima foram essenciais na idealização das histórias de usuário na disciplina de FDS(Fundamentos de Desenvolvimento de Software*
+
+## Evidências de Colaboração
+As interações da equipe, a validação das ideias e a divisão de tarefas podem ser comprovadas através do nosso board e histórico de comentários no Jira.
+
 
 
 
