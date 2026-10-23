@@ -346,6 +346,9 @@ https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/
 ## Screencast
 https://youtu.be/Iltjfxjm8z0
 
+**demo HU15: https://www.youtube.com/watch?v=DDeNj0anDGs
+
+
 ## Storyboard(figma)
 https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes-IHC?node-id=45-103&t=IGlyCabXOWPoepC9-1
 
@@ -368,7 +371,11 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 
 ## Board
 
-<img width="1920" height="1031" alt="Captura de Tela (257)" src="https://github.com/user-attachments/assets/8975c89e-ebdf-49e8-8a69-3ed899bfeb8b" />
+<img width="1920" height="786" alt="board_historias_parte1" src="https://github.com/user-attachments/assets/9d7bfd95-a3b1-40f0-811f-a61607c3ac06" />
+
+<img width="1920" height="805" alt="board_historias_parte2" src="https://github.com/user-attachments/assets/81406681-07ce-4256-8b78-900c88c0a5bb" />
+
+
 
 ---
 
