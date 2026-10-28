@@ -37,6 +37,8 @@ typedef struct {
     int  acertos;
     int  moedas;          /* NOVO US14 */
     int  dicas_gratis;    /* NOVO US14 */
+    int  recorde_anterior;   /* NOVO: maior score salvo antes da partida */
+    int  posicao_ranking;    /* NOVO: -1 = nao entrou no top-5 */
     
     char resposta_jogador[NUM_DESAFIOS];
     int  acertou[NUM_DESAFIOS];
