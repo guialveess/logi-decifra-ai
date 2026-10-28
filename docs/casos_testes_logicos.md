@@ -2,7 +2,7 @@
 
 ## 1. Objetivo
 
-Este documento apresenta casos de teste lógico elaborados a partir dos quatro níveis de dificuldade do arquivo `proposicoes-logicas.md`.
+Este documento apresenta casos de teste lógico elaborados a partir dos quatro níveis de dificuldade do arquivo `proposicoes-logicas.md` e dos desafios 6 a 10 do nível avançado do jogo LOGI — Decifra.IA, definidos em `src/game.c`.
 
 Para cada nível, são documentados casos contendo:
 
@@ -10,13 +10,26 @@ Para cada nível, são documentados casos contendo:
 - **expressão lógica**;
 - **resultado esperado**;
 - **justificativa**;
-- **classificação do caso**, quando pertinente.
+- **classificação do caso**, quando pertinente;
+- **origem do exercício ou desafio**, quando identificável;
+- **evidência e alcance da verificação**, quando houver execução do avaliador lógico.
 
 Além dos exercícios diretamente inspirados no arquivo-base, foram incluídos alguns **casos derivados** para contemplar tautologias, contradições e uma falácia de inferência.
 
 > **Convenção:** `V` representa Verdadeiro e `F` representa Falso.
 
-> **Precedência adotada:** quando uma expressão não apresenta parênteses, considera-se a ordem `¬`, `∧`, `∨`, `→`, `↔`.
+> **Precedência adotada:** quando uma expressão não apresenta parênteses, considera-se a ordem `¬`, `∧`, `∨`, `→`, `↔`, coerente com as rotinas `eval_not`, `eval_and`, `eval_or`, `eval_impl` e `eval_expr` de `src/game.c`. Os parênteses determinam a avaliação prioritária de suas subexpressões.
+
+## 2. Escopo e rastreabilidade
+
+Este documento reúne dois conjuntos de casos com finalidades complementares:
+
+| Conjunto | Origem | Finalidade |
+|---|---|---|
+| **Casos didáticos (Níveis 01 a 04)** | `proposicoes-logicas.md` e casos derivados, quando indicados | Demonstrar a avaliação das proposições, dos conectivos e das formas de argumento. Não pressupõem que cada fórmula esteja cadastrada no jogo. |
+| **Casos implementados (AV.6 a AV.10)** | Vetor `templates` de `src/game.c`, desafios 6 a 10 | Verificar as oito valorações de cada expressão efetivamente cadastrada, confrontando a lógica clássica com uma reprodução isolada do parser recursivo. |
+
+> **Critério de evidência:** a correção matemática das tabelas-verdade não deve ser confundida com a comprovação de execução no jogo completo. Os casos avançados possuem evidência de **teste isolado das rotinas do avaliador**, descrita nesta documentação; não foram apresentados como testes de integração ou como validação de entradas malformadas.
 
 ---
 
@@ -310,7 +323,7 @@ Neste nível, os casos combinam diferentes operadores, prioridades e relações 
 
 ## Caso 4.1 — Conjunção e disjunção
 
-A expressão original é:
+A expressão original, conforme o exercício 4.1 de `proposicoes-logicas.md`, é:
 
 `P AND Q OR R`
 
@@ -390,6 +403,8 @@ Pela precedência adotada:
 
 ## Caso 4.5 — Teste de possível tautologia
 
+> **Rastreabilidade:** este caso documental corresponde ao **exercício 4.8** de `proposicoes-logicas.md`, e não ao exercício 4.5 do material-base. A numeração `Caso 4.5` identifica sua posição neste documento e foi preservada para evitar alterar referências existentes.
+
 A fórmula do exercício é:
 
 `(P ∧ Q) ↔ (Q ∨ R)`
@@ -402,6 +417,7 @@ Utilizando os valores indicados no próprio arquivo:
 |---|---|
 | **Entrada** | `P = V`, `Q = F`, `R = V` |
 | **Expressão lógica** | `(P ∧ Q) ↔ (Q ∨ R)` |
+| **Exercício de origem** | `4.8` de `proposicoes-logicas.md` |
 | **Resultado esperado** | `F` |
 | **Justificativa** | `P ∧ Q = V ∧ F = F`. Já `Q ∨ R = F ∨ V = V`. Portanto, `F ↔ V = F`. Como foi encontrada uma valoração em que a fórmula é falsa, ela **não é uma tautologia**. |
 | **Tipo** | Teste de tautologia / contraexemplo |
@@ -462,6 +478,220 @@ Um contraexemplo suficiente é:
 
 ---
 
+# NÍVEL AVANÇADO DO JOGO — Desafios 6 a 10
+
+Esta seção complementa os quatro níveis documentados anteriormente com a validação dos **desafios 6 a 10 do jogo LOGI — Decifra.IA**, definidos no vetor `templates` de [`src/game.c`](../src/game.c). São cinco expressões compostas que utilizam `P`, `Q` e `R`, com parênteses e diferentes conectivos.
+
+> **Distinção de numeração:** os desafios 6 a 10 do jogo não correspondem aos exercícios 4.6 a 4.10 do arquivo `proposicoes-logicas.md`. A identificação `AV.6` a `AV.10` evita sobreposição com os casos já registrados no Nível 04 deste documento.
+
+> **Critério de avaliação:** cada expressão possui três variáveis proposicionais, totalizando `2³ = 8` valorações possíveis. O resultado esperado decorre de um cálculo independente, conforme a semântica da lógica proposicional clássica; o resultado observado provém de um **teste isolado em C**, que reproduz as rotinas do avaliador presentes na versão consultada de `src/game.c`.
+
+> **Correspondência com o jogo:** em `gerar_desafio_da_sessao`, o índice `linha_tabela` é sorteado entre `0` e `7`, e os valores das variáveis são obtidos por deslocamentos de bits. Neste documento, `linha_tabela = 4P + 2Q + R`, considerando `V = 1` e `F = 0`. Assim, `0 = FFF` e `7 = VVV`. As tabelas estão organizadas de `VVV` a `FFF`, de modo que o índice aparece em **ordem decrescente (7 a 0)**.
+
+> **Escopo da verificação:** o teste isolado em C reproduziu `Parser`, `eval_prim`, `eval_not`, `eval_and`, `eval_or`, `eval_impl`, `eval_expr` e `avaliar_expressao` de `src/game.c` e avaliou as 40 entradas. A comparação independente foi feita com as definições clássicas dos conectivos. Como o código de produção não foi instrumentado nem executado em um teste de integração, a correspondência observada aplica-se à reprodução isolada dessas rotinas, e não equivale à aprovação de todo o jogo.
+
+### Rastreabilidade dos desafios cadastrados
+
+| Desafio do jogo | Identificação documental | Origem no vetor `templates` | Expressão cadastrada |
+|:---:|:---:|:---:|---|
+| 6 | `AV.6` | `templates[5]` | `(P OR Q) AND NOT R` |
+| 7 | `AV.7` | `templates[6]` | `NOT (P AND Q) OR R` |
+| 8 | `AV.8` | `templates[7]` | `P AND (Q OR NOT R)` |
+| 9 | `AV.9` | `templates[8]` | `(P IMPLICA Q) AND (Q OR R)` |
+| 10 | `AV.10` | `templates[9]` | `NOT (P BICONDICIONAL Q) OR R` |
+
+---
+
+## Caso AV.6 — Disjunção entre parênteses seguida de conjunção com negação
+
+| Campo | Descrição |
+|---|---|
+| **Entrada** | Todas as oito combinações possíveis de `P`, `Q` e `R` |
+| **Origem no jogo** | `src/game.c`, `templates[5]` (desafio 6) |
+| **Expressão lógica** | `(P ∨ Q) ∧ ¬R` |
+| **Expressão no parser** | `(P OR Q) AND NOT R` |
+| **Resultado esperado** | Conforme a coluna **Resultado esperado** da tabela-verdade, para cada valoração |
+| **Justificativa** | Primeiro, avalia-se `P ∨ Q`. Em seguida, calcula-se `¬R`. A conjunção só é verdadeira quando pelo menos uma das proposições `P` ou `Q` é verdadeira e `R` é falsa. |
+| **Tipo** | Expressão composta com parênteses e negação |
+
+### Tabela-verdade completa — Desafio 6
+
+| **`linha_tabela`** | `P` | `Q` | `R` | `P ∨ Q` | `¬R` | **Resultado esperado** | **Resultado do parser (teste isolado)** |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 7 | V | V | V | V | F | **F** | F |
+| 6 | V | V | F | V | V | **V** | V |
+| 5 | V | F | V | V | F | **F** | F |
+| 4 | V | F | F | V | V | **V** | V |
+| 3 | F | V | V | V | F | **F** | F |
+| 2 | F | V | F | V | V | **V** | V |
+| 1 | F | F | V | F | F | **F** | F |
+| 0 | F | F | F | F | V | **F** | F |
+
+**Verificação:** as oito valorações (`linha_tabela` de `0` a `7`) apresentam concordância entre o resultado matemático esperado e a reprodução isolada do parser (**8/8 coincidências; nenhuma divergência**).
+
+---
+
+## Caso AV.7 — Negação de uma conjunção seguida de disjunção
+
+| Campo | Descrição |
+|---|---|
+| **Entrada** | Todas as oito combinações possíveis de `P`, `Q` e `R` |
+| **Origem no jogo** | `src/game.c`, `templates[6]` (desafio 7) |
+| **Expressão lógica** | `¬(P ∧ Q) ∨ R` |
+| **Expressão no parser** | `NOT (P AND Q) OR R` |
+| **Resultado esperado** | Conforme a coluna **Resultado esperado** da tabela-verdade, para cada valoração |
+| **Justificativa** | Primeiro, calcula-se `P ∧ Q` e nega-se seu resultado. Em seguida, aplica-se a disjunção com `R`. A fórmula é falsa apenas quando `P = V`, `Q = V` e `R = F`. |
+| **Tipo** | Expressão composta com negação de parênteses |
+
+### Tabela-verdade completa — Desafio 7
+
+| **`linha_tabela`** | `P` | `Q` | `R` | `P ∧ Q` | `¬(P ∧ Q)` | **Resultado esperado** | **Resultado do parser (teste isolado)** |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 7 | V | V | V | V | F | **V** | V |
+| 6 | V | V | F | V | F | **F** | F |
+| 5 | V | F | V | F | V | **V** | V |
+| 4 | V | F | F | F | V | **V** | V |
+| 3 | F | V | V | F | V | **V** | V |
+| 2 | F | V | F | F | V | **V** | V |
+| 1 | F | F | V | F | V | **V** | V |
+| 0 | F | F | F | F | V | **V** | V |
+
+**Verificação:** as oito valorações (`linha_tabela` de `0` a `7`) apresentam concordância entre o resultado matemático esperado e a reprodução isolada do parser (**8/8 coincidências; nenhuma divergência**).
+
+---
+
+## Caso AV.8 — Conjunção com disjunção e negação internas
+
+| Campo | Descrição |
+|---|---|
+| **Entrada** | Todas as oito combinações possíveis de `P`, `Q` e `R` |
+| **Origem no jogo** | `src/game.c`, `templates[7]` (desafio 8) |
+| **Expressão lógica** | `P ∧ (Q ∨ ¬R)` |
+| **Expressão no parser** | `P AND (Q OR NOT R)` |
+| **Resultado esperado** | Conforme a coluna **Resultado esperado** da tabela-verdade, para cada valoração |
+| **Justificativa** | Dentro dos parênteses, calcula-se `¬R` e depois `Q ∨ ¬R`. O resultado somente é verdadeiro quando `P = V` e pelo menos uma das condições `Q = V` ou `R = F` se verifica. |
+| **Tipo** | Expressão composta com operadores aninhados |
+
+### Tabela-verdade completa — Desafio 8
+
+| **`linha_tabela`** | `P` | `Q` | `R` | `¬R` | `Q ∨ ¬R` | **Resultado esperado** | **Resultado do parser (teste isolado)** |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 7 | V | V | V | F | V | **V** | V |
+| 6 | V | V | F | V | V | **V** | V |
+| 5 | V | F | V | F | F | **F** | F |
+| 4 | V | F | F | V | V | **V** | V |
+| 3 | F | V | V | F | V | **F** | F |
+| 2 | F | V | F | V | V | **F** | F |
+| 1 | F | F | V | F | F | **F** | F |
+| 0 | F | F | F | V | V | **F** | F |
+
+**Verificação:** as oito valorações (`linha_tabela` de `0` a `7`) apresentam concordância entre o resultado matemático esperado e a reprodução isolada do parser (**8/8 coincidências; nenhuma divergência**).
+
+---
+
+## Caso AV.9 — Condicional e disjunção ligadas por conjunção
+
+| Campo | Descrição |
+|---|---|
+| **Entrada** | Todas as oito combinações possíveis de `P`, `Q` e `R` |
+| **Origem no jogo** | `src/game.c`, `templates[8]` (desafio 9) |
+| **Expressão lógica** | `(P → Q) ∧ (Q ∨ R)` |
+| **Expressão no parser** | `(P IMPLICA Q) AND (Q OR R)` |
+| **Resultado esperado** | Conforme a coluna **Resultado esperado** da tabela-verdade, para cada valoração |
+| **Justificativa** | A condicional `P → Q` é falsa somente se `P = V` e `Q = F`. A expressão entre os outros parênteses, `Q ∨ R`, é verdadeira se pelo menos uma das duas proposições for verdadeira. A conjunção exige ambos os resultados verdadeiros. |
+| **Tipo** | Expressão composta com condicional |
+
+### Tabela-verdade completa — Desafio 9
+
+| **`linha_tabela`** | `P` | `Q` | `R` | `P → Q` | `Q ∨ R` | **Resultado esperado** | **Resultado do parser (teste isolado)** |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 7 | V | V | V | V | V | **V** | V |
+| 6 | V | V | F | V | V | **V** | V |
+| 5 | V | F | V | F | V | **F** | F |
+| 4 | V | F | F | F | F | **F** | F |
+| 3 | F | V | V | V | V | **V** | V |
+| 2 | F | V | F | V | V | **V** | V |
+| 1 | F | F | V | V | V | **V** | V |
+| 0 | F | F | F | V | F | **F** | F |
+
+**Verificação:** as oito valorações (`linha_tabela` de `0` a `7`) apresentam concordância entre o resultado matemático esperado e a reprodução isolada do parser (**8/8 coincidências; nenhuma divergência**).
+
+---
+
+## Caso AV.10 — Negação da bicondicional seguida de disjunção
+
+| Campo | Descrição |
+|---|---|
+| **Entrada** | Todas as oito combinações possíveis de `P`, `Q` e `R` |
+| **Origem no jogo** | `src/game.c`, `templates[9]` (desafio 10) |
+| **Expressão lógica** | `¬(P ↔ Q) ∨ R` |
+| **Expressão no parser** | `NOT (P BICONDICIONAL Q) OR R` |
+| **Resultado esperado** | Conforme a coluna **Resultado esperado** da tabela-verdade, para cada valoração |
+| **Justificativa** | A bicondicional `P ↔ Q` é verdadeira quando `P` e `Q` têm o mesmo valor. Após a negação, o resultado é verdadeiro quando `P` e `Q` diferem. A disjunção com `R` também torna a expressão verdadeira sempre que `R = V`. |
+| **Tipo** | Expressão composta com bicondicional e negação |
+
+### Tabela-verdade completa — Desafio 10
+
+| **`linha_tabela`** | `P` | `Q` | `R` | `P ↔ Q` | `¬(P ↔ Q)` | **Resultado esperado** | **Resultado do parser (teste isolado)** |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 7 | V | V | V | V | F | **V** | V |
+| 6 | V | V | F | V | F | **F** | F |
+| 5 | V | F | V | F | V | **V** | V |
+| 4 | V | F | F | F | V | **V** | V |
+| 3 | F | V | V | F | V | **V** | V |
+| 2 | F | V | F | F | V | **V** | V |
+| 1 | F | F | V | V | F | **V** | V |
+| 0 | F | F | F | V | F | **F** | F |
+
+**Verificação:** as oito valorações (`linha_tabela` de `0` a `7`) apresentam concordância entre o resultado matemático esperado e a reprodução isolada do parser (**8/8 coincidências; nenhuma divergência**).
+
+---
+
+# Verificação do Parser Recursivo — Síntese dos Resultados
+
+O parser processa as expressões por precedência de operadores e avalia recursivamente o conteúdo dos parênteses por meio de `eval_expr`. A função `avaliar_expressao` utiliza as valorações de `P`, `Q` e `R` para calcular a resposta correta de cada desafio.
+
+**Procedimento de validação:** para cada uma das cinco expressões cadastradas no nível avançado, foram percorridas as oito valorações possíveis de `P`, `Q` e `R` (ordem de apresentação: `VVV`, `VVF`, `VFV`, `VFF`, `FVV`, `FVF`, `FFV`, `FFF`). Foi compilado e executado um programa C de teste isolado, contendo a reprodução das rotinas do avaliador e as cinco expressões cadastradas. As saídas foram confrontadas com cálculos lógicos independentes para as 40 combinações.
+
+A correspondência entre o índice interno do jogo e as variáveis segue o mesmo critério de `gerar_desafio_da_sessao`:
+
+```text
+linha_tabela = (P << 2) | (Q << 1) | R
+P = (linha_tabela >> 2) & 1
+Q = (linha_tabela >> 1) & 1
+R = linha_tabela & 1
+```
+
+Os operadores `AND`, `OR`, `NOT`, `IMPLICA` e `BICONDICIONAL` foram conferidos segundo a lógica proposicional clássica. Para a condicional, adotou-se `P → Q ≡ ¬P ∨ Q`; para a bicondicional, `P ↔ Q` é verdadeira se, e somente se, os valores de `P` e `Q` forem iguais.
+
+**Tipo de evidência:** execução do avaliador reproduzido em isolamento; não foi empregado o executável final do jogo nem a invocação direta da função estática do módulo de produção. Dessa forma, o resultado é uma confirmação da consistência lógica dos casos e das rotinas reproduzidas, não um relatório de testes automatizados integrados ao repositório.
+
+| Desafio | Expressão lógica | Linhas verificadas | Resultados `V` | Resultados `F` | Divergências |
+|---|---|:---:|:---:|:---:|:---:|
+| 6 | `(P ∨ Q) ∧ ¬R` | 8/8 | 3 | 5 | 0 |
+| 7 | `¬(P ∧ Q) ∨ R` | 8/8 | 7 | 1 | 0 |
+| 8 | `P ∧ (Q ∨ ¬R)` | 8/8 | 3 | 5 | 0 |
+| 9 | `(P → Q) ∧ (Q ∨ R)` | 8/8 | 5 | 3 | 0 |
+| 10 | `¬(P ↔ Q) ∨ R` | 8/8 | 6 | 2 | 0 |
+
+**Resultado consolidado:** **40/40 coincidências**, sem divergências entre os resultados esperados e as saídas da reprodução isolada do parser. As cinco expressões são **contingências**: apresentam ao menos uma linha verdadeira e uma linha falsa.
+
+## Conclusão Formal sobre a Corretude
+
+Considerando a semântica da lógica proposicional clássica e o conjunto de expressões selecionado, a análise exaustiva das oito valorações de cada desafio demonstra que os **resultados esperados estão corretos**. A execução isolada das rotinas do parser apresentou correspondência integral com esses valores.
+
+Portanto, **as cinco tabelas-verdade estão corretas para todas as oito valorações de cada expressão**, e as **40 saídas do avaliador reproduzido em isolamento coincidem com esses resultados**. Essa correspondência oferece evidência favorável à implementação dos conectivos e ao processamento dos parênteses nas expressões dos desafios 6 a 10.
+
+A conclusão limita-se às expressões válidas analisadas e à reprodução isolada do código consultado. **Não constitui prova de corretude geral do parser, nem comprova a execução integrada do jogo**; não foram avaliadas, nesse ensaio, expressões malformadas, outros encadeamentos de operadores ou possíveis diferenças entre versões do código.
+
+### Limitações e verificações complementares
+
+Como evolução futura, recomenda-se verificar diretamente as rotinas compiladas a partir de `src/game.c` e registrar testes automatizados, se houver ampliação do escopo acadêmico. Também podem ser definidos requisitos de tratamento de erros sintáticos, considerando exemplos como `P AND` (operando ausente), `(P OR Q` (parêntese não fechado), `P XOR Q` (operador não reconhecido) e `P Q` (conteúdo excedente). **Esses exemplos não foram executados nem classificados como testes aprovados neste documento.**
+
+> **Referência técnica:** [`src/game.c`](../src/game.c), vetor `templates`, função `avaliar_expressao` e rotinas `eval_prim`, `eval_not`, `eval_and`, `eval_or`, `eval_impl` e `eval_expr`. A fonte de referência pública utilizada foi o repositório [`guialveess/logi-decifra-ai`](https://github.com/guialveess/logi-decifra-ai/blob/main/src/game.c), consultado em 28/10/2026.
+
+---
+
 # Resumo dos Casos Especiais
 
 | Conceito | Exemplo utilizado | Classificação |
@@ -483,7 +713,8 @@ Os casos de teste apresentados seguem a progressão proposta no arquivo-base:
 2. **Nível 02:** aplicação individual dos principais conectivos;
 3. **Nível 03:** combinação de operadores e avaliação em etapas;
 4. **Nível 04:** expressões mais complexas, equivalências, testes de tautologia, contradição e validade de inferências.
+5. **Nível avançado do jogo:** verificação das oito valorações dos desafios 6 a 10, com tabelas-verdade completas, índices `linha_tabela` e comparação com uma reprodução isolada do parser recursivo `eval_expr`.
 
 A presença de um único caso falso é suficiente para demonstrar que uma fórmula **não é uma tautologia**. Da mesma forma, para demonstrar que uma forma de argumento é inválida, basta encontrar um **contraexemplo** no qual todas as premissas sejam verdadeiras e a conclusão seja falsa.
 
-Esses testes podem ser utilizados tanto como documentação didática quanto como base para validação de um programa que processe expressões da lógica proposicional clássica.
+Esses testes podem ser utilizados tanto como documentação didática quanto como base para validação de um programa que processe expressões da lógica proposicional clássica. A análise dos desafios 6 a 10 acrescenta evidência técnica de correspondência entre as tabelas-verdade e o avaliador reproduzido em isolamento, limitada às expressões efetivamente verificadas. Para avaliação integrada e validação de erros sintáticos, são necessários testes adicionais no código do jogo.
