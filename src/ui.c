@@ -794,7 +794,7 @@ static int media_tempo(int total) {
 
 static void render_resultado_contra_tempo(void) {
     char buf[80];
-    int r = (g_rows - 14) / 2;
+    int r = (g_rows - 22) / 2;
     int c = 5;
     int media = media_tempo(NUM_DESAFIOS_AVANC);
     if (r < 1) r = 1;
@@ -814,16 +814,23 @@ static void render_resultado_contra_tempo(void) {
 
     ir(r+9,  c); linha_div();
     if (jogador.acertos == NUM_DESAFIOS_AVANC && media <= 8)
-        { ir(r+11, c); p(80,200,120,  "EXCELENTE  Rapido e preciso!"); }
+        { ir(r+10, c); p(80,200,120,  "EXCELENTE  Rapido e preciso!"); }
     else if (jogador.acertos >= 4)
-        { ir(r+11, c); p(100,140,255, "MUITO BOM  Escopo dominado, ganhe em velocidade."); }
+        { ir(r+10, c); p(100,140,255, "MUITO BOM  Escopo dominado, ganhe em velocidade."); }
     else if (jogador.acertos >= 2)
-        { ir(r+11, c); p(200,210,230, "BOM  Revise a ordem de precedencia e tente de novo."); }
+        { ir(r+10, c); p(200,210,230, "BOM  Revise a ordem de precedencia e tente de novo."); }
     else
-        { ir(r+11, c); p(220,70,70,   "INICIANTE  Pratique primeiro o modo sem tempo."); }
+        { ir(r+10, c); p(220,70,70,   "INICIANTE  Pratique primeiro o modo sem tempo."); }
 
-    ir(r+13, c); linha_div();
-    ir(r+14, c); p(120,125,160, "Pressione ENTER para continuar...");
+    if (jogador.posicao_ranking >= 0 && jogador.pontuacao > jogador.recorde_anterior)
+        { ir(r+11, c); p(255,220,80, "*** NOVO RECORDE! ***"); }
+    else if (jogador.posicao_ranking >= 0)
+        { ir(r+11, c); p(255,220,80, "Voce entrou no Top 5!"); }
+
+    ir(r+12, c); linha_div();
+    render_ranking(r+13, c);
+    ir(r+20, c); linha_div();
+    ir(r+21, c); p(120,125,160, "Pressione ENTER para continuar...");
 }
 
 void tela_resultado_contra_tempo(int total_rodada) {

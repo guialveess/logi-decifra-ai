@@ -3,11 +3,20 @@
 #include <string.h>
 #include "score.h"
 
+static int g_modo = SCORE_MODO_BASICO;
+
+void score_definir_modo(int modo) { g_modo = modo; }
+
 static int caminho_arquivo(char *buf, size_t n) {
+    const char *sufixo = "";
     const char *home = getenv("HOME");
-    if (!home || !*home) home = getenv("USERPROFILE");
+    if (!home || !*home) home = getenv("USERPROFILE");   /* fallback Windows */
     if (!home || !*home) return -1;
-    snprintf(buf, n, "%s/.decifra_score", home);
+
+    if (g_modo == SCORE_MODO_AVANCADO)   sufixo = "_avancado";
+    else if (g_modo == SCORE_MODO_TEMPO) sufixo = "_tempo";
+
+    snprintf(buf, n, "%s/.decifra_score%s", home, sufixo);
     return 0;
 }
 

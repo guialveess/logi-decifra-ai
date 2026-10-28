@@ -5,6 +5,7 @@
 #include "ui.h"
 #include "input.h"
 #include "audio.h" /* NOVO: US15 */
+#include "score.h"
 
 #ifndef _WIN32
 #include <unistd.h>
@@ -60,6 +61,7 @@ int main(void) {
         if (opcao == 6) { executar_loja(); continue; } 
 
         if (opcao == 5) {
+            score_definir_modo(SCORE_MODO_TEMPO);
             tela_nome();
             ler_nome(jogador.nome, NOME_MAX);
             executar_nivel_contra_tempo();
@@ -67,6 +69,7 @@ int main(void) {
         }
 
         if (opcao == 4) {
+            score_definir_modo(SCORE_MODO_AVANCADO);
             tela_nome();
             ler_nome(jogador.nome, NOME_MAX);
             executar_nivel_avancado();
@@ -77,6 +80,7 @@ int main(void) {
         if (opcao == 2) { tela_como_jogar();      continue; }
         if (opcao != 1) continue;
 
+        score_definir_modo(SCORE_MODO_BASICO);
         tela_loading();
         tela_nome();
         ler_nome(jogador.nome, NOME_MAX);
