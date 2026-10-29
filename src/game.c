@@ -7,6 +7,7 @@
 #include "game.h"
 #include "ui.h"
 #include "input.h"
+#include "score.h"
 
 typedef struct {
     const char *expressao;
@@ -110,6 +111,8 @@ void inicializar_jogo(void) {
     jogador.acertos = 0;
     jogador.moedas = 0;        /* Inicializa economia */
     jogador.dicas_gratis = 0;
+    jogador.recorde_anterior = score_melhor();
+    jogador.posicao_ranking  = -1;
 }
 
 static void rodar_desafio(int indice) {
@@ -231,10 +234,12 @@ void executar_nivel_contra_tempo(void) {
     jogador.dicas_gratis = dicas_antigas;
 
     for (i = NUM_DESAFIOS_BASE; i < NUM_DESAFIOS; i++) rodar_desafio_contra_tempo(i);
+    jogador.posicao_ranking = score_inserir(jogador.nome, jogador.pontuacao);
     tela_resultado_contra_tempo(NUM_DESAFIOS_AVANC);
 }
 
 void finalizar_jogo(int total_rodada) {
+    jogador.posicao_ranking = score_inserir(jogador.nome, jogador.pontuacao);
     tela_resultado_final(total_rodada);
 }
 

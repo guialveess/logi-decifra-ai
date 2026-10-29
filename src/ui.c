@@ -7,6 +7,7 @@
 #include "input.h"
 #include "ai_client.h"
 #include "audio.h"      /* NOVO: US15 */
+#include "score.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -389,13 +390,21 @@ void tela_loading(void) {
 /* ═══════════════ NOME ═══════════════ */
 
 static void render_nome(void) {
-    int r = (g_rows - 6) / 2;
+    ScoreEntry rk[SCORE_MAX];
+    char buf[96];
+    int r = (g_rows - 8) / 2;
     int c = 5;
     if (r < 1) r = 1;
     ir(r,   c); p(100,140,255, "LOGI - Decifra.IA");
     ir(r+2, c); linha_div();
     ir(r+4, c); p(200,210,230, "Como voce se chama?");
-    ir(r+6, c); p(120,125,160, "Nome: ");
+
+    if (score_carregar(rk, SCORE_MAX) > 0) {
+        snprintf(buf, sizeof(buf), "Recorde atual: %d pts (%.20s)  - consegue superar?",
+                 rk[0].pontos, rk[0].nome);
+        ir(r+8, c); p(255,220,80, buf);
+    }
+    ir(r+6, c); p(120,125,160, "Nome: ");   /* por ultimo: cursor fica aqui */
 }
 
 void tela_nome(void) { fade_tela(render_nome); }
@@ -719,9 +728,24 @@ void tela_feedback_contra_tempo(int acertou, int indice,
 
 /* ═══════════════ RESULTADO FINAL ═══════════════ */
 
+static void render_ranking(int r, int c) {
+    ScoreEntry rk[SCORE_MAX];
+    char buf[96];
+    int n = score_carregar(rk, SCORE_MAX), i;
+
+    ir(r, c); p(120,125,160, "Ranking (Top 5):");
+    if (n == 0) { ir(r+1, c); p(200,210,230, "(vazio)"); return; }
+    for (i = 0; i < n; i++) {
+        snprintf(buf, sizeof(buf), "%d. %-20.20s %5d", i + 1, rk[i].nome, rk[i].pontos);
+        ir(r + 1 + i, c);
+        if (i == jogador.posicao_ranking) p(255,220,80, buf);   /* destaca voce */
+        else                              p(200,210,230, buf);
+    }
+}
+
 static void render_resultado(void) {
     char buf[64];
-    int r = (g_rows - 10) / 2;
+    int r = (g_rows - 19) / 2;
     int c = 5;
     if (r < 1) r = 1;
     ir(r,   c); p(100,140,255, "LOGI - Decifra.IA");
@@ -739,8 +763,16 @@ static void render_resultado(void) {
         { ir(r+8, c); p(100,140,255, "BOM  Continue praticando!"); }
     else
         { ir(r+8, c); p(120,125,160, "INICIANTE  Nao desista, a logica leva tempo."); }
-    ir(r+9,  c); linha_div();
-    ir(r+10, c); p(120,125,160, "Pressione ENTER para continuar...");
+
+    if (jogador.posicao_ranking >= 0 && jogador.pontuacao > jogador.recorde_anterior)
+        { ir(r+9, c); p(255,220,80, "*** NOVO RECORDE! ***"); }
+    else if (jogador.posicao_ranking >= 0)
+        { ir(r+9, c); p(255,220,80, "Voce entrou no Top 5!"); }
+
+    ir(r+10, c); linha_div();
+    render_ranking(r+11, c);
+    ir(r+18, c); linha_div();
+    ir(r+19, c); p(120,125,160, "Pressione ENTER para continuar...");
 }
 
 void tela_resultado_final(int total_rodada) {
@@ -762,7 +794,7 @@ static int media_tempo(int total) {
 
 static void render_resultado_contra_tempo(void) {
     char buf[80];
-    int r = (g_rows - 14) / 2;
+    int r = (g_rows - 22) / 2;
     int c = 5;
     int media = media_tempo(NUM_DESAFIOS_AVANC);
     if (r < 1) r = 1;
@@ -782,16 +814,23 @@ static void render_resultado_contra_tempo(void) {
 
     ir(r+9,  c); linha_div();
     if (jogador.acertos == NUM_DESAFIOS_AVANC && media <= 8)
-        { ir(r+11, c); p(80,200,120,  "EXCELENTE  Rapido e preciso!"); }
+        { ir(r+10, c); p(80,200,120,  "EXCELENTE  Rapido e preciso!"); }
     else if (jogador.acertos >= 4)
-        { ir(r+11, c); p(100,140,255, "MUITO BOM  Escopo dominado, ganhe em velocidade."); }
+        { ir(r+10, c); p(100,140,255, "MUITO BOM  Escopo dominado, ganhe em velocidade."); }
     else if (jogador.acertos >= 2)
-        { ir(r+11, c); p(200,210,230, "BOM  Revise a ordem de precedencia e tente de novo."); }
+        { ir(r+10, c); p(200,210,230, "BOM  Revise a ordem de precedencia e tente de novo."); }
     else
-        { ir(r+11, c); p(220,70,70,   "INICIANTE  Pratique primeiro o modo sem tempo."); }
+        { ir(r+10, c); p(220,70,70,   "INICIANTE  Pratique primeiro o modo sem tempo."); }
 
-    ir(r+13, c); linha_div();
-    ir(r+14, c); p(120,125,160, "Pressione ENTER para continuar...");
+    if (jogador.posicao_ranking >= 0 && jogador.pontuacao > jogador.recorde_anterior)
+        { ir(r+11, c); p(255,220,80, "*** NOVO RECORDE! ***"); }
+    else if (jogador.posicao_ranking >= 0)
+        { ir(r+11, c); p(255,220,80, "Voce entrou no Top 5!"); }
+
+    ir(r+12, c); linha_div();
+    render_ranking(r+13, c);
+    ir(r+20, c); linha_div();
+    ir(r+21, c); p(120,125,160, "Pressione ENTER para continuar...");
 }
 
 void tela_resultado_contra_tempo(int total_rodada) {
