@@ -408,7 +408,7 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 
 ## Bug Tracker
 
-<img width="1920" height="718" alt="Captura de Tela (564)" src="https://github.com/user-attachments/assets/c2433a0e-44bd-4374-9871-5068b951e937" />
+<img width="1920" height="718" alt="Captura de Tela (564)" src="<img width="685" height="907" alt="Captura de tela 2026-10-29 180440" src="https://github.com/user-attachments/assets/39f684e1-5761-4006-8602-bf95d13aa201" />
 
 
 ## Programação em Pares
