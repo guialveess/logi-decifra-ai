@@ -429,6 +429,7 @@ static void render_desafio(void) {
     ir(r+9,  c); p(100,140,255, "[V]"); p(200,210,230, " Verdadeiro");
                  p(100,140,255, "     [F]"); p(200,210,230, " Falso");
                  p(100,140,255, "     [H]"); p(200,210,230, " Pedir ajuda ao LOGI");
+                 p(100,140,255, "     [P]"); p(200,210,230, " Pular (20 Mts)");
     ir(r+11, c); p(120,125,160, "resposta: ");
 }
 
@@ -496,6 +497,7 @@ static void render_desafio_contra_tempo(void) {
     ir(r+11, c); p(100,140,255, "[V]"); p(200,210,230, " Verdadeiro");
                  p(100,140,255, "    [F]"); p(200,210,230, " Falso");
                  p(100,140,255, "    [H]"); p(200,210,230, " Ajuda (pausa timer)");
+                 p(100,140,255, "    [T]"); p(200,210,230, " +10s (15 Mts)");
 
     g_input_row = r + 13;
     g_input_col = c + 10;
@@ -559,7 +561,7 @@ char ler_resposta_contra_tempo(int segundos, int *usados_out) {
 
             {
                 int up = toupper((int)ch);
-                if (up == 'V' || up == 'F' || up == 'H') {
+                if (up == 'V' || up == 'F' || up == 'H' || up == 'T' || up == 'Q') {
                     ir(g_input_row, g_input_col);
                     printf("%c", ch); fflush(stdout);
                     *usados_out = inicio - restantes;
@@ -873,19 +875,21 @@ void tela_lootbox_resultado(const char *premio) {
 }
 
 void tela_loja(void) {
-    int r = (g_rows - 12) / 2, c = 5;
+    int r = (g_rows - 14) / 2, c = 5;
     limpar_tela();
     ir(r,    c); p(150, 255, 150, "LOJA DE ITENS");
     ir(r+1,  c); linha_div();
-    ir(r+3,  c); p(120, 125, 160, "Seu saldo: "); 
-                 printf("%d Moedas", jogador.moedas); rst();
-    ir(r+4,  c); p(120, 125, 160, "Dicas gratis: "); 
-                 printf("%d", jogador.dicas_gratis); rst();
-    ir(r+6,  c); p(100,140,255, "1"); p(200,210,230, " Comprar Lootbox  (30 Moedas)");
-    ir(r+7,  c); p(100,140,255, "2"); p(200,210,230, " Comprar Dica     (15 Moedas)");
-    ir(r+8,  c); p(100,140,255, "3"); p(200,210,230, " Sair da Loja");
-    ir(r+10, c); linha_div();
-    ir(r+12, c); p(120, 125, 160, "opcao: ");
+    ir(r+3,  c); p(120, 125, 160, "Saldo: "); printf("%d Moedas", jogador.moedas); rst();
+    ir(r+4,  c); p(120, 125, 160, "Dicas: "); printf("%d | Pulos: %d | Tempo: %d", jogador.dicas_gratis, jogador.pulos_gratis, jogador.botoes_tempo); rst();
+    
+    ir(r+6,  c); p(100,140,255, "1"); p(200,210,230, " Lootbox         (30 Moedas)");
+    ir(r+7,  c); p(100,140,255, "2"); p(200,210,230, " Dica Gratis     (15 Moedas)");
+    ir(r+8,  c); p(100,140,255, "3"); p(200,210,230, " Pular Pergunta  (20 Moedas)"); /* NOVO */
+    ir(r+9,  c); p(100,140,255, "4"); p(200,210,230, " +10 Segundos    (15 Moedas)"); /* NOVO */
+    ir(r+10, c); p(100,140,255, "5"); p(200,210,230, " Sair da Loja");
+    
+    ir(r+12, c); linha_div();
+    ir(r+14, c); p(120, 125, 160, "opcao: ");
     mostrar_cursor();
 }
 

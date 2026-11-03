@@ -121,6 +121,20 @@ static void rodar_desafio(int indice) {
 
     tela_desafio(indice);
     resposta = ler_resposta();
+    
+    if (toupper((unsigned char)resposta) == 'P') {
+        if (jogador.pulos_gratis > 0) {
+            jogador.pulos_gratis--;
+            tela_aviso("Pulo usado! Gerando nova questao...");
+            gerar_desafio_da_sessao(indice); // Regera a questão
+            tela_desafio(indice);            // Desenha de novo
+            resposta = ler_resposta();
+        } else {
+            tela_aviso("Voce nao tem pulos!");
+            tela_desafio(indice);
+            resposta = ler_resposta();
+        }
+    }
 
     if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
 
@@ -156,10 +170,14 @@ void executar_nivel_avancado(void) {
     // mantem as moedas se o jogador for jogar o nivel avancado
     int moedas_antigas = jogador.moedas;
     int dicas_antigas = jogador.dicas_gratis;
+    int pulos_antigos = jogador.pulos_gratis;
+    int tempo_antigo  = jogador.botoes_tempo;
     
     inicializar_jogo();
     jogador.moedas = moedas_antigas;
     jogador.dicas_gratis = dicas_antigas;
+    jogador.pulos_gratis = pulos_antigos;
+    jogador.botoes_tempo = tempo_antigo;
 
     for (i = NUM_DESAFIOS_BASE; i < NUM_DESAFIOS; i++) rodar_desafio(i);
     finalizar_jogo(NUM_DESAFIOS_AVANC);
@@ -175,9 +193,28 @@ static int bonus_de(int usados, int nivel) {
 static void rodar_desafio_contra_tempo(int indice) {
     char resposta;
     int  acertou = 0, usados = 0, timeout = 0, segs_restantes = TIMER_SEGUNDOS;
+    int usados_totais = 0;
 
-    tela_desafio_contra_tempo(indice, segs_restantes);
-    resposta = ler_resposta_contra_tempo(segs_restantes, &usados);
+    while (1) {
+        tela_desafio_contra_tempo(indice, segs_restantes);
+        resposta = ler_resposta_contra_tempo(segs_restantes, &usados);
+        segs_restantes -= usados;
+        usados_totais += usados;
+
+        /* NOVO: US18 - Adicionar Tempo */
+        if (toupper((unsigned char)resposta) == 'T') {
+            if (jogador.botoes_tempo > 0) {
+                jogador.botoes_tempo--;
+                segs_restantes += 10;
+                tela_aviso("+10 Segundos adicionados!");
+                continue; // Volta para o início do while
+            } else {
+                tela_aviso("Sem botoes de tempo!");
+                continue;
+            }
+        }
+        break; // Sai do while se não for 'T'
+    }
 
     if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
 
@@ -288,6 +325,20 @@ void executar_loja(void) {
             } else {
                 tela_aviso("Moedas insuficientes!");
             }
+        }
+        if (opcao == 3) { 
+            if (jogador.moedas >= CUSTO_PULO) {
+                jogador.moedas -= CUSTO_PULO;
+                jogador.pulos_gratis++;
+                tela_aviso("Comprou 1 Pulo!");
+            } else tela_aviso("Moedas insuficientes!");
+        }
+        if (opcao == 4) { 
+            if (jogador.moedas >= CUSTO_TEMPO) {
+                jogador.moedas -= CUSTO_TEMPO;
+                jogador.botoes_tempo++;
+                tela_aviso("Comprou +10 Segundos!");
+            } else tela_aviso("Moedas insuficientes!");
         }
     }
 }

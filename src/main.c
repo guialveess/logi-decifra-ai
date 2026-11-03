@@ -87,11 +87,15 @@ int main(void) {
         
         int moedas_antigas = jogador.moedas;
         int dicas_antigas = jogador.dicas_gratis;
+        int pulos_antigos = jogador.pulos_gratis; 
+        int tempo_antigo  = jogador.botoes_tempo;
 
         inicializar_jogo();
         
         jogador.moedas = moedas_antigas;
         jogador.dicas_gratis = dicas_antigas;
+        jogador.pulos_gratis = pulos_antigos;
+        jogador.botoes_tempo = tempo_antigo; 
 
         for (i = 0; i < NUM_DESAFIOS_BASE; i++)
             executar_desafio(i);
