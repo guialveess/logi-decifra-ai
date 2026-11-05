@@ -20,6 +20,9 @@ void tela_desafio_contra_tempo(int indice, int segs_restantes);
 char ler_resposta_contra_tempo(int segundos, int *usados_out);
 void tela_feedback_contra_tempo(int acertou, int indice, int usados, int timeout, int usou_ajuda);
 void tela_resultado_contra_tempo(int total_rodada);
+void tela_intro_sobrevivencia(void);
+void tela_desafio_sobrevivencia(int indice);
+void tela_game_over(void);
 
 /* Novas Telas US13/US14 */
 void tela_loja(void);

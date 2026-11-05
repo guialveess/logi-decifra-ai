@@ -43,6 +43,7 @@ typedef struct {
     int  posicao_ranking;    /* NOVO: -1 = nao entrou no top-5 */
     int  pulos_gratis;   
     int  botoes_tempo;
+    int  vidas;
     
     char resposta_jogador[NUM_DESAFIOS];
     int  acertou[NUM_DESAFIOS];
@@ -57,6 +58,7 @@ void inicializar_jogo(void);
 void executar_desafio(int indice);
 void executar_nivel_avancado(void);
 void executar_nivel_contra_tempo(void);
+void executar_nivel_sobrevivencia(void); 
 void finalizar_jogo(int total_rodada);
 
 /* Novas funções US13/US14 */

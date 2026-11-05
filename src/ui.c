@@ -6,7 +6,7 @@
 #include "game.h"
 #include "input.h"
 #include "ai_client.h"
-#include "audio.h"      /* NOVO: US15 */
+#include "audio.h"
 #include "score.h"
 
 #ifdef _WIN32
@@ -149,10 +149,10 @@ static int offset_do_nivel(int nivel) {
     return (nivel == NIVEL_AVANCADO) ? NUM_DESAFIOS_BASE : 0;
 }
 
-/* ═══════════════ MENU (7 opções) ═══════════════ */
+/* ═══════════════ MENU ═══════════════ */
 
 static void render_menu(void) {
-    int r = (g_rows - 14) / 2;
+    int r = (g_rows - 15) / 2;
     int c = 5;
     if (r < 1) r = 1;
     ir(r,    c); p(100,140,255, "LOGI - Decifra.IA");
@@ -164,13 +164,14 @@ static void render_menu(void) {
     ir(r+7,  c); p(255,180, 60, "4"); p(200,210,230, "   Nivel Avancado (Parenteses)");
     ir(r+8,  c); p(255,120, 60, "5"); p(200,210,230, "   Contra-Tempo (Avancado)");
     ir(r+9,  c); p(150,255,150, "6"); p(200,210,230, "   Loja de Itens e Lootbox");
-    ir(r+10, c); p(100,140,255, "7"); p(200,210,230, "   Sair");
-    ir(r+12, c); linha_div();
-    ir(r+14, c); p(120,125,160, "opcao: ");
+    ir(r+10, c); p(220, 70, 70, "7"); p(200,210,230, "   Modo Sobrevivencia (Hardcore)");
+    ir(r+11, c); p(100,140,255, "8"); p(200,210,230, "   Sair");
+    ir(r+13, c); linha_div();
+    ir(r+15, c); p(120,125,160, "opcao: ");
 }
 
 void tela_menu(void) { 
-    audio_tocar(AUDIO_MENU); /* NOVO: US15 */
+    audio_tocar(AUDIO_MENU);
     fade_tela(render_menu); 
 }
 
@@ -186,7 +187,7 @@ static void render_como_jogar(void) {
     ir(r+4,  c); p(200,210,230, "Pressione "); p(100,140,255, "[H]");
                  p(200,210,230, " para pedir ajuda a LOGI (IA tutora).");
     ir(r+6,  c); p(200,210,230, "Ganhe Moedas ao acertar e use na Loja (Opcao 6)");
-    ir(r+7,  c); p(200,210,230, "para comprar Lootboxes ou Dicas Gratis.");
+    ir(r+7,  c); p(200,210,230, "para comprar Lootboxes, Dicas, Pulos e Tempo.");
     ir(r+9,  c); p(120,125,160, "Operadores logicos:");
     ir(r+11, c); p(100,140,255, "AND            "); p(200,210,230, "verdadeiro quando ambos os lados sao V");
     ir(r+12, c); p(100,140,255, "OR             "); p(200,210,230, "verdadeiro quando pelo menos um lado e V");
@@ -260,8 +261,7 @@ static void render_exemplos_escopo(void) {
     ir(r+13, c); p(200,210,230, "Por que muda?");
     ir(r+14, c); p(120,125,160, e->explicacao);
 
-    snprintf(buf, sizeof(buf), "Exemplo %d de %d",
-             g_exemplo_idx + 1, NUM_EXEMPLOS_ESCOPO);
+    snprintf(buf, sizeof(buf), "Exemplo %d de %d", g_exemplo_idx + 1, NUM_EXEMPLOS_ESCOPO);
     ir(r+16, c); p(120,125,160, buf);
     ir(r+17, c); p(100,140,255, "[N]"); p(200,210,230, " Proximo exemplo");
                  p(100,140,255, "    [ENTER]"); p(200,210,230, " Voltar ao menu");
@@ -344,6 +344,68 @@ void tela_intro_contra_tempo(void) {
     mostrar_cursor(); ler_enter(); esconder_cursor();
 }
 
+static void render_intro_sobrevivencia(void) {
+    int r = (g_rows - 14) / 2;
+    int c = 5;
+    if (r < 1) r = 1;
+    ir(r,    c); p(220, 70, 70, "MODO SOBREVIVENCIA");
+                 p(120,125,160, "  Hardcore");
+    ir(r+2,  c); linha_div();
+    ir(r+4,  c); p(200,210,230, "Sobreviva o maximo que puder.");
+    ir(r+5,  c); p(200,210,230, "As questoes sao sorteadas de TODOS os niveis.");
+    ir(r+7,  c); p(200,210,230, "Voce tem "); p(220,70,70, "3 vidas (coracoes).");
+    ir(r+8,  c); p(200,210,230, "Cada erro subtrai 1 vida.");
+    ir(r+9,  c); p(200,210,230, "O jogo acaba quando as vidas zerarem.");
+    ir(r+11, c); p(200,210,230, "Ganhe pontos e moedas pelos acertos!");
+    ir(r+13, c); linha_div();
+    ir(r+14, c); p(120,125,160, "Pressione ENTER para comecar...");
+}
+
+void tela_intro_sobrevivencia(void) {
+    fade_tela(render_intro_sobrevivencia);
+    mostrar_cursor(); ler_enter(); esconder_cursor();
+}
+
+static void render_desafio_sobrevivencia(void) {
+    char buf[256];
+    char hearts[20] = "";
+    int r = (g_rows - 12) / 2;
+    int c = 5;
+    if (r < 1) r = 1;
+
+    for (int i = 0; i < jogador.vidas; i++) strcat(hearts, "[♥] ");
+    for (int i = jogador.vidas; i < 3; i++) strcat(hearts, "[ ] ");
+
+    snprintf(buf, sizeof(buf), "SOBREVIVENCIA | Nv %d | Pts: %d | Moedas: %d", 
+             desafios[g_idx].nivel, jogador.pontuacao, jogador.moedas);
+    
+    ir(r,    c); p(220, 70, 70, buf);
+    ir(r+1,  c); p(255, 80, 80, hearts);
+    ir(r+2,  c); linha_div();
+    ir(r+4,  c); print_com_parenteses_destacados(desafios[g_idx].enunciado);
+    ir(r+8,  c); linha_div();
+    ir(r+10, c); p(100,140,255, "[V]"); p(200,210,230, " Verdadeiro");
+                 p(100,140,255, "     [F]"); p(200,210,230, " Falso");
+                 p(100,140,255, "     [H]"); p(200,210,230, " Pedir ajuda");
+    ir(r+12, c); p(120,125,160, "resposta: ");
+}
+
+void tela_desafio_sobrevivencia(int indice) {
+    g_idx = indice;
+    fade_tela(render_desafio_sobrevivencia);
+}
+
+void tela_game_over(void) {
+    int r = (g_rows - 8) / 2, c = 5;
+    limpar_tela();
+    ir(r,   c); p(220, 70, 70, "GAME OVER");
+    ir(r+2, c); linha_div();
+    ir(r+4, c); p(200,210,230, "Suas vidas acabaram!");
+    ir(r+5, c); p(200,210,230, "Pontuacao Final: "); printf("%d", jogador.pontuacao); rst();
+    ir(r+7, c); p(120,125,160, "Pressione ENTER...");
+    mostrar_cursor(); ler_enter(); esconder_cursor();
+}
+
 /* ═══════════════ LOADING ═══════════════ */
 
 void tela_loading(void) {
@@ -355,7 +417,6 @@ void tela_loading(void) {
     limpar_tela();
 
     ir(mid - 8, c); p(100,140,255, "LOGI - Decifra.IA"); rst(); fflush(stdout);
-
     loading_item_em(mid - 6, "Inicializando sistema de logica e IA");
     loading_item_em(mid - 4, "Carregando banco de questoes");
     loading_item_em(mid - 2, "Conectando a IA tutora");
@@ -404,7 +465,7 @@ static void render_nome(void) {
                  rk[0].pontos, rk[0].nome);
         ir(r+8, c); p(255,220,80, buf);
     }
-    ir(r+6, c); p(120,125,160, "Nome: ");   /* por ultimo: cursor fica aqui */
+    ir(r+6, c); p(120,125,160, "Nome: ");
 }
 
 void tela_nome(void) { fade_tela(render_nome); }
@@ -454,7 +515,7 @@ static void render_desafio_avancado(void) {
 }
 
 void tela_desafio(int indice) {
-    audio_tocar(AUDIO_GAMEPLAY); /* NOVO: US15 */
+    audio_tocar(AUDIO_GAMEPLAY);
     g_idx = indice;
     if (desafios[indice].nivel == NIVEL_AVANCADO)
         fade_tela(render_desafio_avancado);
@@ -506,7 +567,7 @@ static void render_desafio_contra_tempo(void) {
 }
 
 void tela_desafio_contra_tempo(int indice, int segs_restantes) {
-    audio_tocar(AUDIO_GAMEPLAY); /* NOVO: US15 */
+    audio_tocar(AUDIO_GAMEPLAY);
     g_idx = indice;
     fade_tela(render_desafio_contra_tempo);
     render_timer_inline(segs_restantes);
@@ -561,7 +622,7 @@ char ler_resposta_contra_tempo(int segundos, int *usados_out) {
 
             {
                 int up = toupper((int)ch);
-                if (up == 'V' || up == 'F' || up == 'H' || up == 'T' || up == 'Q') {
+                if (up == 'V' || up == 'F' || up == 'H' || up == 'P' || up == 'T' || up == 'Q') {
                     ir(g_input_row, g_input_col);
                     printf("%c", ch); fflush(stdout);
                     *usados_out = inicio - restantes;
@@ -609,8 +670,7 @@ static void render_logi(void) {
     ir(r,    c); p(100,140,255, "LOGI");
                  p(120,125,160, "  Tutora de Logica e Seguranca em IA");
     ir(r+2,  c); linha_div();
-    snprintf(buf, sizeof(buf), "Dica para o desafio %d:",
-             g_idx + 1 - offset_do_nivel(desafios[g_idx].nivel));
+    snprintf(buf, sizeof(buf), "Dica para o desafio %d:", g_idx + 1 - offset_do_nivel(desafios[g_idx].nivel));
     ir(r+4,  c); p(120,125,160, buf);
     if (g_tem_ai) {
         ir(r+6, c); p(100,140,255, g_dica_ai);
@@ -665,8 +725,8 @@ static void render_feedback(void) {
 }
 
 void tela_feedback(int acertou, int indice) {
-    if (acertou) audio_tocar(AUDIO_VITORIA); /* NOVO: US15 */
-    else         audio_tocar(AUDIO_DERROTA); /* NOVO: US15 */
+    if (acertou) audio_tocar(AUDIO_VITORIA);
+    else         audio_tocar(AUDIO_DERROTA);
     
     g_idx = indice;
     g_acertou = acertou;
@@ -714,10 +774,9 @@ static void render_feedback_contra_tempo(void) {
     ir(r+12, c); p(120,125,160, "Pressione ENTER para continuar...");
 }
 
-void tela_feedback_contra_tempo(int acertou, int indice,
-                                int usados, int timeout, int usou_ajuda) {
-    if (acertou && !timeout) audio_tocar(AUDIO_VITORIA); /* NOVO: US15 */
-    else                     audio_tocar(AUDIO_DERROTA); /* NOVO: US15 */
+void tela_feedback_contra_tempo(int acertou, int indice, int usados, int timeout, int usou_ajuda) {
+    if (acertou && !timeout) audio_tocar(AUDIO_VITORIA);
+    else                     audio_tocar(AUDIO_DERROTA);
     
     g_idx       = indice;
     g_ft_acertou = acertou;
@@ -740,7 +799,7 @@ static void render_ranking(int r, int c) {
     for (i = 0; i < n; i++) {
         snprintf(buf, sizeof(buf), "%d. %-20.20s %5d", i + 1, rk[i].nome, rk[i].pontos);
         ir(r + 1 + i, c);
-        if (i == jogador.posicao_ranking) p(255,220,80, buf);   /* destaca voce */
+        if (i == jogador.posicao_ranking) p(255,220,80, buf);
         else                              p(200,210,230, buf);
     }
 }
@@ -759,6 +818,7 @@ static void render_resultado(void) {
     ir(r+5, c); p(100,140,255, buf);
     snprintf(buf, sizeof(buf), "Pontos     %d", jogador.pontuacao);
     ir(r+6, c); p(100,140,255, buf);
+    
     if (jogador.acertos == g_total_rodada)
         { ir(r+8, c); p(80,200,120,  "PERFEITO  Voce domina a logica proposicional!"); }
     else if (jogador.acertos * 2 >= g_total_rodada)
@@ -841,7 +901,7 @@ void tela_resultado_contra_tempo(int total_rodada) {
     mostrar_cursor(); ler_enter(); esconder_cursor();
 }
 
-/* ═══════════════ LOJA E LOOTBOX (US13/US14) ═══════════════ */
+/* ═══════════════ LOJA E LOOTBOX ═══════════════ */
 
 void tela_aviso(const char *msg) {
     int r = (g_rows - 6) / 2;
@@ -884,8 +944,8 @@ void tela_loja(void) {
     
     ir(r+6,  c); p(100,140,255, "1"); p(200,210,230, " Lootbox         (30 Moedas)");
     ir(r+7,  c); p(100,140,255, "2"); p(200,210,230, " Dica Gratis     (15 Moedas)");
-    ir(r+8,  c); p(100,140,255, "3"); p(200,210,230, " Pular Pergunta  (20 Moedas)"); /* NOVO */
-    ir(r+9,  c); p(100,140,255, "4"); p(200,210,230, " +10 Segundos    (15 Moedas)"); /* NOVO */
+    ir(r+8,  c); p(100,140,255, "3"); p(200,210,230, " Pular Pergunta  (20 Moedas)");
+    ir(r+9,  c); p(100,140,255, "4"); p(200,210,230, " +10 Segundos    (15 Moedas)");
     ir(r+10, c); p(100,140,255, "5"); p(200,210,230, " Sair da Loja");
     
     ir(r+12, c); linha_div();
@@ -896,7 +956,7 @@ void tela_loja(void) {
 /* ═══════════════ SAIDA ═══════════════ */
 
 void tela_saida(void) {
-    audio_parar(); /* NOVO: US15 */
+    audio_parar();
     int i, r, c;
     atualizar_tamanho();
     r = g_rows / 2;

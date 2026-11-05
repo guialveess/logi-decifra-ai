@@ -4,7 +4,7 @@
 #include "game.h"
 #include "ui.h"
 #include "input.h"
-#include "audio.h" /* NOVO: US15 */
+#include "audio.h"
 #include "score.h"
 
 #ifndef _WIN32
@@ -33,7 +33,7 @@ static void restaurar_termios(void)   {}
 
 static void restaurar_terminal(int sig) {
     (void)sig;
-    audio_parar(); /* NOVO: US15 (Garante que o áudio pare no Ctrl+C) */
+    audio_parar();
     restaurar_termios();
     printf("\033[?25h\033[?1049l");
     fflush(stdout);
@@ -50,18 +50,32 @@ int main(void) {
     printf("\033[?1049h\033[H\033[3J\033[2J\033[H\033[?25l");
     fflush(stdout);
     configurar_terminal();
-    audio_init(); /* NOVO: US15 (Inicializa o subsistema de som) */
+    audio_init();
 
     while (1) {
         tela_menu();
         opcao = ler_opcao();
 
-        if (opcao == 7) { tela_saida(); break; }
+        if (opcao == 8) { tela_saida(); break; }
+
+        if (opcao == 7) { 
+            score_definir_modo(SCORE_MODO_BASICO); /* Sobrevivência usa o score básico */
+            jogador.recorde_anterior = score_melhor();
+            jogador.posicao_ranking = -1;
+            
+            tela_nome();
+            ler_nome(jogador.nome, NOME_MAX);
+            executar_nivel_sobrevivencia();
+            continue;
+        }
         
         if (opcao == 6) { executar_loja(); continue; } 
 
         if (opcao == 5) {
             score_definir_modo(SCORE_MODO_TEMPO);
+            jogador.recorde_anterior = score_melhor();
+            jogador.posicao_ranking = -1;
+
             tela_nome();
             ler_nome(jogador.nome, NOME_MAX);
             executar_nivel_contra_tempo();
@@ -70,6 +84,9 @@ int main(void) {
 
         if (opcao == 4) {
             score_definir_modo(SCORE_MODO_AVANCADO);
+            jogador.recorde_anterior = score_melhor();
+            jogador.posicao_ranking = -1;
+
             tela_nome();
             ler_nome(jogador.nome, NOME_MAX);
             executar_nivel_avancado();
@@ -78,32 +95,36 @@ int main(void) {
 
         if (opcao == 3) { tela_exemplos_escopo(); continue; }
         if (opcao == 2) { tela_como_jogar();      continue; }
-        if (opcao != 1) continue;
-
-        score_definir_modo(SCORE_MODO_BASICO);
-        tela_loading();
-        tela_nome();
-        ler_nome(jogador.nome, NOME_MAX);
         
-        int moedas_antigas = jogador.moedas;
-        int dicas_antigas = jogador.dicas_gratis;
-        int pulos_antigos = jogador.pulos_gratis; 
-        int tempo_antigo  = jogador.botoes_tempo;
+        if (opcao == 1) {
+            score_definir_modo(SCORE_MODO_BASICO);
+            jogador.recorde_anterior = score_melhor();
+            jogador.posicao_ranking = -1;
 
-        inicializar_jogo();
-        
-        jogador.moedas = moedas_antigas;
-        jogador.dicas_gratis = dicas_antigas;
-        jogador.pulos_gratis = pulos_antigos;
-        jogador.botoes_tempo = tempo_antigo; 
+            tela_loading();
+            tela_nome();
+            ler_nome(jogador.nome, NOME_MAX);
+            
+            int moedas_antigas = jogador.moedas;
+            int dicas_antigas = jogador.dicas_gratis;
+            int pulos_antigos = jogador.pulos_gratis; 
+            int tempo_antigo  = jogador.botoes_tempo;
 
-        for (i = 0; i < NUM_DESAFIOS_BASE; i++)
-            executar_desafio(i);
-        finalizar_jogo(NUM_DESAFIOS_BASE);
+            inicializar_jogo();
+            
+            jogador.moedas = moedas_antigas;
+            jogador.dicas_gratis = dicas_antigas;
+            jogador.pulos_gratis = pulos_antigos;
+            jogador.botoes_tempo = tempo_antigo; 
+
+            for (i = 0; i < NUM_DESAFIOS_BASE; i++)
+                executar_desafio(i);
+            finalizar_jogo(NUM_DESAFIOS_BASE);
+        }
     }
 
     restaurar_termios();
-    audio_parar(); /* NOVO: US15 (Garante que o áudio pare na saída limpa) */
+    audio_parar();
     printf("\033[?25h\033[?1049l");
     fflush(stdout);
     return 0;
