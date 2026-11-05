@@ -402,9 +402,12 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 
 ## Board
 
-<img width="1920" height="786" alt="board_historias_parte1" src="https://github.com/user-attachments/assets/9d7bfd95-a3b1-40f0-811f-a61607c3ac06" />
+<img width="1600" height="415" alt="WhatsApp Image 2026-11-04 at 21 27 09" src="https://github.com/user-attachments/assets/ab7a0aac-3c2b-47ba-9350-6865f289fd76" />
 
-<img width="1920" height="805" alt="board_historias_parte2" src="https://github.com/user-attachments/assets/81406681-07ce-4256-8b78-900c88c0a5bb" />
+<img width="1600" height="605" alt="WhatsApp Image 2026-11-04 at 21 27 09 (1)" src="https://github.com/user-attachments/assets/7cdd4f4e-4711-4e15-beb6-f467f9e1ad27" />
+
+<img width="1600" height="601" alt="WhatsApp Image 2026-11-04 at 21 27 09 (2)" src="https://github.com/user-attachments/assets/f58e0049-9c4b-4a05-aa23-9f47b684c052" />
+
 
 ## Bug Tracker
 
