@@ -380,6 +380,8 @@ https://youtu.be/Iltjfxjm8z0
 
 **demo HU15: https://www.youtube.com/watch?v=jyQQGYnBtwE
 
+Testes das Histórias de Usuário 16, 17, 18, 19, 20: https://youtu.be/4YOtXOuWV4k
+
 ## Storyboard(figma)
 https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes-IHC?node-id=45-103&t=IGlyCabXOWPoepC9-1
 
@@ -396,7 +398,7 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 
 ## Backlog
 
-<img width="1920" height="968" alt="Captura de Tela (262)" src="https://github.com/user-attachments/assets/bafc4976-c9a4-4516-8d1f-60b9643f258e" />
+<img width="1920" height="1080" alt="Captura de Tela (599)" src="https://github.com/user-attachments/assets/a7a947d5-fe6b-4509-bce8-95331ec32194" />
 
 ---
 
@@ -413,23 +415,22 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 
 <img width="1920" height="1080" alt="Captura de Tela (585)" src="https://github.com/user-attachments/assets/a39964f5-2e70-4ac8-b544-41c8927c09bc" />
 
-## Programação em Pares
+### Programação em Pares (US19)
 
-O desenvolvimento da Entrega 3 de FDS foi conduzido de forma colaborativa. A equipe utilizou o **Jira** para centralizar as discussões, registrar as ideias de features (brainstorming) e distribuir as tarefas, caracterizando um trabalho conjunto entre a concepção e a implementação.
+Para a entrega do **Sistema de Ranking (US19)**, a equipe aplicou o modelo de colaboração **Driver/Navigator**, dividindo as responsabilidades entre a escrita do código e a validação do sistema:
 
-*   **João Antonio Calazans:** Idealizou a mecânica de recompensas e o **Sistema de Lootbox (US13)**.
-*   **Arthur Vieira Neiva Souza:** Propôs a inclusão de **Trilha Sonora e Áudio (US15)** para aumentar a imersão do jogador.
-*   **Ademir Pedro da Silva Filho:** Idealizou o **Sistema Monetário e a Loja (US14)** para dar sentido à progressão do jogador.
-*   **Augusto Freitas Wanderley:** Atuou durante a implementação no VS Code e na gravação das últimas três histórias (US13, US14 e US15).
-  *Nota: Toda equipe trabalhou em conjunto, estes 4 acima foram essenciais na idealização das histórias de usuário na disciplina de FDS(Fundamentos de Desenvolvimento de Software)*
+*   **Driver (Implementação): Ademir Pedro** — Desenvolveu a lógica de persistência de dados (salvar e ordenar recordes) e realizou o commit no repositório.
+*   **Navigator (Validação/QA): Augusto Freitas** — Executou os testes de sistema, validando a gravação do arquivo, a ordenação do Top 5 e o comportamento da tela de Resultado Final.
 
-## Evidências de Colaboração
-As interações da equipe, a validação das ideias e a divisão de tarefas podem ser comprovadas através do nosso board e histórico de comentários no Jira.
+#### Evidências
 
+**1. Commit no GitHub (Autoria de Ademir Pedro):**
+<img width="1920" height="904" alt="Captura de Tela (601)" src="https://github.com/user-attachments/assets/4c74c536-1a89-47d9-8fab-87ff553728e4" />
+<img width="1920" height="1019" alt="Captura de Tela (602)" src="https://github.com/user-attachments/assets/bb4e72a9-d472-4eb1-a2f0-8d6fc1f77c72" />
 
-
-
----
+**2. Validação e QA no Jira (Comentário de Augusto Freitas):**
+<img width="1920" height="1024" alt="Captura de Tela (600)" src="https://github.com/user-attachments/assets/9c65693c-e54c-4804-bf91-43147ed4218c" />
+link do teste: https://youtu.be/4YOtXOuWV4k
 
 ## Licença
 
