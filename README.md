@@ -445,11 +445,9 @@ Abaixo estão algumas justificativas que dificultaram a execução da programaç
 1. **Restrição de Hardware (Indisponibilidade de Equipamento):**
    O integrante **Arthur Vieira** ficou temporariamente sem PC, com previsão de recebimento apenas para o dia 10 de novembro, período posterior ao encerramento desta Sprint. 
 
-2. **Conflito de Agenda e Distanciamento Geográfico:**
-   Por se tratar de um projeto universitário, os integrantes possuem rotinas acadêmicas e profissionais divergentes. A falta de sincronia de horários inviabilizou encontros diários para a codificação lado a lado (mesmo que de forma remota via compartilhamento de tela).
+2. **Conflito de Agenda e Distanciamento:**
+   Por se tratar de um projeto universitário, os integrantes possuem rotinas acadêmicas e profissionais divergentes. A falta de sincronia de horários inviabilizou encontros diários para a codificação lado a lado (mesmo que de forma remota via compartilhamento de tela). O fato de **alguns integrantes estarem matriculados em cadeiras de períodos diferentes** tornou a experiência de sincronizar horários um pouco mais complexa.
 
-3. **Complexidade do Ambiente (WSL/Linux e C):**
-   O desenvolvimento em linguagem C para terminal exige um ambiente Linux configurado (GCC, dependências de áudio, etc.). Tentar configurar esse ambiente em duas máquinas simultaneamente ou compartilhar a tela para digitação em um terminal com características específicas (WSL) mostrou-se ineficiente para o prazo curto da Sprint.
 
 ## Licença
 
