@@ -436,6 +436,21 @@ Para a entrega do **Sistema de Ranking (US19)**, a equipe aplicou o modelo de co
 <img width="1920" height="1024" alt="Captura de Tela (600)" src="https://github.com/user-attachments/assets/9c65693c-e54c-4804-bf91-43147ed4218c" />
 link do teste: https://youtu.be/4YOtXOuWV4k
 
+## Justificativa e Adaptação da Metodologia (Sprint 02/Entrega 04)
+
+A equipe precisou adaptar a metodologia para a realidade desta Sprint. 
+
+Abaixo estão algumas justificativas que dificultaram a execução da programação em par tradicional em algumas histórias:
+
+1. **Restrição de Hardware (Indisponibilidade de Equipamento):**
+   O integrante **Arthur Vieira** ficou temporariamente sem PC, com previsão de recebimento apenas para o dia 10 de novembro, período posterior ao encerramento desta Sprint. 
+
+2. **Conflito de Agenda e Distanciamento Geográfico:**
+   Por se tratar de um projeto universitário, os integrantes possuem rotinas acadêmicas e profissionais divergentes. A falta de sincronia de horários inviabilizou encontros diários para a codificação lado a lado (mesmo que de forma remota via compartilhamento de tela).
+
+3. **Complexidade do Ambiente (WSL/Linux e C):**
+   O desenvolvimento em linguagem C para terminal exige um ambiente Linux configurado (GCC, dependências de áudio, etc.). Tentar configurar esse ambiente em duas máquinas simultaneamente ou compartilhar a tela para digitação em um terminal com características específicas (WSL) mostrou-se ineficiente para o prazo curto da Sprint.
+
 ## Licença
 
 Projeto acadêmico - CESAR School 2026.
