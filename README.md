@@ -415,14 +415,18 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 
 <img width="1920" height="846" alt="Captura de Tela (604)" src="https://github.com/user-attachments/assets/96cfb0f4-a86d-44e4-955c-b909f9d863ec" />
 
-### Programação em Pares (US19)
+## Programação em Pares (US19)
+
+---
 
 Para a entrega do **Sistema de Ranking (US19)**, a equipe aplicou o modelo de colaboração **Driver/Navigator**, dividindo as responsabilidades entre a escrita do código e a validação do sistema:
 
 *   **Driver (Implementação): Ademir Pedro** — Desenvolveu a lógica de persistência de dados (salvar e ordenar recordes) e realizou o commit no repositório.
 *   **Navigator (Validação/QA): Augusto Freitas** — Executou os testes de sistema, validando a gravação do arquivo, a ordenação do Top 5 e o comportamento da tela de Resultado Final.
 
-#### Evidências
+## Evidências
+
+---
 
 **1. Commit no GitHub (Autoria de Ademir Pedro):**
 <img width="1920" height="904" alt="Captura de Tela (601)" src="https://github.com/user-attachments/assets/4c74c536-1a89-47d9-8fab-87ff553728e4" />
