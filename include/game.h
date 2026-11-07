@@ -14,6 +14,8 @@
 /* Custos da Loja (US14) */
 #define CUSTO_LOOTBOX        30
 #define CUSTO_DICA           15
+#define CUSTO_PULO           20
+#define CUSTO_TEMPO          15
 
 #define DESAFIO_ENUNCIADO_MAX  256
 #define DESAFIO_EXPLICACAO_MAX 384
@@ -37,6 +39,11 @@ typedef struct {
     int  acertos;
     int  moedas;          /* NOVO US14 */
     int  dicas_gratis;    /* NOVO US14 */
+    int  recorde_anterior;   /* NOVO: maior score salvo antes da partida */
+    int  posicao_ranking;    /* NOVO: -1 = nao entrou no top-5 */
+    int  pulos_gratis;   
+    int  botoes_tempo;
+    int  vidas;
     
     char resposta_jogador[NUM_DESAFIOS];
     int  acertou[NUM_DESAFIOS];
@@ -51,6 +58,7 @@ void inicializar_jogo(void);
 void executar_desafio(int indice);
 void executar_nivel_avancado(void);
 void executar_nivel_contra_tempo(void);
+void executar_nivel_sobrevivencia(void); 
 void finalizar_jogo(int total_rodada);
 
 /* Novas funções US13/US14 */
