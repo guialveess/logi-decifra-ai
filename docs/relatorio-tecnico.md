@@ -6,7 +6,7 @@
 
 ## 1. Visão Geral
 
-O LOGI Decifra.IA é um jogo educacional de terminal implementado em linguagem C, integrado a um modelo de linguagem fine-tunado (LOGI) para geração de dicas contextuais. O sistema é composto por um núcleo imperativo em C, uma bridge de integração com Python e um servidor de inferência local baseado em LoRA sobre o modelo Qwen2.5-3B-Instruct.
+O LOGI Decifra.IA é um jogo educacional de terminal implementado em linguagem C, integrado a um modelo de linguagem fine-tunado (LOGI) para geração de dicas contextuais. O sistema é composto por um núcleo imperativo em C, uma bridge de integração com Python e um servidor de inferência local baseado em LoRA sobre o modelo Qwen2.5-1.5B-Instruct.
 
 ---
 
@@ -41,7 +41,7 @@ O LOGI Decifra.IA é um jogo educacional de terminal implementado em linguagem C
 ┌─────────────────────────────────────────────────────────┐
 │              Modelo LOGI (HuggingFace)                  │
 │                                                         │
-│  Base: Qwen/Qwen2.5-3B-Instruct                        │
+│  Base: Qwen/Qwen2.5-1.5B-Instruct                       │
 │  Adapter: guiiwfz/logi (LoRA)                          │
 │  Device: MPS (Apple Silicon) / CPU (fallback)          │
 └─────────────────────────────────────────────────────────┘
@@ -269,7 +269,7 @@ tela_painel_logi(indice) em ui.c
 | Alternate screen buffer | Isola a UI do histórico do terminal; ao sair, o terminal é restaurado sem rastros do jogo |
 | Fade-in com multiplicador de brilho | Efeito visual sem bibliotecas externas, usando apenas ANSI true-color e `usleep` |
 | `popen()` para bridge C→Python | Portável, sem dependências adicionais em C; o Python gerencia toda a complexidade de HTTP e inferência |
-| LoRA sobre Qwen2.5-3B | Fine-tuning eficiente com baixo custo computacional; o adapter é pequeno e o modelo base permanece inalterado |
+| LoRA sobre Qwen2.5-1.5B | Fine-tuning eficiente com baixo custo computacional; o adapter é pequeno e o modelo base permanece inalterado |
 | Questões hardcoded na U1 | Garante cobertura exata dos 5 operadores e controle de progressão; geração dinâmica entra na U2 |
 | Fallback estático na dica LOGI | O jogo não depende do servidor Python para funcionar; a UX é preservada mesmo offline |
 | `SIGINT`/`SIGTERM` capturados | Garante que o terminal seja sempre restaurado ao raw mode ao encerrar, evitando que o shell fique quebrado |
