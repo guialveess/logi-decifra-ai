@@ -164,7 +164,7 @@ logi-decifra-ai/
 │   └── ui.h                  # Protótipos das telas e renderizações
 │
 ├── scripts/                  # Scripts auxiliares (Integração Python/IA)
-│   ├── ai_client.py          # Bridge de comunicação com o modelo LLM
+│   ├── ai_client.py          # Bridge Python para o modelo LLM (local → HuggingFace; não chamado pelo binário C)
 │   ├── local_server.py       # Servidor local para testes da IA
 │   ├── modal_server.py       # Deploy do modelo no Modal (Cloud)
 │   └── requirements.txt      # Dependências Python
@@ -174,7 +174,7 @@ logi-decifra-ai/
 │   ├── game.c                # Parser lógico, geração de tabela-verdade, economia e regras
 │   ├── ui.c                  # Renderização ANSI, animações (fade/loading/timer) e telas
 │   ├── input.c               # Captura de inputs do usuário (V, F, H, N)
-│   ├── ai_client.c           # Cliente C para requisição de dicas (com fallback local)
+│   ├── ai_client.c           # Dicas determinísticas baseadas nos operadores do enunciado (AND/OR/NOT/IMPLICA/BICONDICIONAL)
 │   └── audio.c               # Execução assíncrona de áudio (ffplay/system)
 │
 ├── tests/                    # Testes de software
@@ -236,38 +236,38 @@ make clean    # Limpa arquivos compilados
 - [x] Nível Avançado com expressões compostas e parênteses (opção 4 do menu, HU12)
 - [x] Modo Contra-Tempo com bônus de velocidade e timer de 20s (opção 5 do menu, HU11)
 - [x] Dica contextual inline da LOGI ao pressionar H (HU8)
-- [x] Integração com modelo LOGI via bridge C → Python + GGUF (llama-cpp-python) — modelo v5 treinado com 13.000 exemplos (QLoRA, Qwen2.5-1.5B-Instruct, rank 32) · [ver modelo no HuggingFace](https://huggingface.co/guiiwfz/logi-1.5b-gguf)
+- [x] Integração de dicas contextuais via `src/ai_client.c` — lógica determinística que identifica operadores (AND/OR/NOT/IMPLICA/BICONDICIONAL) no enunciado e retorna a regra correspondente; `scripts/ai_client.py` implementa bridge Python para o modelo Qwen2.5-1.5B no HuggingFace (disponível para integração futura) · [ver modelo no HuggingFace](https://huggingface.co/guiiwfz/logi-1.5b-gguf)
 - [x] Persistência local do highscore em `~/.decifra_score` (Unidade 2, sprint 12)
 
 ### Unidade 2 — em andamento
 
 - [ ] Motor de lógica proposicional em Haskell
 - [ ] Modo narrativo com falas contextuais da LOGI entre desafios
-- [ ] Tela de ranking com top-5 histórico
+- [x] Tela de ranking com top-5 histórico (US19)
+- [x] Modo Sobrevivência — desafios contínuos com eliminação por erro (US20)
 
 ---
 
-## Integração LOGI — Decisão de plataforma
+## Integração LOGI — Arquitetura de dicas
 
-O modelo LOGI é um fine-tune QLoRA sobre Qwen2.5-1.5B-Instruct, treinado com 13.000 exemplos de lógica proposicional. Foi testado em duas plataformas de deploy durante o SPIKE (PI2-125):
+O sistema de dicas da LOGI opera em duas camadas independentes:
+
+**Camada C (executável):** `src/ai_client.c` implementa `ai_consultar()` — função determinística que analisa o enunciado do desafio, identifica os operadores lógicos presentes (AND, OR, NOT, IMPLICA, BICONDICIONAL) e retorna a regra correspondente como string. Sem chamadas externas, sem `popen`, sem dependências Python. Esta é a camada ativa no binário compilado.
+
+**Camada Python (disponível, não conectada ao binário):** `scripts/ai_client.py` é uma bridge real para o modelo Qwen2.5-1.5B-Instruct (fine-tune QLoRA, 13.000 exemplos, rank 32), tentando primeiro um servidor local (`http://127.0.0.1:8787/ask`) com fallback para o HuggingFace Spaces. O script funciona de forma autônoma mas não é chamado pelo executável C.
 
 | Plataforma | Latência média | Custo | Status |
 |---|---|---|---|
-| **HuggingFace Spaces** (llama-cpp-python + GGUF v5) | ~2–4 s/req | gratuito (tier free) | Testado — PI2-150 |
-| **Local** (llama-cpp-python direto) | ~1–3 s/req | zero | Opção de fallback |
+| **HuggingFace Spaces** (Qwen2.5-1.5B GGUF v5) | ~2–4 s/req | gratuito (tier free) | Testado — PI2-150 |
+| **Local** (`local_server.py`) | ~1–3 s/req | zero | Opção de fallback |
 | Modal | — | pago por requisição | Descartado para U2 |
 
-**Decisão:** o jogo usa o modelo localmente via `llama-cpp-python` + bridge `popen` em `src/ai_client.c`. O deploy no HuggingFace Spaces serve como fallback para ambientes sem GPU. O Modal foi descartado para esta unidade por exigir faturamento e não adicionar benefício técnico sobre o deploy local.
-
-Para rodar com LOGI ativo, instale as dependências Python e exporte o caminho do modelo:
+Para usar a bridge Python de forma independente:
 
 ```bash
-pip install llama-cpp-python
-export LOGI_MODEL_PATH=/caminho/para/logi-1.5b-v5.gguf
-make run
+pip install -r scripts/requirements.txt
+python scripts/ai_client.py "P AND Q"
 ```
-
-Sem `LOGI_MODEL_PATH`, o jogo roda normalmente mas a dica da LOGI exibe a explicação estática do campo `explicacao[]` do struct `Desafio`.
 
 ---
 
