@@ -35,13 +35,23 @@ static const DesafioTemplate templates[NUM_DESAFIOS] = {
 Desafio desafios[NUM_DESAFIOS];
 Jogador jogador;
 
+/* Trava do ranking: garante UM registro por partida, em qualquer modo. */
+static int g_score_registrado = 0;
+
+static void registrar_score(void) {
+    if (g_score_registrado) return;
+    jogador.posicao_ranking = score_inserir(jogador.nome, jogador.pontuacao);
+    g_score_registrado = 1;
+}
+
 /* ═══════════════ RNG ═══════════════ */
 static unsigned int g_rng = 0;
 
 static void rng_init(void) {
     FILE *f = fopen("/dev/urandom", "rb");
-    if (f) { fread(&g_rng, sizeof(g_rng), 1, f); fclose(f); }
+    if (f) { if (fread(&g_rng, sizeof(g_rng), 1, f) != 1) g_rng = 0; fclose(f); }
     else   { g_rng = (unsigned int)time(NULL) ^ ((unsigned int)getpid() << 16); }
+    if (g_rng == 0) g_rng = (unsigned int)time(NULL) ^ 0xDEADBEEFu;
     if (g_rng == 0) g_rng = 0xDEADBEEFu;
 }
 
@@ -83,7 +93,8 @@ static int eval_or(Parser *p)  { int v = eval_and(p); while (match_kw(p, "OR")) 
 static int eval_impl(Parser *p){ int v = eval_or(p);  while (match_kw(p, "IMPLICA")) { int r = eval_or(p); v = (!v || r); } return v; }
 static int eval_expr(Parser *p){ int v = eval_impl(p);while (match_kw(p, "BICONDICIONAL")) { int r = eval_impl(p); v = (v == r); } return v; }
 
-static int avaliar_expressao(const char *expr, const char *vars, const int *vals, int n) {
+/* Pública (sem static) para poder ser testada em tests/. Protótipo em game.h. */
+int avaliar_expressao(const char *expr, const char *vars, const int *vals, int n) {
     Parser p; p.s = expr; p.pos = 0; p.var_names = vars; p.var_vals = vals; p.n_vars = n; return eval_expr(&p);
 }
 
@@ -104,6 +115,8 @@ static void gerar_desafio_da_sessao(int idx) {
 
 /* ═══════════════ Ciclo de Vida ═══════════════ */
 
+/* Prepara uma nova partida. NAO mexe no inventario (moedas, dicas, pulos,
+ * botoes de tempo): ele persiste entre partidas e e ganho/gasto na Loja. */
 void inicializar_jogo(void) {
     int i;
     rng_init();
@@ -114,13 +127,8 @@ void inicializar_jogo(void) {
     }
     jogador.pontuacao = 0;
     jogador.acertos = 0;
-    jogador.vidas = 3;      /* US20 */
-    
-    /* Zera inventário para novas partidas (quem chama deve salvar/restaurar) */
-    jogador.moedas = 0;
-    jogador.dicas_gratis = 0;
-    jogador.pulos_gratis = 0;
-    jogador.botoes_tempo = 0;
+    jogador.vidas = 3;          /* US20 */
+    g_score_registrado = 0;     /* nova partida pode registrar no ranking */
 }
 
 static void rodar_desafio(int indice) {
@@ -177,24 +185,14 @@ void executar_desafio(int indice) { rodar_desafio(indice); }
 void executar_nivel_avancado(void) {
     int i;
     tela_intro_avancado();
-    
-
     score_definir_modo(SCORE_MODO_AVANCADO);
-    int moedas_antigas = jogador.moedas;
-    int dicas_antigas = jogador.dicas_gratis;
-    int pulos_antigos = jogador.pulos_gratis;
-    int tempo_antigo  = jogador.botoes_tempo;
-    
     inicializar_jogo();
-    
-    jogador.moedas = moedas_antigas;
-    jogador.dicas_gratis = dicas_antigas;
-    jogador.pulos_gratis = pulos_antigos;
-    jogador.botoes_tempo = tempo_antigo;
 
-    for (i = NUM_DESAFIOS_BASE; i < NUM_DESAFIOS; i++) rodar_desafio(i);
-    
-    jogador.posicao_ranking = score_inserir(jogador.nome, jogador.pontuacao);
+    for (i = NUM_DESAFIOS_BASE; i < NUM_DESAFIOS; i++) {
+        rodar_desafio(i);
+    }
+
+    /* O registro no ranking acontece APENAS dentro de finalizar_jogo(). */
     finalizar_jogo(NUM_DESAFIOS_AVANC);
 }
 
@@ -224,7 +222,7 @@ static void rodar_desafio_contra_tempo(int indice) {
                 jogador.botoes_tempo--;
                 segs_restantes += 10;
                 tela_aviso("+10 Segundos adicionados!");
-                continue; 
+                continue;
             } else {
                 tela_aviso("Voce nao tem botoes de tempo!");
                 continue;
@@ -243,12 +241,13 @@ static void rodar_desafio_contra_tempo(int indice) {
             jogador.usou_ajuda[indice] = 0;
         }
         tela_painel_logi(indice);
-        segs_restantes -= usados;
+        /* Correcao: o tempo ja foi descontado no loop acima; nao descontar de novo. */
         if (segs_restantes <= 0) { timeout = 1; }
         else {
             tela_desafio_contra_tempo(indice, segs_restantes);
             resposta = ler_resposta_contra_tempo(segs_restantes, &usados);
             usados_totais += usados;
+            segs_restantes -= usados;
             if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
         }
     }
@@ -279,23 +278,11 @@ static void rodar_desafio_contra_tempo(int indice) {
 void executar_nivel_contra_tempo(void) {
     int i;
     tela_intro_contra_tempo();
-
     score_definir_modo(SCORE_MODO_TEMPO);
-    
-    int moedas_antigas = jogador.moedas;
-    int dicas_antigas = jogador.dicas_gratis;
-    int pulos_antigos = jogador.pulos_gratis;
-    int tempo_antigo  = jogador.botoes_tempo;
-    
     inicializar_jogo();
-    
-    jogador.moedas = moedas_antigas;
-    jogador.dicas_gratis = dicas_antigas;
-    jogador.pulos_gratis = pulos_antigos;
-    jogador.botoes_tempo = tempo_antigo;
 
     for (i = NUM_DESAFIOS_BASE; i < NUM_DESAFIOS; i++) rodar_desafio_contra_tempo(i);
-    jogador.posicao_ranking = score_inserir(jogador.nome, jogador.pontuacao);
+    registrar_score();
     tela_resultado_contra_tempo(NUM_DESAFIOS_AVANC);
 }
 
@@ -303,28 +290,19 @@ void executar_nivel_contra_tempo(void) {
 
 void executar_nivel_sobrevivencia(void) {
     tela_intro_sobrevivencia();
-
     score_definir_modo(SCORE_MODO_BASICO);
-    
-    int moedas_antigas = jogador.moedas;
-    int dicas_antigas = jogador.dicas_gratis;
-    int pulos_antigos = jogador.pulos_gratis;
-    int tempo_antigo  = jogador.botoes_tempo;
-
     inicializar_jogo();
-    
-    jogador.moedas = moedas_antigas;
-    jogador.dicas_gratis = dicas_antigas;
-    jogador.pulos_gratis = pulos_antigos;
-    jogador.botoes_tempo = tempo_antigo;
 
     while (jogador.vidas > 0) {
         /* Sorteia qualquer desafio (Base ou Avançado) */
         int idx = rng_range(NUM_DESAFIOS);
+        char resposta;
+        int acertou;
+
         gerar_desafio_da_sessao(idx);
 
         tela_desafio_sobrevivencia(idx);
-        char resposta = ler_resposta();
+        resposta = ler_resposta();
 
         if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
 
@@ -339,7 +317,7 @@ void executar_nivel_sobrevivencia(void) {
             if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
         }
 
-        int acertou = (toupper((unsigned char)resposta) == desafios[idx].resposta_correta);
+        acertou = (toupper((unsigned char)resposta) == desafios[idx].resposta_correta);
 
         if (acertou) {
             jogador.acertos++;
@@ -353,20 +331,22 @@ void executar_nivel_sobrevivencia(void) {
             }
         }
     }
-    jogador.posicao_ranking = score_inserir(jogador.nome, jogador.pontuacao);
+    registrar_score();
     tela_game_over();
 }
 
 void finalizar_jogo(int total_rodada) {
-    jogador.posicao_ranking = score_inserir(jogador.nome, jogador.pontuacao);
+    /* Ponto unico de registro dos modos Basico e Avancado. */
+    registrar_score();
     tela_resultado_final(total_rodada);
 }
 
 /* ═══════════════ Loja e Lootbox ═══════════════ */
 
 void processar_lootbox(void) {
+    int sorteio;
     tela_lootbox_animacao();
-    int sorteio = rng_range(100);
+    sorteio = rng_range(100);
 
     if (sorteio < 40) {
         jogador.pontuacao += 50;
