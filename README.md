@@ -371,6 +371,57 @@ https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/
   ![Diagrama HU12](./docs/diagrams/diagramahu12_.png)
 </details>
 
+### HU13 - Sistema de Lootbox (Caixas de Recompensa)
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+Implementação de um sistema de Lootbox integrado à Loja do jogo, permitindo que o jogador compre caixas por 30 moedas. Após a compra, uma animação em ASCII simula a abertura e sorteia aleatoriamente um dos três prêmios: **+50 Pontos, +20 Moedas ou +2 Dicas Grátis**. O saldo e o inventário são atualizados imediatamente, e uma mensagem exibe o prêmio recebido.
+
+</details>
+
+### HU14 - Sistema Monetário e Loja de Itens
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+  Implementação de um sistema econômico que recompensa o jogador com moedas por acertos, permitindo comprar dicas grátis e Lootboxes na Loja. O saldo é atualizado automaticamente e exibido durante os desafios.
+</details>
+
+### HU15 - Trilha Sonora e Músicas por Cenário
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+  Implementação de um sistema de áudio com músicas e efeitos sonoros específicos para menus, desafios, vitórias e derrotas. A reprodução ocorre em segundo plano, sem bloquear o jogo, mantendo seu funcionamento mesmo quando não houver suporte a áudio.
+</details>
+
+### HU16 - Compra de Dica
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+  Implementação de um sistema de compra de dicas durante os desafios, utilizando moedas do jogador. A tutora LOGI apresenta uma explicação contextual sem revelar diretamente a resposta, permitindo apenas uma compra por questão.
+</details>
+
+### HU17 - Alteração de Pergunta
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+  Implementação de um sistema de troca de perguntas por moedas, permitindo substituir a questão atual por outra diferente do mesmo nível e tema. No modo Contra-Tempo, o cronômetro é reiniciado após a troca.
+</details>
+
+### HU18 - Compra de Aumento de Tempo
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+  Implementação de um recurso exclusivo do modo Contra-Tempo que permite comprar 10 segundos adicionais utilizando moedas. O cronômetro é atualizado imediatamente, permitindo continuar respondendo à questão atual.
+</details>
+
+### HU19 - Sistema de Ranking e Recordes
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+  
+  Implementação de um sistema de ranking local que registra as pontuações dos jogadores, mantendo os cinco melhores resultados. Ao final das partidas, o Top 5 é exibido com destaque para o jogador atual e seus recordes.
+</details>
+
+### HU20 - Modo Sobrevivência (Survival)
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+  
+  Implementação de um modo de sobrevivência em que o jogador começa com três vidas e enfrenta questões aleatórias dos níveis 1 a 4. Cada erro ou tempo esgotado reduz uma vida, encerrando a partida quando todas acabam e registrando a pontuação máxima.
+</details>
+
 ---
 
 ## Screencast
