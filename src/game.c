@@ -101,7 +101,8 @@ int avaliar_expressao(const char *expr, const char *vars, const int *vals, int n
 static void gerar_desafio_da_sessao(int idx) {
     const DesafioTemplate *t = &templates[idx];
     int n = (int)strlen(t->vars), total = 1 << n, linha = rng_range(total), i, off = 0, v;
-    int vals[3]; char vars_buf[DESAFIO_VARS_MAX];
+    int vals[3] = {0, 0, 0};
+    char vars_buf[DESAFIO_VARS_MAX];
     for (i = 0; i < n; i++) vals[i] = (linha >> (n - 1 - i)) & 1;
     v = avaliar_expressao(t->expressao, t->vars, vals, n);
     for (i = 0; i < n; i++) off += snprintf(vars_buf + off, sizeof(vars_buf) - (size_t)off, "%c = %c%s", t->vars[i], vals[i] ? 'V' : 'F', (i < n - 1) ? ", " : "");
