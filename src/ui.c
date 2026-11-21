@@ -953,6 +953,105 @@ void tela_loja(void) {
     mostrar_cursor();
 }
 
+/* ═══════════════ NARRACAO DA LOGI (US21) ═══════════════ */
+
+#define NARRA_LARGURA    56
+#define NARRA_MAX_LINHAS  8
+#define NARRA_MS_LETRA   18
+
+/* Espera ate 'ms' por uma tecla. Retorna 1 se alguma foi pressionada
+ * (o restante de sequencias como setas e descartado). */
+static int tecla_pressionada(int ms) {
+    fd_set fds;
+    struct timeval tv;
+    unsigned char ch;
+    int n;
+
+    FD_ZERO(&fds);
+    FD_SET(STDIN_FILENO, &fds);
+    tv.tv_sec  = ms / 1000;
+    tv.tv_usec = (ms % 1000) * 1000;
+    if (select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv) <= 0) return 0;
+
+    n = (int)read(STDIN_FILENO, &ch, 1);
+    if (n <= 0) return 1;           /* EOF: nao travar esperando */
+    pausa_ms(15);
+    limpar_stdin();
+    return 1;
+}
+
+/* Quebra o texto em linhas de ate NARRA_LARGURA colunas, por palavra. */
+static int quebrar_linhas(const char *s, char linhas[][NARRA_LARGURA + 1], int max) {
+    int n = 0;
+    while (*s == ' ') s++;
+    while (*s && n < max) {
+        int len = (int)strlen(s), corte;
+        if (len <= NARRA_LARGURA) corte = len;
+        else {
+            corte = NARRA_LARGURA;
+            while (corte > 0 && s[corte] != ' ') corte--;
+            if (corte == 0) corte = NARRA_LARGURA;
+        }
+        memcpy(linhas[n], s, (size_t)corte);
+        linhas[n][corte] = '\0';
+        n++;
+        s += corte;
+        while (*s == ' ') s++;
+    }
+    return n;
+}
+
+void tela_narracao_logi(const char *tema, const char *fala, int numero) {
+    static const double steps[] = {0.05, 0.15, 0.3, 0.5, 0.7, 0.87, 1.0};
+    char linhas[NARRA_MAX_LINHAS][NARRA_LARGURA + 1];
+    char buf[96];
+    int n, i, j, r, c = 5, pulou = 0;
+
+    n = quebrar_linhas(fala, linhas, NARRA_MAX_LINHAS);
+    atualizar_tamanho();
+    r = (g_rows - (n + 7)) / 2;
+    if (r < 1) r = 1;
+
+    esconder_cursor();
+    limpar_stdin();                 /* o ENTER do feedback nao pula a fala */
+    snprintf(buf, sizeof(buf), "Reflexao #%d  |  %s", numero, tema);
+
+    /* Animacao de entrada: cabecalho surge com fade-in */
+    for (i = 0; i < 7 && !pulou; i++) {
+        limpar_tela();
+        g_b = steps[i];
+        ir(r,     c); p(100,140,255, "LOGI"); p(120,125,160, "  reflete entre desafios");
+        ir(r+1,   c); p(255,220, 80, buf);
+        ir(r+2,   c); linha_div();
+        ir(r+5+n, c); linha_div();
+        ir(r+6+n, c); p(120,125,160, "qualquer tecla: pular");
+        fflush(stdout);
+        if (tecla_pressionada(32)) pulou = 1;
+    }
+    g_b = 1.0;
+
+    /* Fala digitada letra a letra ("maquina de escrever") */
+    for (i = 0; i < n && !pulou; i++) {
+        ir(r+4+i, c);
+        set_cor(200, 210, 230);
+        for (j = 0; linhas[i][j] && !pulou; j++) {
+            putchar(linhas[i][j]);
+            fflush(stdout);
+            if (tecla_pressionada(NARRA_MS_LETRA)) pulou = 1;
+        }
+        rst();
+    }
+
+    if (!pulou) {
+        ir(r+6+n, c); printf("\033[2K");
+        ir(r+6+n, c); p(120,125,160, "Pressione qualquer tecla para continuar...");
+        fflush(stdout);
+        while (!tecla_pressionada(1000)) { }
+    }
+    rst();
+    fflush(stdout);
+}
+
 /* ═══════════════ SAIDA ═══════════════ */
 
 void tela_saida(void) {

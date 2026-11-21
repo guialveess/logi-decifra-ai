@@ -30,4 +30,7 @@ void tela_lootbox_animacao(void);
 void tela_lootbox_resultado(const char *premio);
 void tela_aviso(const char *msg);
 
+/* US21: fala educativa da LOGI entre desafios (pulavel com qualquer tecla) */
+void tela_narracao_logi(const char *tema, const char *fala, int numero);
+
 #endif
