@@ -9,6 +9,7 @@
 #include "input.h"
 #include "audio.h"
 #include "score.h"
+#include "narrativa.h"
 
 typedef struct {
     const char *expressao;
@@ -181,7 +182,13 @@ static void rodar_desafio(int indice) {
     tela_feedback(acertou, indice);
 }
 
-void executar_desafio(int indice) { rodar_desafio(indice); }
+/* Modo basico: depois de cada desafio a LOGI compartilha uma reflexao (US21). */
+void executar_desafio(int indice) {
+    const FalaLogi *fala;
+    rodar_desafio(indice);
+    fala = narrativa_proxima();
+    tela_narracao_logi(fala->tema, fala->fala, narrativa_exibidas());
+}
 
 void executar_nivel_avancado(void) {
     int i;
