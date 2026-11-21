@@ -242,7 +242,7 @@ make clean    # Limpa arquivos compilados
 ### Unidade 2 — em andamento
 
 - [ ] Motor de lógica proposicional em Haskell
-- [ ] Modo narrativo com falas contextuais da LOGI entre desafios
+- [x] Modo narrativo com falas contextuais da LOGI entre desafios
 - [x] Tela de ranking com top-5 histórico (US19)
 - [x] Modo Sobrevivência — desafios contínuos com eliminação por erro (US20)
 
@@ -454,6 +454,8 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 ---
 
 ## Board
+
+**link do Jira** https://csprj-adsr-2p-e5.atlassian.net/jira/software/c/projects/PI2/list?jql=project+%3D+PI2+AND+textfields+%7E+%22US*%22+ORDER+BY+cf%5B10019%5D+ASC&atlOrigin=eyJpIjoiY2Y3YjY3MTA1Mjc2NDI4NDk5ZDVhMzQzZmVkZjUyY2UiLCJwIjoiaiJ9
 
 <img width="1600" height="605" alt="WhatsApp Image 2026-11-04 at 21 27 09 (1)" src="https://github.com/user-attachments/assets/7cdd4f4e-4711-4e15-beb6-f467f9e1ad27" />
 
