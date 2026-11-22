@@ -38,3 +38,4 @@ __pycache__/
 # Arquivos locais (nao commitar)
 docs/contexto-claude.md
 jogo
+jogo_gui

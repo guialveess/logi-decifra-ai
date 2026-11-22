@@ -7,6 +7,18 @@
 #include "audio.h"
 #include "score.h"
 
+#ifdef USE_RAYLIB
+/* Interface grafica (make gui): implementadas em src/ui_raylib.c */
+void gui_init(void);
+void gui_fechar(void);
+
+/* Nao mexe no terminal. */
+static void restaurar_terminal(int sig) {
+    (void)sig;
+    audio_parar();
+    exit(0);
+}
+#else
 #ifndef _WIN32
 #include <unistd.h>
 #include <termios.h>
@@ -39,6 +51,7 @@ static void restaurar_terminal(int sig) {
     fflush(stdout);
     exit(0);
 }
+#endif
 
 int main(void) {
     int opcao;
@@ -47,9 +60,13 @@ int main(void) {
     signal(SIGINT,  restaurar_terminal);
     signal(SIGTERM, restaurar_terminal);
 
+#ifdef USE_RAYLIB
+    gui_init();
+#else
     printf("\033[?1049h\033[H\033[3J\033[2J\033[H\033[?25l");
     fflush(stdout);
     configurar_terminal();
+#endif
     audio_init();
 
     while (1) {
@@ -114,9 +131,14 @@ int main(void) {
         }
     }
 
+#ifdef USE_RAYLIB
+    audio_parar();
+    gui_fechar();
+#else
     restaurar_termios();
     audio_parar();
     printf("\033[?25h\033[?1049l");
     fflush(stdout);
+#endif
     return 0;
 }
