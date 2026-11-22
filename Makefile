@@ -7,6 +7,13 @@ DEPS    = $(OBJECTS:.o=.d)
 
 all: $(TARGET)
 
+
+TEST_OBJS = $(filter-out src/main.o,$(OBJECTS))
+
+test: $(TEST_OBJS) tests/test_runner.c
+	$(CC) $(filter-out -MMD -MP,$(CFLAGS)) -o tests/test_runner tests/test_runner.c $(TEST_OBJS)
+	./tests/test_runner
+
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
 	@echo "Compilacao concluida!"

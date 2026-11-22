@@ -26,5 +26,9 @@ jobs:
       - name: Análise estática (cppcheck)
         run: cppcheck --error-exitcode=1 --enable=warning,portability --suppress=missingIncludeSystem src/
 
+      - name: Testes automatizados
+        run: make test
+      
       - name: Limpar
         run: make clean
+
