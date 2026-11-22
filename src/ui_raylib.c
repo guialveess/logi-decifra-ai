@@ -1,17 +1,3 @@
-/* ============================================================================
- * Interface grafica (raylib) - PI2-189
- *
- * Backend alternativo ao terminal: implementa TODAS as funcoes de ui.h e de
- * input.h (tela_*, ler_*). Por isso game.c, score.c, narrativa.c e ai_client.c
- * funcionam sem nenhuma alteracao.
- *
- *   make gui        -> compila ./jogo_gui (usa ui_raylib.c no lugar de ui.c/input.c)
- *   make            -> continua gerando o jogo de terminal (./jogo)
- *
- * Funcionamento: cada tela_*() escolhe uma funcao de desenho (g_render) e os
- * ler_*() ficam num laco que redesenha a cena enquanto esperam a tecla/clique.
- * Obs.: a fonte padrao da raylib nao tem acentos; os textos seguem sem acento.
- * ========================================================================== */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
