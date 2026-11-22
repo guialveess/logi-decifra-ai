@@ -222,6 +222,17 @@ make run      # Compila e executa
 make clean    # Limpa arquivos compilados
 ```
 
+### Interface gráfica (raylib)
+
+Além do jogo de terminal, existe uma versão com janela gráfica (PI2-189), com as mesmas regras, modos, loja e narração da LOGI:
+
+```bash
+make gui      # Compila ./jogo_gui
+make run-gui  # Compila e executa
+```
+
+Requer a [raylib](https://www.raylib.com/) instalada (no Ubuntu: `sudo apt update && sudo apt install libraylib-dev`; se o pacote não existir na sua versão, compile a raylib pelo código-fonte conforme o site). No WSL, a janela abre via WSLg (Windows 10/11 atualizado). Use o teclado (V, F, H, P, T, 1-8, ENTER) ou clique nos botões. A fonte padrão da raylib não tem acentos, então os textos seguem sem acento.
+
 ---
 
 ## Roadmap

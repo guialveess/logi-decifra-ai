@@ -61,7 +61,10 @@ void executar_nivel_contra_tempo(void);
 void executar_nivel_sobrevivencia(void); 
 void finalizar_jogo(int total_rodada);
 
-/* Novas funções US13/US14 */
+/* Avalia expressao logica (usada no jogo e nos testes em tests/). */
+int avaliar_expressao(const char *expr, const char *vars, const int *vals, int n);
+
+
 void executar_loja(void);
 void processar_lootbox(void);
 

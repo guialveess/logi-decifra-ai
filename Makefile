@@ -7,6 +7,13 @@ DEPS    = $(OBJECTS:.o=.d)
 
 all: $(TARGET)
 
+
+TEST_OBJS = $(filter-out src/main.o,$(OBJECTS))
+
+test: $(TEST_OBJS) tests/test_runner.c
+	$(CC) $(filter-out -MMD -MP,$(CFLAGS)) -o tests/test_runner tests/test_runner.c $(TEST_OBJS)
+	./tests/test_runner
+
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
 	@echo "Compilacao concluida!"
@@ -20,5 +27,18 @@ run: all
 	./$(TARGET)
 
 clean:
-	rm -f src/*.o src/*.d $(TARGET)
+	rm -f src/*.o src/*.d $(TARGET) jogo_gui
 	@echo "Limpeza concluida!"
+
+# ---- Interface grafica (raylib) - PI2-189 -----------------------------------
+# Requer a raylib instalada (veja o README). Usa ui_raylib.c no lugar de ui.c/input.c.
+GUI_SOURCES   = src/main.c src/game.c src/ui_raylib.c src/ai_client.c src/audio.c src/score.c src/narrativa.c
+GUI_CFLAGS    = $(filter-out -MMD -MP,$(CFLAGS)) $(shell pkg-config --cflags raylib 2>/dev/null) -DUSE_RAYLIB
+GUI_LIBS      = $(shell pkg-config --libs raylib 2>/dev/null || echo -lraylib -lGL -lm -lpthread -ldl -lrt -lX11)
+
+gui: $(GUI_SOURCES)
+	$(CC) $(GUI_CFLAGS) -o jogo_gui $(GUI_SOURCES) $(GUI_LIBS)
+	@echo "Interface grafica compilada! Execute: ./jogo_gui"
+
+run-gui: gui
+	./jogo_gui
