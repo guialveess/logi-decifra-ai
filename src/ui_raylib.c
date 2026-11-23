@@ -1,7 +1,22 @@
+/* ============================================================================
+ * Interface grafica (raylib) - PI2-189
+ *
+ * Backend alternativo ao terminal: implementa TODAS as funcoes de ui.h e de
+ * input.h (tela_*, ler_*). Por isso game.c, score.c, narrativa.c e ai_client.c
+ * funcionam sem nenhuma alteracao.
+ *
+ *   make gui        -> compila ./jogo_gui (usa ui_raylib.c no lugar de ui.c/input.c)
+ *   make            -> continua gerando o jogo de terminal (./jogo)
+ *
+ * Funcionamento: cada tela_*() escolhe uma funcao de desenho (g_render) e os
+ * ler_*() ficam num laco que redesenha a cena enquanto esperam a tecla/clique.
+ * Obs.: a fonte padrao da raylib nao tem acentos; os textos seguem sem acento.
+ * ========================================================================== */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <strings.h>
 #include <raylib.h>
 #include "ui.h"
 #include "game.h"
@@ -249,6 +264,14 @@ int ler_opcao(void) {
     }
 }
 
+int ler_opcao_menu(void) {
+    for (;;) {
+        int c = esperar_tecla();
+        if (c == 'r' || c == 'R') return OPCAO_RANKINGS;
+        if (c >= '1' && c <= '9') return c - '0';
+    }
+}
+
 char ler_resposta(void) {
     for (;;) {
         int c = esperar_tecla(), up;
@@ -307,7 +330,8 @@ static void render_menu(void) {
         botao(MARGEM, 100 + i * 48, 560, 42, buf,
               rgb(menu_cor[i][0], menu_cor[i][1], menu_cor[i][2]), '1' + i);
     }
-    DrawText("Use o teclado (1-8) ou clique nas opcoes.", MARGEM + 590, 110, 18, COR_CINZA);
+    botao(MARGEM, 100 + 8 * 48 + 8, 560, 42, "R    Rankings (todos os modos)", COR_AMARELO, 'R');
+    DrawText("Use o teclado (1-8, R) ou clique nas opcoes.", MARGEM + 590, 110, 18, COR_CINZA);
 }
 
 void tela_menu(void) {
@@ -317,6 +341,186 @@ void tela_menu(void) {
 }
 
 /* ═══════════════ COMO JOGAR ═══════════════ */
+
+static void render_como_jogar(void) {
+    cabecalho("Como Jogar", "", COR_AZUL);
+    DrawText("Responda V (Verdadeiro) ou F (Falso) para cada formula.", MARGEM, 104, 22, COR_BRANCO);
+    DrawText("Pressione [H] para pedir ajuda a LOGI (IA tutora).", MARGEM, 136, 22, COR_BRANCO);
+    DrawText("Ganhe Moedas ao acertar e use na Loja (opcao 6) para comprar", MARGEM, 180, 22, COR_BRANCO);
+    DrawText("Lootboxes, Dicas, Pulos e Tempo.", MARGEM, 208, 22, COR_BRANCO);
+    DrawText("Operadores logicos:", MARGEM, 256, 22, COR_CINZA);
+    DrawText("AND",            MARGEM, 292, 22, COR_AZUL); DrawText("verdadeiro quando ambos os lados sao V",       MARGEM + 220, 292, 22, COR_BRANCO);
+    DrawText("OR",             MARGEM, 324, 22, COR_AZUL); DrawText("verdadeiro quando pelo menos um lado e V",     MARGEM + 220, 324, 22, COR_BRANCO);
+    DrawText("NOT",            MARGEM, 356, 22, COR_AZUL); DrawText("inverte o valor logico",                       MARGEM + 220, 356, 22, COR_BRANCO);
+    DrawText("IMPLICA",        MARGEM, 388, 22, COR_AZUL); DrawText("falso apenas quando P = V e Q = F",            MARGEM + 220, 388, 22, COR_BRANCO);
+    DrawText("BICONDICIONAL",  MARGEM, 420, 22, COR_AZUL); DrawText("verdadeiro quando os dois lados sao iguais",   MARGEM + 220, 420, 22, COR_BRANCO);
+    DrawText("No Contra-Tempo, acertos rapidos geram bonus (50% em 10s).", MARGEM, 472, 20, COR_AMBAR);
+    rodape_enter("Pressione ENTER para continuar...");
+}
+
+void tela_como_jogar(void) { mostrar_e_esperar(render_como_jogar); }
+
+/* ═══════════════ EXEMPLOS DE ESCOPO ═══════════════ */
+
+typedef struct {
+    const char *variaveis;
+    const char *expr_a, *passos_a, *res_a;
+    const char *expr_b, *passos_b, *res_b;
+    const char *explicacao;
+} ExemploEscopo;
+
+#define NUM_EXEMPLOS_ESCOPO 3
+static int g_exemplo_idx = 0;
+
+static const ExemploEscopo exemplos_escopo[NUM_EXEMPLOS_ESCOPO] = {
+    { "P = V  |  Q = F  |  R = F",
+      "P OR Q AND R", "V OR F AND F  ->  V OR F  ->  V", "V",
+      "(P OR Q) AND R", "(V OR F) AND F  ->  V AND F  ->  F", "F",
+      "Sem parenteses, AND tem precedencia sobre OR. Com parenteses, o OR e avaliado primeiro." },
+    { "P = V  |  Q = F",
+      "NOT P AND Q", "NOT V AND F  ->  F AND F  ->  F", "F",
+      "NOT (P AND Q)", "NOT (V AND F)  ->  NOT F  ->  V", "V",
+      "O parenteses muda o escopo do NOT: ele passa a aplicar-se ao resultado de P AND Q." },
+    { "P = V  |  Q = V  |  R = F",
+      "P AND Q OR R", "V AND V OR F  ->  V OR F  ->  V", "V",
+      "P AND (Q OR R)", "V AND (V OR F)  ->  V AND V  ->  V", "V",
+      "Aqui os dois cenarios coincidem, mas os passos intermediarios sao diferentes." }
+};
+
+static void render_exemplos(void) {
+    char buf[200];
+    const ExemploEscopo *e = &exemplos_escopo[g_exemplo_idx];
+    cabecalho("LOGI - Decifra.IA", "Exemplos Didaticos: Escopo", COR_AZUL);
+
+    snprintf(buf, sizeof(buf), "Variaveis: %s", e->variaveis);
+    DrawText(buf, MARGEM, 100, 22, COR_BRANCO);
+
+    DrawText("Cenario A:", MARGEM, 146, 22, COR_AZUL);  DrawText(e->expr_a, MARGEM + 130, 146, 22, COR_BRANCO);
+    snprintf(buf, sizeof(buf), "Passos:  %s", e->passos_a);
+    DrawText(buf, MARGEM + 20, 178, 20, COR_CINZA);
+    snprintf(buf, sizeof(buf), "Resultado:  [%s]", e->res_a);
+    DrawText(buf, MARGEM + 20, 206, 20, COR_VERDE);
+
+    DrawText("Cenario B:", MARGEM, 256, 22, COR_AZUL);  DrawText(e->expr_b, MARGEM + 130, 256, 22, COR_BRANCO);
+    snprintf(buf, sizeof(buf), "Passos:  %s", e->passos_b);
+    DrawText(buf, MARGEM + 20, 288, 20, COR_CINZA);
+    snprintf(buf, sizeof(buf), "Resultado:  [%s]", e->res_b);
+    DrawText(buf, MARGEM + 20, 316, 20, COR_VERDE);
+
+    DrawText("Por que muda?", MARGEM, 366, 22, COR_BRANCO);
+    txt_quebra(MARGEM, 398, LARG - 2 * MARGEM, 20, COR_CINZA, e->explicacao);
+
+    snprintf(buf, sizeof(buf), "Exemplo %d de %d", g_exemplo_idx + 1, NUM_EXEMPLOS_ESCOPO);
+    DrawText(buf, MARGEM, ALT - 62, 20, COR_CINZA);
+    DrawRectangle(MARGEM, ALT - 84, LARG - 2 * MARGEM, 2, COR_AZUL_DIM);
+    botao(LARG - MARGEM - 400, ALT - 72, 220, 44, "N  Proximo exemplo", COR_AZUL, 'N');
+    botao(LARG - MARGEM - 170, ALT - 72, 170, 44, "ENTER  Voltar", COR_AZUL, 13);
+}
+
+void tela_exemplos_escopo(void) {
+    g_render = render_exemplos;
+    for (;;) {
+        int c = esperar_tecla();
+        if (c == 'n' || c == 'N') { g_exemplo_idx = (g_exemplo_idx + 1) % NUM_EXEMPLOS_ESCOPO; continue; }
+        if (c == 13) break;
+    }
+}
+
+/* ═══════════════ INTROS ═══════════════ */
+
+static int g_intro = 0;
+
+static void render_intro(void) {
+    char buf[64];
+    if (g_intro == 0) {
+        cabecalho("NIVEL AVANCADO", "Escopo e Parenteses", COR_AMBAR);
+        DrawText("Neste nivel os parenteses mudam quem e avaliado primeiro.", MARGEM, 110, 22, COR_BRANCO);
+        DrawText("Resolva sempre de dentro para fora, seguindo a ordem:", MARGEM, 142, 22, COR_BRANCO);
+        DrawText("NOT > AND > OR > IMPLICA > BICONDICIONAL", MARGEM, 196, 26, COR_AZUL);
+        DrawText("Os parenteses aparecerao destacados em amarelo: ( )", MARGEM, 256, 22, COR_AMARELO);
+        DrawText("Voce pode pedir ajuda a LOGI com a tecla H.", MARGEM, 310, 22, COR_BRANCO);
+    } else if (g_intro == 1) {
+        cabecalho("CONTRA-TEMPO", "Modo cronometrado", COR_LARANJA);
+        snprintf(buf, sizeof(buf), "Voce tera %d segundos para responder cada questao.", TIMER_SEGUNDOS);
+        DrawText(buf, MARGEM, 110, 22, COR_AMARELO);
+        DrawText("Bonus de velocidade (apenas em acertos):", MARGEM, 160, 22, COR_BRANCO);
+        DrawText("  - ate 10s  =>  +50%", MARGEM, 196, 22, COR_VERDE);
+        DrawText("  - ate 15s  =>  +25%", MARGEM, 228, 22, COR_AMBAR);
+        DrawText("  - acima    =>  pontos normais", MARGEM, 260, 22, COR_BRANCO);
+        DrawText("Se o tempo esgotar, a questao conta como erro.", MARGEM, 312, 22, COR_BRANCO);
+        DrawText("Pressionar [H] pausa o timer, mas desativa o bonus.", MARGEM, 344, 22, COR_BRANCO);
+    } else {
+        cabecalho("MODO SOBREVIVENCIA", "Hardcore", COR_VERMELHO);
+        DrawText("Sobreviva o maximo que puder.", MARGEM, 110, 22, COR_BRANCO);
+        DrawText("As questoes sao sorteadas de TODOS os niveis.", MARGEM, 142, 22, COR_BRANCO);
+        DrawText("Voce tem 3 vidas.", MARGEM, 196, 22, COR_VERMELHO);
+        DrawText("Cada erro subtrai 1 vida.", MARGEM, 228, 22, COR_BRANCO);
+        DrawText("O jogo acaba quando as vidas zerarem.", MARGEM, 260, 22, COR_BRANCO);
+        DrawText("Ganhe pontos e moedas pelos acertos!", MARGEM, 312, 22, COR_BRANCO);
+    }
+    rodape_enter("Pressione ENTER para comecar...");
+}
+
+void tela_intro_avancado(void)      { g_intro = 0; mostrar_e_esperar(render_intro); }
+void tela_intro_contra_tempo(void)  { g_intro = 1; mostrar_e_esperar(render_intro); }
+void tela_intro_sobrevivencia(void) { g_intro = 2; mostrar_e_esperar(render_intro); }
+
+/* ═══════════════ LOADING ═══════════════ */
+
+static double g_load_t = 0.0;
+
+static void render_loading(void) {
+    static const char *itens[4] = {
+        "Inicializando sistema de logica e IA", "Carregando banco de questoes",
+        "Conectando a IA tutora", "Pronto"
+    };
+    static const char *giro[4] = { "|", "/", "-", "\\" };
+    int i;
+    DrawText("LOGI - Decifra.IA", MARGEM, 60, 34, COR_AZUL);
+    for (i = 0; i < 4; i++) {
+        double ini = i * 0.6;
+        int y = 140 + i * 48;
+        if (g_load_t < ini) continue;
+        if (g_load_t < ini + 0.55) {
+            DrawText(giro[((int)(g_load_t * 12)) % 4], MARGEM, y, 24, COR_CINZA);
+            DrawText(itens[i], MARGEM + 40, y, 24, COR_CINZA);
+        } else {
+            DrawText("OK", MARGEM, y, 24, COR_VERDE);
+            DrawText(itens[i], MARGEM + 40, y, 24, COR_BRANCO);
+        }
+    }
+    if (g_load_t > 2.6) {
+        DrawRectangleLines(MARGEM, 360, LARG - 2 * MARGEM, 120, COR_AZUL_DIM);
+        DrawText("Jogo      LOGI - Decifra.IA", MARGEM + 20, 372, 20, COR_BRANCO);
+        DrawText("Versao    1.0  PI2", MARGEM + 20, 400, 20, COR_BRANCO);
+        DrawText("Modo      Logica Proposicional e Seguranca em IA", MARGEM + 20, 428, 20, COR_BRANCO);
+        DrawText("Status    PRONTO", MARGEM + 20, 456, 20, COR_VERDE);
+        rodape_enter("Pressione ENTER para continuar...");
+    }
+}
+
+void tela_loading(void) {
+    double ini = GetTime();
+    g_render = render_loading;
+    do {
+        g_load_t = GetTime() - ini;
+        frame();
+    } while (g_load_t <= 2.6);
+    esperar_enter();
+}
+
+/* ═══════════════ NOME ═══════════════ */
+
+static void render_nome(void) {
+    ScoreEntry rk[SCORE_MAX];
+    char buf[160];
+    cabecalho("LOGI - Decifra.IA", "", COR_AZUL);
+    DrawText("Como voce se chama?", MARGEM, 130, 28, COR_BRANCO);
+    DrawRectangleLines(MARGEM, 190, 520, 50, COR_AZUL);
+    snprintf(buf, sizeof(buf), "%s%s", g_edit, (((int)(GetTime() * 2)) % 2) ? "_" : "");
+    DrawText(buf, MARGEM + 14, 203, 26, COR_BRANCO);
+    if (score_carregar(rk, SCORE_MAX) > 0) {
+        snprintf(buf, /
 
 static void render_como_jogar(void) {
     cabecalho("Como Jogar", "", COR_AZUL);
