@@ -442,7 +442,8 @@ https://youtu.be/Iltjfxjm8z0
 
 **demo HU15: https://www.youtube.com/watch?v=jyQQGYnBtwE
 
-Testes das Histórias de Usuário 16, 17, 18, 19, 20: https://youtu.be/4YOtXOuWV4k
+Screencast das Histórias de Usuário 16, 17, 18, 19, 20: https://youtu.be/4YOtXOuWV4k
+HU19 0:28 HU16 0:43 HU17 1:24 HU18 2:03 HU20 3:07
 
 ## Storyboard(figma)
 https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes-IHC?node-id=45-103&t=IGlyCabXOWPoepC9-1
