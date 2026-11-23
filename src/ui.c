@@ -1,306 +1,43 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include "ui.h"
-#include "game.h"
-#include "input.h"
-#include "ai_client.h"
-#include "audio.h"
-#include "score.h"
+#ifndef UI_H
+#define UI_H
 
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#include <termios.h>
-#include <sys/ioctl.h>
-#include <sys/select.h>
-#include <sys/time.h>
+void limpar_tela(void);
+
+void tela_menu(void);
+void tela_como_jogar(void);
+void tela_exemplos_escopo(void);
+void tela_intro_avancado(void);
+void tela_loading(void);
+void tela_nome(void);
+void tela_desafio(int indice);
+void tela_painel_logi(int indice);
+void tela_feedback(int acertou, int indice);
+void tela_resultado_final(int total_rodada);
+void tela_saida(void);
+
+void tela_intro_contra_tempo(void);
+void tela_desafio_contra_tempo(int indice, int segs_restantes);
+char ler_resposta_contra_tempo(int segundos, int *usados_out);
+void tela_feedback_contra_tempo(int acertou, int indice, int usados, int timeout, int usou_ajuda);
+void tela_resultado_contra_tempo(int total_rodada);
+void tela_intro_sobrevivencia(void);
+void tela_desafio_sobrevivencia(int indice);
+void tela_game_over(void);
+
+/* Novas Telas US13/US14 */
+void tela_loja(void);
+void tela_lootbox_animacao(void);
+void tela_lootbox_resultado(const char *premio);
+void tela_aviso(const char *msg);
+
+/* US21: fala educativa da LOGI entre desafios (pulavel com qualquer tecla) */
+void tela_narracao_logi(const char *tema, const char *fala, int numero);
+
+/* US22: top-5 de todos os modos lado a lado */
+void tela_rankings_consolidados(void);
+
 #endif
-
-static double g_b       = 1.0;
-static int    g_idx     = 0;
-static int    g_acertou = 0;
-static int    g_rows    = 24;
-static char   g_dica_ai[AI_RESP_MAX] = "";
-static int    g_tem_ai  = 0;
-
-/* Variáveis do Contra-Tempo */
-static int g_timer_row = 0;
-static int g_timer_col = 5;
-static int g_input_row = 0;
-static int g_input_col = 15;
-
-/* Variáveis de Feedback e Resultado */
-static int g_ft_acertou = 0;
-static int g_ft_usados  = 0;
-static int g_ft_timeout = 0;
-static int g_ft_ajuda   = 0;
-static int g_total_rodada = 0;
-
-/* ═══════════════ Utilitários ═══════════════ */
-
-static void pausa_ms(int ms) {
-#ifdef _WIN32
-    Sleep(ms);
-#else
-    usleep(ms * 1000);
-#endif
-}
-
-static void atualizar_tamanho(void) {
-#ifndef _WIN32
-    struct winsize ws;
-    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_row > 4)
-        g_rows = ws.ws_row;
-#endif
-}
-
-void limpar_tela(void) {
-    printf("\033[H\033[3J\033[2J\033[H");
-    fflush(stdout);
-}
-
-static void set_cor(int r, int g, int b) {
-    printf("\033[38;2;%d;%d;%dm",
-           (int)(r * g_b), (int)(g * g_b), (int)(b * g_b));
-}
-static void rst(void) { printf("\033[0m"); }
-static void p(int r, int g, int b, const char *s) {
-    set_cor(r, g, b); printf("%s", s); rst();
-}
-static void ir(int r, int c) { printf("\033[%d;%dH", r, c); }
-
-static void linha_div(void) {
-    set_cor(60, 90, 180);
-    printf("────────────────────────────────────────────────────────");
-    rst();
-}
-
-static void mostrar_cursor(void)  { printf("\033[?25h"); fflush(stdout); }
-static void esconder_cursor(void) { printf("\033[?25l"); fflush(stdout); }
-
-static void ler_enter(void) {
-    int c;
-    while (1) {
-        c = getchar();
-        if (c == EOF || c == '\n' || c == '\r') return;
-        if (c == '\033') {
-            c = getchar();
-            if (c == '[' || c == 'O')
-                while ((c = getchar()) != EOF && !(c >= 0x40 && c <= 0x7E));
-        }
-    }
-}
-
-static void fade_tela(void (*render)(void)) {
-    static const double steps[] = {0.05, 0.15, 0.3, 0.5, 0.7, 0.87, 1.0};
-    int n = 7, i;
-    atualizar_tamanho();
-    esconder_cursor();
-    for (i = 0; i < n; i++) {
-        printf("\033[H\033[3J\033[2J\033[H");
-        fflush(stdout);
-        g_b = steps[i];
-        render();
-        fflush(stdout);
-        pausa_ms(32);
-    }
-    g_b = 1.0;
-    mostrar_cursor();
-}
-
-static const char *g_frames[] = {
-    "\xe2\xa0\x8b", "\xe2\xa0\x99", "\xe2\xa0\xb9", "\xe2\xa0\xb8",
-    "\xe2\xa0\xbc", "\xe2\xa0\xb4", "\xe2\xa0\xa6", "\xe2\xa0\xa7",
-    "\xe2\xa0\x87", "\xe2\xa0\x8f"
-};
-
-static void loading_item_em(int linha, const char *texto) {
-    int i;
-    for (i = 0; i < 12; i++) {
-        ir(linha, 5);
-        set_cor(100, 120, 160);
-        printf("%s  %s", g_frames[i % 10], texto);
-        rst(); fflush(stdout);
-        pausa_ms(70);
-    }
-    ir(linha, 5);
-    set_cor(100, 140, 255);
-    printf("✔   "); rst();
-    printf("%s", texto); fflush(stdout);
-    pausa_ms(80);
-}
-
-static void print_com_parenteses_destacados(const char *s) {
-    int i;
-    for (i = 0; s[i]; i++) {
-        if (s[i] == '(' || s[i] == ')') { set_cor(255, 220, 80); printf("%c", s[i]); }
-        else                            { set_cor(200, 210, 230); printf("%c", s[i]); }
-    }
-    rst();
-}
-
-static int total_do_nivel(int nivel) {
-    return (nivel == NIVEL_AVANCADO) ? NUM_DESAFIOS_AVANC : NUM_DESAFIOS_BASE;
-}
-static int offset_do_nivel(int nivel) {
-    return (nivel == NIVEL_AVANCADO) ? NUM_DESAFIOS_BASE : 0;
-}
-
-/* ═══════════════ MENU ═══════════════ */
-
-static void render_menu(void) {
-    int r = (g_rows - 15) / 2;
-    int c = 5;
-    if (r < 1) r = 1;
-    ir(r,    c); p(100,140,255, "LOGI - Decifra.IA");
-                 p(120,125,160, "  Logica e Seguranca em IA");
-    ir(r+2,  c); linha_div();
-    ir(r+4,  c); p(100,140,255, "1"); p(200,210,230, "   Jogar");
-    ir(r+5,  c); p(100,140,255, "2"); p(200,210,230, "   Como Jogar");
-    ir(r+6,  c); p(100,140,255, "3"); p(200,210,230, "   Exemplos de Escopo");
-    ir(r+7,  c); p(255,180, 60, "4"); p(200,210,230, "   Nivel Avancado (Parenteses)");
-    ir(r+8,  c); p(255,120, 60, "5"); p(200,210,230, "   Contra-Tempo (Avancado)");
-    ir(r+9,  c); p(150,255,150, "6"); p(200,210,230, "   Loja de Itens e Lootbox");
-    ir(r+10, c); p(220, 70, 70, "7"); p(200,210,230, "   Modo Sobrevivencia (Hardcore)");
-    ir(r+11, c); p(100,140,255, "8"); p(200,210,230, "   Sair");
-    ir(r+13, c); linha_div();
-    ir(r+15, c); p(120,125,160, "opcao: ");
-}
-
-void tela_menu(void) { 
-    audio_tocar(AUDIO_MENU);
-    fade_tela(render_menu); 
-}
-
-/* ═══════════════ COMO JOGAR ═══════════════ */
-
-static void render_como_jogar(void) {
-    int r = (g_rows - 21) / 2;
-    int c = 5;
-    if (r < 1) r = 1;
-    ir(r,    c); p(100,140,255, "Como Jogar");
-    ir(r+1,  c); linha_div();
-    ir(r+3,  c); p(200,210,230, "Responda V (Verdadeiro) ou F (Falso) para cada formula.");
-    ir(r+4,  c); p(200,210,230, "Pressione "); p(100,140,255, "[H]");
-                 p(200,210,230, " para pedir ajuda a LOGI (IA tutora).");
-    ir(r+6,  c); p(200,210,230, "Ganhe Moedas ao acertar e use na Loja (Opcao 6)");
-    ir(r+7,  c); p(200,210,230, "para comprar Lootboxes, Dicas, Pulos e Tempo.");
-    ir(r+9,  c); p(120,125,160, "Operadores logicos:");
-    ir(r+11, c); p(100,140,255, "AND            "); p(200,210,230, "verdadeiro quando ambos os lados sao V");
-    ir(r+12, c); p(100,140,255, "OR             "); p(200,210,230, "verdadeiro quando pelo menos um lado e V");
-    ir(r+13, c); p(100,140,255, "NOT            "); p(200,210,230, "inverte o valor logico");
-    ir(r+14, c); p(100,140,255, "IMPLICA        "); p(200,210,230, "falso apenas quando P = V e Q = F");
-    ir(r+15, c); p(100,140,255, "BICONDICIONAL  "); p(200,210,230, "verdadeiro quando os dois lados sao iguais");
-    ir(r+17, c); p(200,210,230, "No "); p(255,180,60, "Contra-Tempo");
-                 p(200,210,230, ", acertos rapidos geram bonus (50% em 10s).");
-    ir(r+20, c); linha_div();
-    ir(r+21, c); p(120,125,160, "Pressione ENTER para continuar...");
-}
-
-void tela_como_jogar(void) {
-    fade_tela(render_como_jogar);
-    mostrar_cursor(); ler_enter(); esconder_cursor();
-}
-
-/* ═══════════════ EXEMPLOS DE ESCOPO (HU9) ═══════════════ */
-
-typedef struct {
-    const char *variaveis;
-    const char *expr_a, *passos_a, *res_a;
-    const char *expr_b, *passos_b, *res_b;
-    const char *explicacao;
-} ExemploEscopo;
-
-#define NUM_EXEMPLOS_ESCOPO 3
-static int g_exemplo_idx = 0;
-
-static const ExemploEscopo exemplos_escopo[NUM_EXEMPLOS_ESCOPO] = {
-    { "P = V  |  Q = F  |  R = F",
-      "P OR Q AND R", "V OR F AND F  ->  V OR F  ->  V", "V",
-      "(P OR Q) AND R", "(V OR F) AND F  ->  V AND F  ->  F", "F",
-      "Sem parenteses, AND tem precedencia sobre OR.\n    Com parenteses, o OR e avaliado primeiro." },
-    { "P = V  |  Q = F",
-      "NOT P AND Q", "NOT V AND F  ->  F AND F  ->  F", "F",
-      "NOT (P AND Q)", "NOT (V AND F)  ->  NOT F  ->  V", "V",
-      "O parenteses muda o escopo do NOT: ele passa a\n    aplicar-se ao resultado de P AND Q." },
-    { "P = V  |  Q = V  |  R = F",
-      "P AND Q OR R", "V AND V OR F  ->  V OR F  ->  V", "V",
-      "P AND (Q OR R)", "V AND (V OR F)  ->  V AND V  ->  V", "V",
-      "Aqui os dois cenarios coincidem, mas os passos\n    intermediarios sao diferentes." }
-};
-
-static void render_exemplos_escopo(void) {
-    char buf[160];
-    int r = (g_rows - 18) / 2;
-    int c = 5;
-    const ExemploEscopo *e = &exemplos_escopo[g_exemplo_idx];
-    if (r < 1) r = 1;
-
-    ir(r,    c); p(100,140,255, "LOGI - Decifra.IA");
-                 p(120,125,160, "  |  Exemplos Didaticos: Escopo");
-    ir(r+1,  c); linha_div();
-
-    snprintf(buf, sizeof(buf), "Variaveis: %s", e->variaveis);
-    ir(r+3,  c); p(200,210,230, buf);
-
-    ir(r+5,  c); p(100,140,255, "Cenario A:   "); p(200,210,230, e->expr_a);
-    snprintf(buf, sizeof(buf), "  Passos:     %s", e->passos_a);
-    ir(r+6,  c); p(120,125,160, buf);
-    snprintf(buf, sizeof(buf), "  Resultado:  [%s]", e->res_a);
-    ir(r+7,  c); p(80,200,120, buf);
-
-    ir(r+9,  c); p(100,140,255, "Cenario B:   "); p(200,210,230, e->expr_b);
-    snprintf(buf, sizeof(buf), "  Passos:     %s", e->passos_b);
-    ir(r+10, c); p(120,125,160, buf);
-    snprintf(buf, sizeof(buf), "  Resultado:  [%s]", e->res_b);
-    ir(r+11, c); p(80,200,120, buf);
-
-    ir(r+13, c); p(200,210,230, "Por que muda?");
-    ir(r+14, c); p(120,125,160, e->explicacao);
-
-    snprintf(buf, sizeof(buf), "Exemplo %d de %d", g_exemplo_idx + 1, NUM_EXEMPLOS_ESCOPO);
-    ir(r+16, c); p(120,125,160, buf);
-    ir(r+17, c); p(100,140,255, "[N]"); p(200,210,230, " Proximo exemplo");
-                 p(100,140,255, "    [ENTER]"); p(200,210,230, " Voltar ao menu");
-    ir(r+18, c); linha_div();
-}
-
-void tela_exemplos_escopo(void) {
-    while (1) {
-        int c;
-        fade_tela(render_exemplos_escopo);
-        while (1) {
-            c = getchar();
-            if (c == EOF) break;
-            if (c == '\033') {
-                int d = getchar();
-                if (d == '[' || d == 'O')
-                    while ((d = getchar()) != EOF && !(d >= 0x40 && d <= 0x7E));
-                continue;
-            }
-            break;
-        }
-        esconder_cursor();
-        if (c == 'n' || c == 'N') {
-            g_exemplo_idx = (g_exemplo_idx + 1) % NUM_EXEMPLOS_ESCOPO;
-            continue;
-        }
-        break;
-    }
-}
-
-/* ═══════════════ INTROS ═══════════════ */
-
-static void render_intro_avancado(void) {
-    int r = (g_rows - 14) / 2;
-    int c = 5;
-    if (r < 1) r = 1;
-    ir(r,    c); p(255, 180, 60, "NIVEL AVANCADO");
-                 p(120,125,160, "  Escopo e Parenteses");
-    ir(r+2,  c); linha_div();
+div();
     ir(r+4,  c); p(200,210,230, "Neste nivel os parenteses mudam quem e avaliado primeiro.");
     ir(r+5,  c); p(200,210,230, "Resolva sempre de dentro para fora, seguindo a ordem:");
     ir(r+7,  c); p(100,140,255, "NOT > AND > OR > IMPLICA > BICONDICIONAL");
