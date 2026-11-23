@@ -298,6 +298,161 @@ void executar_nivel_contra_tempo(void) {
 
 void executar_nivel_sobrevivencia(void) {
     tela_intro_sobrevivencia();
+    score_definir_modo(SCORE_MODO_SOBREVIVENCIA);   /* US22: ranking proprio */
+    inicializar_jogo();
+
+    while (jogador.vidas > 0) {
+        /* Sorteia qualquer desafio (Base ou Avançado) */
+        int idx = rng_range(NUM_DESAFIOS);
+        char resposta;
+        int acertou;
+
+        gerar_desafio_da_sessao(idx);
+
+        tela_desafio_sobrevivencia(idx);
+        resposta = ler_resposta();
+
+        if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
+
+        if (resposta == 'H' || resposta == 'h') {
+            if (jogador.dicas_gratis > 0) {
+                jogador.dicas_gratis--;
+                tela_aviso("Dica Gratis consumida!");
+            }
+            tela_painel_logi(idx);
+            tela_desafio_sobrevivencia(idx);
+            resposta = ler_resposta();
+            if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
+        }
+
+        acertou = (toupper((unsigned char)resposta) == desafios[idx].resposta_correta);
+
+        if (acertou) {
+            jogador.acertos++;
+            jogador.pontuacao += desafios[idx].nivel * 10;
+            jogador.moedas += desafios[idx].nivel * 2;
+            tela_feedback(1, idx);
+        } else {
+            jogador.vidas--;
+            if (jogador.vidas > 0) {
+                tela_feedback(0, idx);
+            }
+        }
+    }
+    registrar_score();
+    tela_game_over();
+}
+
+void finalizar_jogo(int total_rodada) {
+    /* Ponto unico de registro dos modos Basico e Avancado. */
+    registrar_score();
+    tela_resultado_final(total_rodada);
+}
+
+/* ═══════════════ Loja e Lootbox ═══════════════ */
+
+void processar_lootbox(void) {
+    int sorteio;
+    tela_lootbox_animacao();
+    sorteio = rng_range(100);
+
+    if (sorteio < 40) {
+        jogador.pontuacao += 50;
+        tela_lootbox_resultado("+ 50 Pontos extras!");
+    } else if (sorteio < 80) {
+        jogador.moedas += 20;
+        tela_lootbox_resultado("+ 20 Moedas!");
+    } else {
+        jogador.dicas_gratis += 2;
+        tela_lootbox_resultado("+ 2 Dicas Gratis!");
+    }
+}
+
+void executar_loja(void) {
+    int opcao;
+    while (1) {
+        tela_loja();
+        opcao = ler_opcao();
+
+        if (opcao == 5) break;
+
+        if (opcao == 1) {
+            if (jogador.moedas >= CUSTO_LOOTBOX) {
+                jogador.moedas -= CUSTO_LOOTBOX;
+                processar_lootbox();
+            } else tela_aviso("Moedas insuficientes!");
+        }
+        if (opcao == 2) {
+            if (jogador.moedas >= CUSTO_DICA) {
+                jogador.moedas -= CUSTO_DICA;
+                jogador.dicas_gratis++;
+                tela_aviso("Comprou 1 Dica Gratis!");
+            } else tela_aviso("Moedas insuficientes!");
+        }
+        if (opcao == 3) {
+            if (jogador.moedas >= CUSTO_PULO) {
+                jogador.moedas -= CUSTO_PULO;
+                jogador.pulos_gratis++;
+                tela_aviso("Comprou 1 Pulo!");
+            } else tela_aviso("Moedas insuficientes!");
+        }
+        if (opcao == 4) {
+            if (jogador.moedas >= CUSTO_TEMPO) {
+                jogador.moedas -= CUSTO_TEMPO;
+                jogador.botoes_tempo++;
+                tela_aviso("Comprou +10 Segundos!");
+            } else tela_aviso("Moedas insuficientes!");
+        }
+    }
+}descontar de novo. */
+        if (segs_restantes <= 0) { timeout = 1; }
+        else {
+            tela_desafio_contra_tempo(indice, segs_restantes);
+            resposta = ler_resposta_contra_tempo(segs_restantes, &usados);
+            usados_totais += usados;
+            segs_restantes -= usados;
+            if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
+        }
+    }
+
+    if (resposta == -1 || timeout) {
+        jogador.resposta_jogador[indice] = 0; jogador.acertou[indice] = 0;
+        jogador.tempo_por_desafio[indice] = TIMER_SEGUNDOS;
+        tela_feedback_contra_tempo(0, indice, TIMER_SEGUNDOS, 1, jogador.usou_ajuda[indice]);
+        return;
+    }
+
+    acertou = (toupper((unsigned char)resposta) == desafios[indice].resposta_correta);
+    jogador.resposta_jogador[indice] = resposta;
+    jogador.acertou[indice] = acertou ? 1 : 0;
+    jogador.tempo_por_desafio[indice] = usados_totais;
+
+    if (acertou) {
+        int pontos = desafios[indice].nivel * 10;
+        if (!jogador.usou_ajuda[indice]) pontos = bonus_de(usados_totais, desafios[indice].nivel);
+        jogador.acertos++;
+        jogador.pontuacao += pontos;
+        jogador.moedas += desafios[indice].nivel * 2;
+    }
+
+    tela_feedback_contra_tempo(acertou, indice, usados_totais, 0, jogador.usou_ajuda[indice]);
+}
+
+void executar_nivel_contra_tempo(void) {
+    int i;
+    tela_intro_contra_tempo();
+    score_definir_modo(SCORE_MODO_TEMPO);
+    inicializar_jogo();
+
+    for (i = NUM_DESAFIOS_BASE; i < NUM_DESAFIOS; i++) rodar_desafio_contra_tempo(i);
+    registrar_score();
+    tela_resultado_contra_tempo(NUM_DESAFIOS_AVANC);
+}
+
+/* ═══════════════ Sobrevivência (US20) ═══════════════ */
+
+void executar_nivel_sobrevivencia(void) {
+    tela_intro_sobrevivencia();
     score_definir_modo(SCORE_MODO_BASICO);
     inicializar_jogo();
 
