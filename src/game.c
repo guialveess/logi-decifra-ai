@@ -132,6 +132,7 @@ void inicializar_jogo(void) {
     jogador.acertos = 0;
     jogador.vidas = 3;          /* US20 */
     jogador.sequencia = 0;      /* US23 */
+    jogador.hardcore = 0;       /* US25: so o modo basico pergunta */
     g_score_registrado = 0;     /* nova partida pode registrar no ranking */
 }
 
@@ -157,6 +158,14 @@ static void rodar_desafio(int indice) {
 
     tela_desafio(indice);
     resposta = ler_resposta();
+
+    /* US25: no modo Hardcore, ajuda [H] e pulo [P] ficam bloqueados */
+    while (jogador.hardcore &&
+           (toupper((unsigned char)resposta) == 'H' || toupper((unsigned char)resposta) == 'P')) {
+        tela_aviso("Bloqueado no modo Hardcore! Responda V ou F.");
+        tela_desafio(indice);
+        resposta = ler_resposta();
+    }
 
     if (toupper((unsigned char)resposta) == 'Q') { tela_saida(); exit(0); }
 
@@ -410,7 +419,21 @@ int operador_mais_fraco(const int acertos[OP_TOTAL], const int total[OP_TOTAL]) 
     return pior;
 }
 
+int pontos_com_bonus_hardcore(int pontos) {
+    if (pontos <= 0) return pontos;
+    return pontos + pontos * BONUS_HARDCORE_PCT / 100;
+}
+
 void finalizar_jogo(int total_rodada) {
+    /* US25: bonus aplicado antes de registrar no ranking */
+    if (jogador.hardcore && jogador.pontuacao > 0) {
+        char msg[96];
+        int antes = jogador.pontuacao;
+        jogador.pontuacao = pontos_com_bonus_hardcore(antes);
+        snprintf(msg, sizeof(msg), "Bonus Hardcore +%d%%: %d -> %d pontos!",
+                 BONUS_HARDCORE_PCT, antes, jogador.pontuacao);
+        tela_aviso(msg);
+    }
     /* Ponto unico de registro dos modos Basico e Avancado. */
     registrar_score();
     tela_resultado_final(total_rodada);

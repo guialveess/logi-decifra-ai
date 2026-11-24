@@ -272,6 +272,14 @@ int ler_opcao_menu(void) {
     }
 }
 
+int ler_sim_nao(void) {
+    for (;;) {
+        int c = esperar_tecla();
+        if (c == 's' || c == 'S') return 1;
+        if (c == 'n' || c == 'N') return 0;
+    }
+}
+
 char ler_resposta(void) {
     for (;;) {
         int c = esperar_tecla(), up;
@@ -461,6 +469,19 @@ static void render_intro(void) {
     rodape_enter("Pressione ENTER para comecar...");
 }
 
+/* US25: pergunta do modo Hardcore */
+static void render_pergunta_hardcore(void) {
+    char buf[96];
+    cabecalho("MODO HARDCORE", "Desafio extra", COR_VERMELHO);
+    DrawText("Jogar sem ajuda da LOGI [H] e sem pulos [P]?", MARGEM, 130, 26, COR_BRANCO);
+    snprintf(buf, sizeof(buf), "Em troca, ganhe +%d%% na pontuacao final.", BONUS_HARDCORE_PCT);
+    DrawText(buf, MARGEM, 176, 24, COR_AMARELO);
+    botao(MARGEM,       260, 300, 56, "S  Sim, quero o desafio", COR_VERMELHO, 'S');
+    botao(MARGEM + 320, 260, 260, 56, "N  Nao, modo normal",     COR_AZUL,     'N');
+}
+
+void tela_pergunta_hardcore(void) { g_render = render_pergunta_hardcore; frame(); }
+
 void tela_intro_avancado(void)      { g_intro = 0; mostrar_e_esperar(render_intro); }
 void tela_intro_contra_tempo(void)  { g_intro = 1; mostrar_e_esperar(render_intro); }
 void tela_intro_sobrevivencia(void) { g_intro = 2; mostrar_e_esperar(render_intro); }
@@ -576,8 +597,12 @@ static void render_desafio(void) {
     DrawRectangle(MARGEM, by - 20, LARG - 2 * MARGEM, 2, COR_AZUL_DIM);
     botao(MARGEM,       by, 150, 60, "V  Verdadeiro", COR_VERDE, 'V');
     botao(MARGEM + 166, by, 150, 60, "F  Falso",      COR_VERMELHO, 'F');
-    botao(MARGEM + 332, by, 170, 60, "H  Ajuda LOGI", COR_AZUL, 'H');
-    if (g_var == 0 && !adv) botao(MARGEM + 518, by, 190, 60, "P  Pular (20 Mts)", COR_AMBAR, 'P');
+    if (jogador.hardcore) {                                   /* US25 */
+        DrawText("HARDCORE: sem ajuda e sem pulo", MARGEM + 340, by + 20, 20, COR_VERMELHO);
+    } else {
+        botao(MARGEM + 332, by, 170, 60, "H  Ajuda LOGI", COR_AZUL, 'H');
+        if (g_var == 0 && !adv) botao(MARGEM + 518, by, 190, 60, "P  Pular (20 Mts)", COR_AMBAR, 'P');
+    }
     if (g_var == 1)          botao(MARGEM + 518, by, 190, 60, "T  +10s (15 Mts)",  COR_AMBAR, 'T');
     DrawText("Responda com o teclado ou clicando.   Q = sair", MARGEM, by + 80, 18, COR_CINZA);
 }

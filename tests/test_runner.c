@@ -190,6 +190,17 @@ static void testes_resumo_operadores(void) {
     CHECK("tudo certo: nenhum operador fraco", operador_mais_fraco(ac, tot) == -1);
 }
 
+/* ── Modo Hardcore (US25) ──────────────────────────────────────────── */
+static void testes_hardcore(void) {
+    puts("Modo Hardcore (US25):");
+    CHECK("bonus de 50%: 100 -> 150", pontos_com_bonus_hardcore(100) == 150);
+    CHECK("bonus de 50%: 70 -> 105",  pontos_com_bonus_hardcore(70) == 105);
+    CHECK("sem pontos, sem bonus",    pontos_com_bonus_hardcore(0) == 0);
+    jogador.hardcore = 1;
+    inicializar_jogo();
+    CHECK("nova partida comeca fora do Hardcore", jogador.hardcore == 0);
+}
+
 /* ── Rankings (US22) ──────────────────────────────────────────────── */
 static void testes_score(void) {
     char dir[] = "/tmp/decifra_testeXXXXXX";
@@ -226,6 +237,7 @@ int main(void) {
     testes_loja();
     testes_conquistas();
     testes_resumo_operadores();
+    testes_hardcore();
     printf("\n%d testes, %d falha(s)\n", total, falhas);
     return falhas ? 1 : 0;
 }

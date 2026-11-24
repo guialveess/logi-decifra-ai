@@ -40,6 +40,19 @@ int ler_opcao_menu(void) {
     }
 }
 
+/* US25: espera S ou N (maiuscula ou minuscula). */
+int ler_sim_nao(void) {
+    int c;
+    limpar_stdin();
+    while (1) {
+        c = getchar();
+        if (c == EOF) return 0;
+        if (c == '\033') { consumir_escape(); continue; }
+        if (c == 's' || c == 'S') return 1;
+        if (c == 'n' || c == 'N') return 0;
+    }
+}
+
 char ler_resposta(void) {
     int c, up;
     limpar_stdin();
