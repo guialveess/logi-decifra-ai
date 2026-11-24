@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "game.h"
+#include "score.h"
 #include "narrativa.h"
 
 static int total = 0, falhas = 0;
@@ -116,9 +117,39 @@ static void testes_loja(void) {
     CHECK("saldo exato: compra 1 vez e recusa a 2a", jogador.dicas_gratis == 1 && jogador.moedas == 0);
 }
 
+/* ── Rankings (US22) ──────────────────────────────────────────────── */
+static void testes_score(void) {
+    char dir[] = "/tmp/decifra_testeXXXXXX";
+    char path[600];
+    ScoreEntry e[SCORE_MAX];
+    FILE *f;
+    int m;
+    puts("Rankings (US22):");
+    if (!mkdtemp(dir)) { puts("  [FAIL] mkdtemp"); falhas++; total++; return; }
+    setenv("HOME", dir, 1);
+
+    for (m = 0; m < SCORE_NUM_MODOS; m++)
+        CHECK("sem arquivo => 0 entradas", score_carregar_modo(m, e, SCORE_MAX) == 0);
+
+    snprintf(path, sizeof(path), "%s/.decifra_score", dir);
+    f = fopen(path, "w");
+    fputs("Ana|40\nlinha sem separador\nBob|abc\nCaio|120\nBia|60\n", f);
+    fclose(f);
+    CHECK("ignora linhas corrompidas (3 validas)", score_carregar_modo(SCORE_MODO_BASICO, e, SCORE_MAX) == 3);
+    CHECK("ordena por pontos (Caio primeiro)", strcmp(e[0].nome, "Caio") == 0 && e[0].pontos == 120);
+    CHECK("outro modo ausente continua vazio", score_carregar_modo(SCORE_MODO_AVANCADO, e, SCORE_MAX) == 0);
+
+    score_definir_modo(SCORE_MODO_SOBREVIVENCIA);
+    CHECK("sobrevivencia grava no proprio arquivo", score_inserir("Ze", 70) == 0);
+    CHECK("sobrevivencia lida por modo", score_carregar_modo(SCORE_MODO_SOBREVIVENCIA, e, SCORE_MAX) == 1);
+    CHECK("basico nao foi alterado", score_carregar_modo(SCORE_MODO_BASICO, e, SCORE_MAX) == 3);
+    CHECK("pontuacao 0 nao entra no ranking", score_inserir("Zero", 0) == -1);
+}
+
 int main(void) {
     testes_logica();
     testes_narrativa();
+    testes_score();
     testes_loja();
     printf("\n%d testes, %d falha(s)\n", total, falhas);
     return falhas ? 1 : 0;
