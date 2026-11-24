@@ -550,40 +550,6 @@ static void render_desafio_contra_tempo(void) {
              "LOGI | CONTRA-TEMPO %d/%d | Nv %d | Pts: %d | Moedas: %d | Linha %d/%d",
              g_idx - NUM_DESAFIOS_BASE + 1, NUM_DESAFIOS_AVANC,
              desafios[g_idx].nivel, jogador.pontuacao, jogador.moedas,
-            125,160, "resposta: ");
-}
-
-void tela_desafio(int indice) {
-    audio_tocar(AUDIO_GAMEPLAY);
-    g_idx = indice;
-    if (desafios[indice].nivel == NIVEL_AVANCADO)
-        fade_tela(render_desafio_avancado);
-    else
-        fade_tela(render_desafio);
-}
-
-/* ═══════════════ DESAFIO CONTRA-TEMPO ═══════════════ */
-
-static void render_timer_inline(int segs) {
-    char buf[40];
-    ir(g_timer_row, g_timer_col);
-    if (segs > 10)      p(80, 200, 120, "⏱ ");
-    else if (segs > 5)  p(255, 200, 80, "⏱ ");
-    else                p(220, 70, 70,  "⏱ ");
-    snprintf(buf, sizeof(buf), "%2ds restantes   ", segs);
-    printf("%s", buf); rst(); fflush(stdout);
-}
-
-static void render_desafio_contra_tempo(void) {
-    char buf[280];
-    int r = (g_rows - 15) / 2;
-    int c = 5;
-    if (r < 1) r = 1;
-
-    snprintf(buf, sizeof(buf),
-             "LOGI | CONTRA-TEMPO %d/%d | Nv %d | Pts: %d | Moedas: %d | Linha %d/%d",
-             g_idx - NUM_DESAFIOS_BASE + 1, NUM_DESAFIOS_AVANC,
-             desafios[g_idx].nivel, jogador.pontuacao, jogador.moedas,
              desafios[g_idx].linha_tabela + 1, desafios[g_idx].total_linhas);
     ir(r,    c); p(255, 120, 60, buf);
 
@@ -1089,6 +1055,160 @@ void tela_narracao_logi(const char *tema, const char *fala, int numero) {
     }
     rst();
     fflush(stdout);
+}
+
+/* ═══════════════ RANKINGS CONSOLIDADOS (US22) ═══════════════ */
+
+static ScoreEntry g_rk[SCORE_NUM_MODOS][SCORE_MAX];
+static int  g_rk_n[SCORE_NUM_MODOS];
+static int  g_rk_meu[SCORE_NUM_MODOS];      /* melhor posicao do jogador; -1 = nenhuma */
+static char g_rk_nome[NOME_MAX] = "";       /* jogador destacado */
+static char g_rk_ultimo[NOME_MAX] = "";     /* ultimo jogador.nome visto */
+
+static const int g_cor_modo[SCORE_NUM_MODOS][3] = {
+    {100, 140, 255},    /* Basico        */
+    {255, 180,  60},    /* Avancado      */
+    {255, 120,  60},    /* Contra-Tempo  */
+    {220,  70,  70}     /* Sobrevivencia */
+};
+
+static void carregar_rankings(void) {
+    char alvo[SCORE_NOME_MAX];
+    int m, i;
+
+    alvo[0] = '\0';
+    if (g_rk_nome[0]) score_normalizar_nome(g_rk_nome, alvo);
+
+    for (m = 0; m < SCORE_NUM_MODOS; m++) {
+        /* Arquivo ausente ou corrompido => coluna vazia, sem erro */
+        g_rk_n[m]   = score_carregar_modo(m, g_rk[m], SCORE_MAX);
+        g_rk_meu[m] = -1;
+        if (!alvo[0]) continue;
+        for (i = 0; i < g_rk_n[m]; i++)
+            if (strcasecmp(g_rk[m][i].nome, alvo) == 0) { g_rk_meu[m] = i; break; }
+    }
+}
+
+static void render_rankings(void) {
+    char buf[96];
+    int quatro    = (g_cols >= 80);           /* 4 colunas ou grade 2x2 */
+    int por_linha = quatro ? 4 : 2;
+    int larg      = quatro ? 19 : 30;
+    int nome_w    = quatro ? 9 : 19;
+    int bloco_h   = SCORE_MAX + 3;
+    int blocos_v  = SCORE_NUM_MODOS / por_linha;
+    int altura    = 3 + blocos_v * bloco_h + 7;
+    int r = (g_rows - altura) / 2;
+    int c = 3, m, i, k, f;
+    if (r < 1) r = 1;
+
+    ir(r,   c); p(100,140,255, "LOGI - Decifra.IA");
+                p(120,125,160, "  |  Rankings Consolidados (Top 5)");
+    ir(r+1, c); linha_div();
+
+    for (m = 0; m < SCORE_NUM_MODOS; m++) {
+        const int *cor = g_cor_modo[m];
+        int x = c + (m % por_linha) * larg;
+        int y = r + 3 + (m / por_linha) * bloco_h;
+
+        snprintf(buf, sizeof(buf), "%s", score_nome_modo(m));
+        for (k = 0; buf[k]; k++) buf[k] = (char)toupper((unsigned char)buf[k]);
+        ir(y, x); p(cor[0], cor[1], cor[2], buf);
+
+        ir(y+1, x); set_cor(60, 90, 180);
+        for (k = 0; k < larg - 2; k++) printf("─");
+        rst();
+
+        if (g_rk_n[m] == 0) {
+            ir(y+2, x); p(120,125,160, "(sem registros)");
+            continue;
+        }
+        for (i = 0; i < g_rk_n[m]; i++) {
+            snprintf(buf, sizeof(buf), "%d %-*.*s %5d", i + 1, nome_w, nome_w,
+                     g_rk[m][i].nome, g_rk[m][i].pontos);
+            ir(y + 2 + i, x);
+            if (i == g_rk_meu[m]) {                 /* recorde do jogador */
+                p(80,200,120, i == 0 ? "★" : "»");
+                printf("\033[1m"); p(80,200,120, buf);
+            } else if (i == 0) {                    /* recorde do modo */
+                p(255,220,80, "★"); p(255,220,80, buf);
+            } else {
+                printf(" "); p(200,210,230, buf);
+            }
+        }
+    }
+
+    f = r + 3 + blocos_v * bloco_h;
+    ir(f,   c); linha_div();
+    ir(f+1, c); p(255,220,80, "★ recorde do modo");
+                p(120,125,160, "     ");
+                p(80,200,120,  "» seu melhor resultado");
+
+    if (g_rk_nome[0]) {
+        snprintf(buf, sizeof(buf), "Seus recordes (%.20s):", g_rk_nome);
+        ir(f+3, c); p(120,125,160, buf);
+        ir(f+4, c);
+        for (m = 0; m < SCORE_NUM_MODOS; m++) {
+            if (g_rk_meu[m] >= 0)
+                snprintf(buf, sizeof(buf), "%s %d", score_nome_modo(m),
+                         g_rk[m][g_rk_meu[m]].pontos);
+            else
+                snprintf(buf, sizeof(buf), "%s --", score_nome_modo(m));
+            p(g_rk_meu[m] >= 0 ? 80 : 120, g_rk_meu[m] >= 0 ? 200 : 125,
+              g_rk_meu[m] >= 0 ? 120 : 160, buf);
+            if (m < SCORE_NUM_MODOS - 1) p(60,90,180, "  |  ");
+        }
+    } else {
+        ir(f+3, c); p(120,125,160, "Jogue uma partida ou pressione [N] para destacar seu nome.");
+    }
+
+    ir(f+6, c); p(100,140,255, "[N]");     p(200,210,230, " Destacar jogador");
+                p(100,140,255, "    [ENTER]"); p(200,210,230, " Voltar ao menu");
+}
+
+static void render_rankings_nome(void) {
+    int r = (g_rows - 6) / 2, c = 5;
+    if (r < 1) r = 1;
+    ir(r,   c); p(100,140,255, "Rankings Consolidados");
+    ir(r+1, c); linha_div();
+    ir(r+3, c); p(200,210,230, "Qual jogador destacar? (ENTER vazio remove o destaque)");
+    ir(r+5, c); p(120,125,160, "Nome: ");
+}
+
+void tela_rankings_consolidados(void) {
+    /* Sempre que um novo jogador joga, ele passa a ser o destacado. */
+    if (jogador.nome[0] && strcmp(jogador.nome, g_rk_ultimo) != 0) {
+        snprintf(g_rk_ultimo, sizeof(g_rk_ultimo), "%s", jogador.nome);
+        snprintf(g_rk_nome,   sizeof(g_rk_nome),   "%s", jogador.nome);
+    }
+
+    audio_tocar(AUDIO_MENU);
+    while (1) {
+        int ch;
+        carregar_rankings();
+        fade_tela(render_rankings);
+        esconder_cursor();
+        limpar_stdin();
+
+        do {
+            ch = getchar();
+            if (ch == '\033') {
+                int d = getchar();
+                if (d == '[' || d == 'O')
+                    while ((d = getchar()) != EOF && !(d >= 0x40 && d <= 0x7E));
+            }
+        } while (ch == '\033');
+
+        if (ch == 'n' || ch == 'N') {
+            char nome[NOME_MAX];
+            fade_tela(render_rankings_nome);
+            ler_nome(nome, NOME_MAX);
+            esconder_cursor();
+            snprintf(g_rk_nome, sizeof(g_rk_nome), "%s", nome);
+            continue;
+        }
+        break;
+    }
 }
 
 /* ═══════════════ SAIDA ═══════════════ */
