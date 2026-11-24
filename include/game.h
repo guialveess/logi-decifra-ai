@@ -44,6 +44,7 @@ typedef struct {
     int  pulos_gratis;   
     int  botoes_tempo;
     int  vidas;
+    int  sequencia;       /* US23: acertos seguidos na partida atual */
     
     char resposta_jogador[NUM_DESAFIOS];
     int  acertou[NUM_DESAFIOS];
