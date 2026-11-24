@@ -6,6 +6,7 @@
 #include "game.h"
 #include "score.h"
 #include "narrativa.h"
+#include "conquistas.h"
 
 static int total = 0, falhas = 0;
 
@@ -117,6 +118,40 @@ static void testes_loja(void) {
     CHECK("saldo exato: compra 1 vez e recusa a 2a", jogador.dicas_gratis == 1 && jogador.moedas == 0);
 }
 
+/* ── Conquistas (US23) ─────────────────────────────────────────────── */
+static void testes_conquistas(void) {
+    char dir[] = "/tmp/decifra_cqXXXXXX";
+    int novas[CQ_TOTAL], n;
+    puts("Conquistas (US23):");
+    if (!mkdtemp(dir)) { puts("  [FAIL] mkdtemp"); falhas++; total++; return; }
+    setenv("HOME", dir, 1);          /* nao mexe nas conquistas reais */
+    conquistas_recarregar();
+
+    CHECK("comeca sem conquistas", !conquista_tem(CQ_PRIMEIRO_ACERTO) && !conquista_tem(CQ_TRIPLETE));
+
+    n = conquistas_verificar(0, 0, 0, 0, novas);
+    CHECK("sem acertos: nada desbloqueia", n == 0);
+
+    n = conquistas_verificar(1, 1, 10, 2, novas);
+    CHECK("primeiro acerto desbloqueia", n == 1 && novas[0] == CQ_PRIMEIRO_ACERTO);
+
+    n = conquistas_verificar(2, 2, 20, 4, novas);
+    CHECK("2 seguidos: ainda nao e Triplete", n == 0);
+
+    n = conquistas_verificar(3, 3, 30, 6, novas);
+    CHECK("3 seguidos: Triplete", n == 1 && novas[0] == CQ_TRIPLETE);
+
+    n = conquistas_verificar(3, 3, 30, 6, novas);
+    CHECK("conquista nao aparece duas vezes", n == 0);
+
+    n = conquistas_verificar(10, 5, 120, 60, novas);
+    CHECK("5 seguidos + 100 pts + 50 moedas: 3 novas de uma vez", n == 3);
+
+    conquistas_recarregar();         /* simula fechar e abrir o jogo */
+    CHECK("conquistas ficam salvas no arquivo",
+          conquista_tem(CQ_PRIMEIRO_ACERTO) && conquista_tem(CQ_TRIPLETE) && conquista_tem(CQ_POUPADOR));
+}
+
 /* ── Rankings (US22) ──────────────────────────────────────────────── */
 static void testes_score(void) {
     char dir[] = "/tmp/decifra_testeXXXXXX";
@@ -151,6 +186,7 @@ int main(void) {
     testes_narrativa();
     testes_score();
     testes_loja();
+    testes_conquistas();
     printf("\n%d testes, %d falha(s)\n", total, falhas);
     return falhas ? 1 : 0;
 }

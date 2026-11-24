@@ -10,6 +10,7 @@
 #include "audio.h"
 #include "score.h"
 #include "narrativa.h"
+#include "conquistas.h"
 
 typedef struct {
     const char *expressao;
@@ -130,7 +131,24 @@ void inicializar_jogo(void) {
     jogador.pontuacao = 0;
     jogador.acertos = 0;
     jogador.vidas = 3;          /* US20 */
+    jogador.sequencia = 0;      /* US23 */
     g_score_registrado = 0;     /* nova partida pode registrar no ranking */
+}
+
+/* US23: atualiza a sequencia de acertos e mostra as conquistas novas.
+ * Chamada depois da tela de feedback de cada desafio, em todos os modos. */
+static void checar_conquistas(int acertou) {
+    int novas[CQ_TOTAL], n, i;
+    char msg[128];
+
+    jogador.sequencia = acertou ? jogador.sequencia + 1 : 0;
+    n = conquistas_verificar(jogador.acertos, jogador.sequencia,
+                             jogador.pontuacao, jogador.moedas, novas);
+    for (i = 0; i < n; i++) {
+        snprintf(msg, sizeof(msg), "CONQUISTA DESBLOQUEADA: %s (%s)",
+                 conquista_nome(novas[i]), conquista_descricao(novas[i]));
+        tela_aviso(msg);
+    }
 }
 
 static void rodar_desafio(int indice) {
@@ -180,6 +198,7 @@ static void rodar_desafio(int indice) {
         jogador.moedas += desafios[indice].nivel * 2;
     }
     tela_feedback(acertou, indice);
+    checar_conquistas(acertou);
 }
 
 /* Modo basico: depois de cada desafio a LOGI compartilha uma reflexao (US21). */
@@ -264,6 +283,7 @@ static void rodar_desafio_contra_tempo(int indice) {
         jogador.resposta_jogador[indice] = 0; jogador.acertou[indice] = 0;
         jogador.tempo_por_desafio[indice] = TIMER_SEGUNDOS;
         tela_feedback_contra_tempo(0, indice, TIMER_SEGUNDOS, 1, jogador.usou_ajuda[indice]);
+        checar_conquistas(0);
         return;
     }
 
@@ -281,6 +301,7 @@ static void rodar_desafio_contra_tempo(int indice) {
     }
 
     tela_feedback_contra_tempo(acertou, indice, usados_totais, 0, jogador.usou_ajuda[indice]);
+    checar_conquistas(acertou);
 }
 
 void executar_nivel_contra_tempo(void) {
@@ -332,11 +353,13 @@ void executar_nivel_sobrevivencia(void) {
             jogador.pontuacao += desafios[idx].nivel * 10;
             jogador.moedas += desafios[idx].nivel * 2;
             tela_feedback(1, idx);
+            checar_conquistas(1);
         } else {
             jogador.vidas--;
             if (jogador.vidas > 0) {
                 tela_feedback(0, idx);
             }
+            checar_conquistas(0);
         }
     }
     registrar_score();

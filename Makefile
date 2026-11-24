@@ -1,7 +1,7 @@
 CC      = gcc
 CFLAGS  = -Wall -Wextra -std=c11 -g -Iinclude -D_GNU_SOURCE -MMD -MP
 TARGET  = jogo
-SOURCES = src/main.c src/game.c src/ui.c src/input.c src/ai_client.c src/audio.c src/score.c src/narrativa.c
+SOURCES = src/main.c src/game.c src/ui.c src/input.c src/ai_client.c src/audio.c src/score.c src/narrativa.c src/conquistas.c
 OBJECTS = $(SOURCES:.c=.o)
 DEPS    = $(OBJECTS:.o=.d)
 
@@ -32,7 +32,7 @@ clean:
 
 # ---- Interface grafica (raylib) - PI2-189 -----------------------------------
 # Requer a raylib instalada (veja o README). Usa ui_raylib.c no lugar de ui.c/input.c.
-GUI_SOURCES   = src/main.c src/game.c src/ui_raylib.c src/ai_client.c src/audio.c src/score.c src/narrativa.c
+GUI_SOURCES   = src/main.c src/game.c src/ui_raylib.c src/ai_client.c src/audio.c src/score.c src/narrativa.c src/conquistas.c
 GUI_CFLAGS    = $(filter-out -MMD -MP,$(CFLAGS)) $(shell pkg-config --cflags raylib 2>/dev/null) -DUSE_RAYLIB
 GUI_LIBS      = $(shell pkg-config --libs raylib 2>/dev/null || echo -lraylib -lGL -lm -lpthread -ldl -lrt -lX11)
 
