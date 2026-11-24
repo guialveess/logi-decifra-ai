@@ -809,9 +809,37 @@ static void render_ranking(int r, int c) {
     }
 }
 
+/* US24: linha com o desempenho por operador + dica do mais fraco */
+static void render_resumo_operadores(int r, int c) {
+    int ac[OP_TOTAL], tot[OP_TOTAL], op, pior, algum = 0;
+    char buf[96];
+
+    resumo_operadores(ac, tot);
+    ir(r, c); p(120,125,160, "Desempenho por operador:");
+    ir(r+1, c);
+    for (op = 0; op < OP_TOTAL; op++) {
+        if (tot[op] == 0) continue;
+        snprintf(buf, sizeof(buf), "[%s %d/%d] ", nome_operador(op), ac[op], tot[op]);
+        if (ac[op] == tot[op])       p(80,200,120, buf);
+        else if (ac[op] * 2 >= tot[op]) p(255,180,60, buf);
+        else                         p(220,70,70,  buf);
+        algum = 1;
+    }
+    if (!algum) p(120,125,160, "(nenhum desafio respondido)");
+
+    pior = operador_mais_fraco(ac, tot);
+    ir(r+2, c);
+    if (pior >= 0) {
+        snprintf(buf, sizeof(buf), "Dica: revise o operador %s na proxima jogada!", nome_operador(pior));
+        p(255,220,80, buf);
+    } else if (algum) {
+        p(80,200,120, "Mandou bem em todos os operadores!");
+    }
+}
+
 static void render_resultado(void) {
     char buf[64];
-    int r = (g_rows - 19) / 2;
+    int r = (g_rows - 22) / 2;
     int c = 5;
     if (r < 1) r = 1;
     ir(r,   c); p(100,140,255, "LOGI - Decifra.IA");
@@ -836,10 +864,12 @@ static void render_resultado(void) {
     else if (jogador.posicao_ranking >= 0)
         { ir(r+9, c); p(255,220,80, "Voce entrou no Top 5!"); }
 
-    ir(r+10, c); linha_div();
-    render_ranking(r+11, c);
-    ir(r+18, c); linha_div();
-    ir(r+19, c); p(120,125,160, "Pressione ENTER para continuar...");
+    render_resumo_operadores(r+11, c);      /* US24 */
+
+    ir(r+14, c); linha_div();
+    render_ranking(r+15, c);
+    ir(r+21, c); linha_div();
+    ir(r+22, c); p(120,125,160, "Pressione ENTER para continuar...");
 }
 
 void tela_resultado_final(int total_rodada) {

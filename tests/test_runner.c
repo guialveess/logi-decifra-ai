@@ -152,6 +152,44 @@ static void testes_conquistas(void) {
           conquista_tem(CQ_PRIMEIRO_ACERTO) && conquista_tem(CQ_TRIPLETE) && conquista_tem(CQ_POUPADOR));
 }
 
+/* ── Resumo por operador (US24) ────────────────────────────────────── */
+static void marca_desafio(int i, const char *expr, int acertou) {
+    snprintf(desafios[i].expressao, sizeof(desafios[i].expressao), "%s", expr);
+    jogador.resposta_jogador[i] = 'V';
+    jogador.acertou[i] = acertou;
+}
+
+static void testes_resumo_operadores(void) {
+    int ac[OP_TOTAL], tot[OP_TOTAL], i;
+    puts("Resumo por operador (US24):");
+
+    for (i = 0; i < NUM_DESAFIOS; i++) { jogador.resposta_jogador[i] = 0; jogador.acertou[i] = 0; }
+    resumo_operadores(ac, tot);
+    CHECK("sem respostas: nenhum operador contado", tot[OP_AND] == 0 && tot[OP_OR] == 0);
+    CHECK("sem respostas: nenhum operador fraco", operador_mais_fraco(ac, tot) == -1);
+
+    marca_desafio(0, "P AND Q", 1);
+    marca_desafio(1, "P OR Q", 0);
+    marca_desafio(2, "NOT (P OR Q)", 1);
+    marca_desafio(3, "P IMPLICA Q", 1);
+    marca_desafio(4, "P BICONDICIONAL Q", 0);
+    resumo_operadores(ac, tot);
+
+    CHECK("AND: 1 de 1", ac[OP_AND] == 1 && tot[OP_AND] == 1);
+    CHECK("OR aparece em 2 desafios, 1 acerto", ac[OP_OR] == 1 && tot[OP_OR] == 2);
+    CHECK("NOT: 1 de 1", ac[OP_NOT] == 1 && tot[OP_NOT] == 1);
+    CHECK("BICONDICIONAL nao conta como OR nem como NOT", tot[OP_BICONDICIONAL] == 1);
+    CHECK("pior operador: BICONDICIONAL (0%)", operador_mais_fraco(ac, tot) == OP_BICONDICIONAL);
+
+    marca_desafio(4, "P BICONDICIONAL Q", 1);
+    resumo_operadores(ac, tot);
+    CHECK("depois de corrigir: pior passa a ser OR (50%)", operador_mais_fraco(ac, tot) == OP_OR);
+
+    marca_desafio(1, "P OR Q", 1);
+    resumo_operadores(ac, tot);
+    CHECK("tudo certo: nenhum operador fraco", operador_mais_fraco(ac, tot) == -1);
+}
+
 /* ── Rankings (US22) ──────────────────────────────────────────────── */
 static void testes_score(void) {
     char dir[] = "/tmp/decifra_testeXXXXXX";
@@ -187,6 +225,7 @@ int main(void) {
     testes_score();
     testes_loja();
     testes_conquistas();
+    testes_resumo_operadores();
     printf("\n%d testes, %d falha(s)\n", total, falhas);
     return falhas ? 1 : 0;
 }

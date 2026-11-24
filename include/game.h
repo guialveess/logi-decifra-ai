@@ -65,7 +65,16 @@ void finalizar_jogo(int total_rodada);
 /* Avalia expressao logica (usada no jogo e nos testes em tests/). */
 int avaliar_expressao(const char *expr, const char *vars, const int *vals, int n);
 
+/* US24: desempenho por operador logico na partida atual */
+enum { OP_AND = 0, OP_OR, OP_NOT, OP_IMPLICA, OP_BICONDICIONAL, OP_TOTAL };
+const char *nome_operador(int op);
+/* Conta, para cada operador, em quantos desafios respondidos ele apareceu
+ * (total) e em quantos desses o jogador acertou (acertos). */
+void resumo_operadores(int acertos[OP_TOTAL], int total[OP_TOTAL]);
+/* Operador com menor taxa de acerto; -1 se nao houver erro. */
+int  operador_mais_fraco(const int acertos[OP_TOTAL], const int total[OP_TOTAL]);
 
+/* Novas funções US13/US14 */
 void executar_loja(void);
 void processar_lootbox(void);
 
