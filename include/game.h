@@ -45,6 +45,7 @@ typedef struct {
     int  botoes_tempo;
     int  vidas;
     int  sequencia;       /* US23: acertos seguidos na partida atual */
+    int  hardcore;        /* US25: 1 = sem ajuda [H] e sem pulo [P], +50% no fim */
     
     char resposta_jogador[NUM_DESAFIOS];
     int  acertou[NUM_DESAFIOS];
@@ -73,6 +74,10 @@ const char *nome_operador(int op);
 void resumo_operadores(int acertos[OP_TOTAL], int total[OP_TOTAL]);
 /* Operador com menor taxa de acerto; -1 se nao houver erro. */
 int  operador_mais_fraco(const int acertos[OP_TOTAL], const int total[OP_TOTAL]);
+
+/* US25: pontuacao final com o bonus do modo Hardcore (+50%) */
+#define BONUS_HARDCORE_PCT  50
+int pontos_com_bonus_hardcore(int pontos);
 
 /* Novas funções US13/US14 */
 void executar_loja(void);

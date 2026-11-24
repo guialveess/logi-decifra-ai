@@ -128,6 +128,10 @@ int main(void) {
             /* inicializar_jogo() preserva o inventario (moedas, dicas, pulos, tempo) */
             inicializar_jogo();
 
+            /* US25: modo Hardcore opcional */
+            tela_pergunta_hardcore();
+            jogador.hardcore = ler_sim_nao();
+
             for (i = 0; i < NUM_DESAFIOS_BASE; i++)
                 executar_desafio(i);
             finalizar_jogo(NUM_DESAFIOS_BASE);

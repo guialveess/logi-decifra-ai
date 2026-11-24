@@ -317,6 +317,28 @@ static void render_intro_avancado(void) {
     ir(r+14, c); p(120,125,160, "Pressione ENTER para comecar...");
 }
 
+/* US25: pergunta do modo Hardcore (a resposta e lida com ler_sim_nao) */
+static void render_pergunta_hardcore(void) {
+    char buf[80];
+    int r = (g_rows - 12) / 2;
+    int c = 5;
+    if (r < 1) r = 1;
+    ir(r,    c); p(220, 70, 70, "MODO HARDCORE");
+                 p(120,125,160, "  Desafio extra");
+    ir(r+2,  c); linha_div();
+    ir(r+4,  c); p(200,210,230, "Jogar sem ajuda da LOGI [H] e sem pulos [P]?");
+    snprintf(buf, sizeof(buf), "Em troca, ganhe +%d%% na pontuacao final.", BONUS_HARDCORE_PCT);
+    ir(r+5,  c); p(255,220, 80, buf);
+    ir(r+7,  c); linha_div();
+    ir(r+9,  c); p(100,140,255, "[S]"); p(200,210,230, " Sim, quero o desafio    ");
+                 p(100,140,255, "[N]"); p(200,210,230, " Nao, modo normal");
+}
+
+void tela_pergunta_hardcore(void) {
+    fade_tela(render_pergunta_hardcore);
+    esconder_cursor();
+}
+
 void tela_intro_avancado(void) {
     fade_tela(render_intro_avancado);
     mostrar_cursor(); ler_enter(); esconder_cursor();
@@ -494,8 +516,12 @@ static void render_desafio(void) {
     ir(r+7,  c); linha_div();
     ir(r+9,  c); p(100,140,255, "[V]"); p(200,210,230, " Verdadeiro");
                  p(100,140,255, "     [F]"); p(200,210,230, " Falso");
+    if (jogador.hardcore) {                         /* US25 */
+                 p(220, 70, 70, "     HARDCORE: sem ajuda e sem pulo");
+    } else {
                  p(100,140,255, "     [H]"); p(200,210,230, " Pedir ajuda ao LOGI");
                  p(100,140,255, "     [P]"); p(200,210,230, " Pular (20 Mts)");
+    }
     ir(r+11, c); p(120,125,160, "resposta: ");
 }
 
