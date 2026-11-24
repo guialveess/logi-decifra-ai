@@ -366,6 +366,50 @@ void executar_nivel_sobrevivencia(void) {
     tela_game_over();
 }
 
+/* ═══════════════ Resumo por operador (US24) ═══════════════ */
+
+static const char *nomes_op[OP_TOTAL] = { "AND", "OR", "NOT", "IMPLICA", "BICONDICIONAL" };
+
+const char *nome_operador(int op) {
+    return (op >= 0 && op < OP_TOTAL) ? nomes_op[op] : "";
+}
+
+/* 1 se a expressao contem o operador como palavra inteira. */
+static int contem_operador(const char *expr, const char *op) {
+    size_t n = strlen(op);
+    const char *p = expr;
+    while ((p = strstr(p, op)) != NULL) {
+        int antes_ok  = (p == expr) || !isalpha((unsigned char)p[-1]);
+        int depois_ok = !isalpha((unsigned char)p[n]);
+        if (antes_ok && depois_ok) return 1;
+        p += n;
+    }
+    return 0;
+}
+
+void resumo_operadores(int acertos[OP_TOTAL], int total[OP_TOTAL]) {
+    int i, op;
+    for (op = 0; op < OP_TOTAL; op++) { acertos[op] = 0; total[op] = 0; }
+    for (i = 0; i < NUM_DESAFIOS; i++) {
+        if (jogador.resposta_jogador[i] == 0) continue;     /* nao respondido */
+        for (op = 0; op < OP_TOTAL; op++) {
+            if (!contem_operador(desafios[i].expressao, nomes_op[op])) continue;
+            total[op]++;
+            if (jogador.acertou[i]) acertos[op]++;
+        }
+    }
+}
+
+int operador_mais_fraco(const int acertos[OP_TOTAL], const int total[OP_TOTAL]) {
+    int op, pior = -1;
+    for (op = 0; op < OP_TOTAL; op++) {
+        if (total[op] == 0 || acertos[op] == total[op]) continue;
+        /* compara acertos/total sem divisao: a/b < c/d  <=>  a*d < c*b */
+        if (pior < 0 || acertos[op] * total[pior] < acertos[pior] * total[op]) pior = op;
+    }
+    return pior;
+}
+
 void finalizar_jogo(int total_rodada) {
     /* Ponto unico de registro dos modos Basico e Avancado. */
     registrar_score();

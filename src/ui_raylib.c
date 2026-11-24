@@ -1,3 +1,17 @@
+/* ============================================================================
+ * Interface grafica (raylib) - PI2-189
+ *
+ * Backend alternativo ao terminal: implementa TODAS as funcoes de ui.h e de
+ * input.h (tela_*, ler_*). Por isso game.c, score.c, narrativa.c e ai_client.c
+ * funcionam sem nenhuma alteracao.
+ *
+ *   make gui        -> compila ./jogo_gui (usa ui_raylib.c no lugar de ui.c/input.c)
+ *   make            -> continua gerando o jogo de terminal (./jogo)
+ *
+ * Funcionamento: cada tela_*() escolhe uma funcao de desenho (g_render) e os
+ * ler_*() ficam num laco que redesenha a cena enquanto esperam a tecla/clique.
+ * Obs.: a fonte padrao da raylib nao tem acentos; os textos seguem sem acento.
+ * ========================================================================== */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -752,6 +766,34 @@ static void render_ranking_lista(int x, int y) {
     }
 }
 
+/* US24: desempenho por operador, em coluna, a direita do ranking */
+static void render_resumo_operadores(int x, int y) {
+    int ac[OP_TOTAL], tot[OP_TOTAL], op, pior, algum = 0, yy = y + 32;
+    char buf[96];
+
+    resumo_operadores(ac, tot);
+    DrawText("Desempenho por operador:", x, y, 22, COR_CINZA);
+    for (op = 0; op < OP_TOTAL; op++) {
+        Color c;
+        if (tot[op] == 0) continue;
+        c = (ac[op] == tot[op]) ? COR_VERDE : (ac[op] * 2 >= tot[op]) ? COR_AMBAR : COR_VERMELHO;
+        DrawText(nome_operador(op), x, yy, 20, c);
+        snprintf(buf, sizeof(buf), "%d/%d", ac[op], tot[op]);
+        DrawText(buf, x + 190, yy, 20, c);
+        yy += 26;
+        algum = 1;
+    }
+    if (!algum) { DrawText("(nenhum desafio respondido)", x, yy, 20, COR_CINZA); yy += 26; }
+
+    pior = operador_mais_fraco(ac, tot);
+    if (pior >= 0) {
+        snprintf(buf, sizeof(buf), "Dica: revise o operador %s na proxima jogada!", nome_operador(pior));
+        txt_quebra(x, yy + 6, LARG - MARGEM - x, 18, COR_AMARELO, buf);
+    } else if (algum) {
+        DrawText("Mandou bem em todos os operadores!", x, yy + 6, 18, COR_VERDE);
+    }
+}
+
 static void render_resultado(void) {
     char buf[96];
     cabecalho("LOGI - Decifra.IA", "Resultado Final", COR_AZUL);
@@ -772,6 +814,7 @@ static void render_resultado(void) {
         DrawText("Voce entrou no Top 5!", MARGEM, 244, 24, COR_AMARELO);
 
     render_ranking_lista(MARGEM, 300);
+    render_resumo_operadores(LARG / 2 + 40, 300);   /* US24 */
     rodape_enter("Pressione ENTER para continuar...");
 }
 
