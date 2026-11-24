@@ -298,7 +298,7 @@ void executar_nivel_contra_tempo(void) {
 
 void executar_nivel_sobrevivencia(void) {
     tela_intro_sobrevivencia();
-    score_definir_modo(SCORE_MODO_BASICO);
+    score_definir_modo(SCORE_MODO_SOBREVIVENCIA);   /* US22: ranking proprio */
     inicializar_jogo();
 
     while (jogador.vidas > 0) {

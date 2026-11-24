@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <strings.h>
 #include <raylib.h>
 #include "ui.h"
 #include "game.h"
@@ -249,6 +250,14 @@ int ler_opcao(void) {
     }
 }
 
+int ler_opcao_menu(void) {
+    for (;;) {
+        int c = esperar_tecla();
+        if (c == 'r' || c == 'R') return OPCAO_RANKINGS;
+        if (c >= '1' && c <= '9') return c - '0';
+    }
+}
+
 char ler_resposta(void) {
     for (;;) {
         int c = esperar_tecla(), up;
@@ -307,7 +316,8 @@ static void render_menu(void) {
         botao(MARGEM, 100 + i * 48, 560, 42, buf,
               rgb(menu_cor[i][0], menu_cor[i][1], menu_cor[i][2]), '1' + i);
     }
-    DrawText("Use o teclado (1-8) ou clique nas opcoes.", MARGEM + 590, 110, 18, COR_CINZA);
+    botao(MARGEM, 100 + 8 * 48 + 8, 560, 42, "R    Rankings (todos os modos)", COR_AMARELO, 'R');
+    DrawText("Use o teclado (1-8, R) ou clique nas opcoes.", MARGEM + 590, 110, 18, COR_CINZA);
 }
 
 void tela_menu(void) {
@@ -876,6 +886,122 @@ void tela_lootbox_resultado(const char *premio) {
     g_premio = premio;
     g_lb_fase = 1;
     mostrar_e_esperar(render_lootbox);
+}
+
+/* ═══════════════ RANKINGS CONSOLIDADOS (US22) ═══════════════ */
+
+static ScoreEntry g_rk[SCORE_NUM_MODOS][SCORE_MAX];
+static int  g_rk_n[SCORE_NUM_MODOS];
+static int  g_rk_meu[SCORE_NUM_MODOS];
+static char g_rk_nome[NOME_MAX]   = "";
+static char g_rk_ultimo[NOME_MAX] = "";
+
+static const unsigned char g_cor_modo[SCORE_NUM_MODOS][3] = {
+    {100,140,255}, {255,180,60}, {255,120,60}, {220,70,70}
+};
+
+static void carregar_rankings(void) {
+    char alvo[SCORE_NOME_MAX];
+    int m, i;
+    alvo[0] = '\0';
+    if (g_rk_nome[0]) score_normalizar_nome(g_rk_nome, alvo);
+    for (m = 0; m < SCORE_NUM_MODOS; m++) {
+        g_rk_n[m]   = score_carregar_modo(m, g_rk[m], SCORE_MAX);   /* arquivo ausente => vazio */
+        g_rk_meu[m] = -1;
+        if (!alvo[0]) continue;
+        for (i = 0; i < g_rk_n[m]; i++)
+            if (strcasecmp(g_rk[m][i].nome, alvo) == 0) { g_rk_meu[m] = i; break; }
+    }
+}
+
+static void render_rankings(void) {
+    char buf[96], nome[32];
+    int gap = 16, larg = (LARG - 2 * MARGEM - 3 * gap) / 4, m, i, x, y, w;
+
+    cabecalho("LOGI - Decifra.IA", "Rankings Consolidados (Top 5)", COR_AZUL);
+
+    for (m = 0; m < SCORE_NUM_MODOS; m++) {
+        Color cor = rgb(g_cor_modo[m][0], g_cor_modo[m][1], g_cor_modo[m][2]);
+        x = MARGEM + m * (larg + gap);
+        DrawRectangle(x, 100, larg, 300, COR_PAINEL);
+        DrawRectangle(x, 100, larg, 4, cor);
+
+        snprintf(buf, sizeof(buf), "%s", score_nome_modo(m));
+        for (i = 0; buf[i]; i++) buf[i] = (char)toupper((unsigned char)buf[i]);
+        DrawText(buf, x + 10, 116, 18, cor);
+
+        if (g_rk_n[m] == 0) { DrawText("(sem registros)", x + 10, 160, 18, COR_CINZA); continue; }
+
+        for (i = 0; i < g_rk_n[m]; i++) {
+            Color c = COR_BRANCO;
+            y = 154 + i * 44;
+            if (i == g_rk_meu[m]) {                       /* recorde do jogador */
+                c = COR_VERDE;
+                DrawRectangle(x + 4, y - 6, larg - 8, 38, rgb(24, 60, 44));
+            } else if (i == 0) {                          /* recorde do modo */
+                c = COR_AMARELO;
+            }
+            snprintf(nome, sizeof(nome), "%.9s", g_rk[m][i].nome);
+            snprintf(buf, sizeof(buf), "%d  %s", i + 1, nome);
+            DrawText(buf, x + 10, y, 18, c);
+            snprintf(buf, sizeof(buf), "%d", g_rk[m][i].pontos);
+            w = MeasureText(buf, 18);
+            DrawText(buf, x + larg - 10 - w, y, 18, c);
+            if (i == 0) DrawText("*", x + larg - 10 - w - 16, y, 18, c);
+        }
+    }
+
+    DrawText("*  recorde do modo", MARGEM, 416, 18, COR_AMARELO);
+    DrawText("destaque verde  =  seu melhor resultado", MARGEM + 220, 416, 18, COR_VERDE);
+
+    if (g_rk_nome[0]) {
+        snprintf(buf, sizeof(buf), "Seus recordes (%.20s):", g_rk_nome);
+        DrawText(buf, MARGEM, 452, 20, COR_CINZA);
+        x = MARGEM;
+        for (m = 0; m < SCORE_NUM_MODOS; m++) {
+            if (g_rk_meu[m] >= 0) snprintf(buf, sizeof(buf), "%s %d", score_nome_modo(m), g_rk[m][g_rk_meu[m]].pontos);
+            else                  snprintf(buf, sizeof(buf), "%s --", score_nome_modo(m));
+            DrawText(buf, x, 480, 20, g_rk_meu[m] >= 0 ? COR_VERDE : COR_CINZA);
+            x += MeasureText(buf, 20) + 30;
+        }
+    } else {
+        DrawText("Jogue uma partida ou pressione N para destacar seu nome.", MARGEM, 452, 20, COR_CINZA);
+    }
+
+    DrawRectangle(MARGEM, ALT - 84, LARG - 2 * MARGEM, 2, COR_AZUL_DIM);
+    botao(LARG - MARGEM - 400, ALT - 72, 220, 44, "N  Destacar jogador", COR_AZUL, 'N');
+    botao(LARG - MARGEM - 170, ALT - 72, 170, 44, "ENTER  Voltar", COR_AZUL, 13);
+}
+
+static void render_rankings_nome(void) {
+    char buf[96];
+    cabecalho("Rankings Consolidados", "", COR_AZUL);
+    DrawText("Qual jogador destacar? (ENTER vazio remove o destaque)", MARGEM, 130, 24, COR_BRANCO);
+    DrawRectangleLines(MARGEM, 190, 520, 50, COR_AZUL);
+    snprintf(buf, sizeof(buf), "%s%s", g_edit, (((int)(GetTime() * 2)) % 2) ? "_" : "");
+    DrawText(buf, MARGEM + 14, 203, 26, COR_BRANCO);
+}
+
+void tela_rankings_consolidados(void) {
+    if (jogador.nome[0] && strcmp(jogador.nome, g_rk_ultimo) != 0) {
+        snprintf(g_rk_ultimo, sizeof(g_rk_ultimo), "%s", jogador.nome);
+        snprintf(g_rk_nome,   sizeof(g_rk_nome),   "%s", jogador.nome);
+    }
+    audio_tocar(AUDIO_MENU);
+    for (;;) {
+        int c;
+        carregar_rankings();
+        g_render = render_rankings;
+        c = esperar_tecla();
+        if (c == 'n' || c == 'N') {
+            char nome[NOME_MAX];
+            g_render = render_rankings_nome;
+            editar(nome, NOME_MAX);
+            snprintf(g_rk_nome, sizeof(g_rk_nome), "%s", nome);
+            continue;
+        }
+        if (c == 13) break;
+    }
 }
 
 /* ═══════════════ SAIDA ═══════════════ */

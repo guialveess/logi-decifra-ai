@@ -33,4 +33,7 @@ void tela_aviso(const char *msg);
 /* US21: fala educativa da LOGI entre desafios (pulavel com qualquer tecla) */
 void tela_narracao_logi(const char *tema, const char *fala, int numero);
 
+/* US22: top-5 de todos os modos lado a lado */
+void tela_rankings_consolidados(void);
+
 #endif

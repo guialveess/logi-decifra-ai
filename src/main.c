@@ -71,12 +71,15 @@ int main(void) {
 
     while (1) {
         tela_menu();
-        opcao = ler_opcao();
+        opcao = ler_opcao_menu();
 
         if (opcao == 8) { tela_saida(); break; }
 
+        /* US22: rankings consolidados (atalho [R], sem ocupar uma opcao numerica) */
+        if (opcao == OPCAO_RANKINGS) { tela_rankings_consolidados(); continue; }
+
         if (opcao == 7) {
-            score_definir_modo(SCORE_MODO_BASICO); /* Sobrevivência usa o score básico */
+            score_definir_modo(SCORE_MODO_SOBREVIVENCIA); /* US22: Sobrevivencia tem ranking proprio */
             jogador.recorde_anterior = score_melhor();
             jogador.posicao_ranking = -1;
 

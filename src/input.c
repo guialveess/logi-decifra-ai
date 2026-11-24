@@ -28,6 +28,18 @@ int ler_opcao(void) {
     }
 }
 
+int ler_opcao_menu(void) {
+    int c;
+    limpar_stdin();
+    while (1) {
+        c = getchar();
+        if (c == EOF) return 0;
+        if (c == '\033') { consumir_escape(); continue; }
+        if (c == 'r' || c == 'R') return OPCAO_RANKINGS;
+        if (c >= '1' && c <= '9') return c - '0';
+    }
+}
+
 char ler_resposta(void) {
     int c, up;
     limpar_stdin();
