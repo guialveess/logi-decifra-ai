@@ -40,7 +40,9 @@ ifeq ($(UNAME), Darwin)
   GUI_CFLAGS = $(filter-out -MMD -MP,$(CFLAGS)) -I$(HOMEBREW_PREFIX)/include -DUSE_RAYLIB
   GUI_LIBS   = -L$(HOMEBREW_PREFIX)/lib -lraylib -framework OpenGL -framework Cocoa -framework IOKit -framework CoreVideo -lm
 else
-  GUI_CFLAGS = $(filter-out -MMD -MP,$(CFLAGS)) $(shell pkg-config --cflags raylib 2>/dev/null) -DUSE_RAYLIB
+  GUI_CFLAGS = $(filter-out -MMD -MP,$(CFLAGS)) \
+               $(shell pkg-config --cflags raylib 2>/dev/null || echo -I/usr/local/include -I/usr/include) \
+               -DUSE_RAYLIB
   GUI_LIBS   = $(shell pkg-config --libs raylib 2>/dev/null || echo -lraylib -lGL -lm -lpthread -ldl -lrt -lX11)
 endif
 
