@@ -2,6 +2,14 @@
 #include <stdlib.h>
 #include "audio.h"
 
+/* O driver pulseaudio so existe no Linux/WSL. No macOS o ffplay usa o
+ * audio padrao do sistema (CoreAudio), entao nao forcamos nenhum driver. */
+#ifdef __APPLE__
+#define AUDIO_PREFIXO ""
+#else
+#define AUDIO_PREFIXO "SDL_AUDIODRIVER=pulseaudio "
+#endif
+
 static int audio_ativo = 0;
 static int faixa_atual = AUDIO_NENHUM;
 
@@ -40,7 +48,7 @@ void audio_tocar(int cenario) {
     if (arquivo[0] != '\0') {
         /* -nodisp (sem video) | -autoexit (fecha ao fim) | -loop 0 (loop infinito) */
         snprintf(cmd, sizeof(cmd), 
-                 "SDL_AUDIODRIVER=pulseaudio ffplay -nodisp -autoexit -loglevel quiet -loop 0 %s > /dev/null 2>&1 &", 
+                 AUDIO_PREFIXO "ffplay -nodisp -autoexit -loglevel quiet -loop 0 %s > /dev/null 2>&1 &", 
                  arquivo);
         system(cmd);
         faixa_atual = cenario;
