@@ -186,6 +186,15 @@ logi-decifra-ai/
 
 ---
 
+## Tecnologias
+
+- **C (C11)** com `gcc` e `make`
+- **raylib**: interface gráfica (`make run-gui`)
+- **ANSI/termios**: interface de terminal
+- **ffplay (ffmpeg)**: trilha sonora (opcional)
+- **GitHub Actions**: compilação, `cppcheck` e testes a cada push e PR
+- **Jira**: backlog e board
+
 ## Como compilar e rodar
 
 ### Pré-requisitos
@@ -221,6 +230,13 @@ make          # Compila
 make run      # Compila e executa
 make clean    # Limpa arquivos compilados
 ```
+Testes automatizados
+
+    make test     # compila e roda tests/test_runner.c
+
+A saída esperada termina com `58 testes, 0 falha(s)`.
+
+Para configurar o ambiente do zero (incluindo a raylib) e contribuir, veja o [CONTRIBUTING.md](_).
 
 ### Interface gráfica (raylib)
 
@@ -292,11 +308,11 @@ python scripts/ai_client.py "P AND Q"
 
 ---
 
-## Histórias de Usuário
+## Histórias de Usuário (HU1 até HU25)
 
 https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/edit?usp=sharing
 
-### Diagramas de Fluxo (HU1 a HU12)
+### Diagramas de Fluxo (HU1 até HU12)
 
 ### HU1 - Proposições Compostas com o operador AND
 <details>
@@ -877,6 +893,10 @@ HU19 0:28 HU16 0:43 HU17 1:24 HU18 2:03 HU20 3:07
 Screencast testes: https://www.youtube.com/watch?v=Ugr5ZJkRhrM
 US25: 0:07 US24: 0:11 US23: 0:21 US22: 0:38 US21: 00:55
 
+**Release v3.0 (Sprint 03):** https://github.com/guialveess/logi-decifra-ai/releases/tag/v3.0
+
+Screencast final, jogando a partir da release v3.0: [link]
+
 ## Storyboard(figma)
 https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes-IHC?node-id=45-103&t=IGlyCabXOWPoepC9-1
 
@@ -911,6 +931,7 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 ## Bug Tracker
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5a4977ec-6a14-470d-8a5a-e49e55f03cf2" />
+Issues do projeto: https://github.com/guialveess/logi-decifra-ai/issues
 
 ## Programação em Pares (US19)
 
