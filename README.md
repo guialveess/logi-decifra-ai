@@ -445,6 +445,9 @@ https://youtu.be/Iltjfxjm8z0
 Screencast das Histórias de Usuário 16, 17, 18, 19, 20: https://youtu.be/4YOtXOuWV4k
 HU19 0:28 HU16 0:43 HU17 1:24 HU18 2:03 HU20 3:07
 
+Screencast testes: https://www.youtube.com/watch?v=Ugr5ZJkRhrM
+US25: 0:07 US24: 0:11 US23: 0:21 US22: 0:38 US21: 00:55
+
 ## Storyboard(figma)
 https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes-IHC?node-id=45-103&t=IGlyCabXOWPoepC9-1
 
@@ -478,7 +481,7 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 
 ## Bug Tracker
 
-<img width="1920" height="846" alt="Captura de Tela (604)" src="https://github.com/user-attachments/assets/96cfb0f4-a86d-44e4-955c-b909f9d863ec" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/5a4977ec-6a14-470d-8a5a-e49e55f03cf2" />
 
 ## Programação em Pares (US19)
 
