@@ -385,52 +385,481 @@ https://docs.google.com/document/d/1SzixVp4eZ87xHs2-ZFUsQz371UWR0J6m4fWdXbj5Fig/
 ### HU13 - Sistema de Lootbox (Caixas de Recompensa)
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
-Implementação de um sistema de Lootbox integrado à Loja do jogo, permitindo que o jogador compre caixas por 30 moedas. Após a compra, uma animação em ASCII simula a abertura e sorteia aleatoriamente um dos três prêmios: **+50 Pontos, +20 Moedas ou +2 Dicas Grátis**. O saldo e o inventário são atualizados imediatamente, e uma mensagem exibe o prêmio recebido.
+  
+Cartão: Como jogador, quero abrir caixas de recompensa (lootboxes) com moedas do jogo, para ganhar itens bônus aleatórios que me ajudem nas partidas e me motivem a continuar jogando.
+Conversa: Implementar um sistema de lootbox acessível pela Loja. Ao ser acionada, a tela deve exibir uma animação simples em ASCII ([ ? ] piscando) para simular a abertura da caixa. O sistema deve sortear um prêmio entre três opções: Pontos Extras, Moedas Extras ou Dicas Grátis, atualizando o saldo do jogador imediatamente.
+Confirmação:
+Exibir a animação de abertura da caixa antes de revelar o prêmio.
+Sortear aleatoriamente entre os três prêmios: +50 Pontos, +20 Moedas ou +2 Dicas Grátis.
+Atualizar o jogador (pontuação, moedas ou dicas) com o prêmio sorteado.
+Exibir a tela de resultado do prêmio com a mensagem clara do que foi ganho.
+Consumir o valor da compra da Lootbox (30 Moedas) antes de iniciar a animação.
+Cenário BDD:
+Dado que o jogador está na Loja e possui saldo igual ou superior a 30 Moedas,
+Quando ele seleciona a opção de comprar e abrir uma Lootbox,
+Então o sistema deve deduzir 30 Moedas, exibir a animação de abertura da caixa, sortear um prêmio aleatório (Pontos, Moedas ou Dicas) e atualizar o inventário do jogador na mesma tela.
+
 
 </details>
 
 ### HU14 - Sistema Monetário e Loja de Itens
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
-  Implementação de um sistema econômico que recompensa o jogador com moedas por acertos, permitindo comprar dicas grátis e Lootboxes na Loja. O saldo é atualizado automaticamente e exibido durante os desafios.
+  Cartão: Como jogador, quero ganhar moedas ao acertar desafios e ter uma loja para gastá-las, para comprar vantagens (como dicas gratuitas) que me ajudem nos modos de jogo mais difíceis.
+Conversa: Adicionar uma economia ao jogo. O jogador deve ganhar moedas a cada acerto (proporcional ao nível do desafio). Criar uma nova opção 6 Loja no menu principal, onde o jogador pode ver seu saldo e comprar Dicas Grátis (15 Moedas). As dicas compradas devem ser consumidas automaticamente ao pressionar [H] no modo Contra-Tempo, permitindo que o jogador veja a explicação da LOGI sem perder o bônus de velocidade. O saldo de moedas deve ser exibido no cabeçalho dos desafios.
+Confirmação:
+Adicionar campo de moedas e dicas_gratis ao perfil do jogador.
+Recompensar o jogador com nível × 2 moedas por acerto nas rodadas.
+Exibir o saldo atualizado no cabeçalho das telas de desafio e na tela da Loja.
+Criar a opção 6 Loja de Itens no menu principal (deslocando "Sair" para a opção 7).
+Permitir a compra de Dica Grátis (15 Moedas) e Lootbox (30 Moedas).
+Exibir aviso de "Moedas insuficientes!" caso o saldo não cubra o custo.
+No Contra-Tempo, se o jogador tiver dicas_gratis > 0, o uso do [H] consome 1 dica e mantém o direito ao bônus de velocidade.
+Cenário BDD:
+Dado que o jogador acumulou moedas ao longo das partidas,
+Quando ele acessa a Loja (Opção 6), compra uma Dica Grátis e depois entra no modo Contra-Tempo,
+Então o sistema deve deduzir 15 moedas do saldo, incrementar o contador de dicas, exibir o novo saldo no cabeçalho do desafio e, ao pressionar [H] durante a partida, consumir a dica gratuita sem desativar o cálculo de bônus por tempo.
+
 </details>
 
 ### HU15 - Trilha Sonora e Músicas por Cenário
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
-  Implementação de um sistema de áudio com músicas e efeitos sonoros específicos para menus, desafios, vitórias e derrotas. A reprodução ocorre em segundo plano, sem bloquear o jogo, mantendo seu funcionamento mesmo quando não houver suporte a áudio.
+  Cartão: Como jogador, quero ouvir músicas de fundo e efeitos sonoros contextuais (menu, gameplay, vitória, derrota), para ter uma experiência mais imersiva e receber feedback auditivo imediato das minhas ações.
+Conversa: Implementar um sistema de áudio em C que reproduza arquivos .mp3 de forma assíncrona (em background), sem travar o fluxo do terminal ou a leitura de teclado. O sistema deve alternar as músicas de fundo dependendo da tela e disparar efeitos curtos ao acertar ou errar. Como o jogo roda em terminal, a execução deve usar uma ferramenta externa (como o ffplay do FFmpeg). O código deve ser tolerante a falhas: se o ambiente não tiver suporte a áudio (ex: WSL sem PulseAudio configurado), o jogo deve continuar rodando silenciosamente, sem quebrar.
+Confirmação:
+
+
+Iniciar a música menu.mp3 em loop ao carregar o menu principal.
+
+
+Alternar para a música gameplay.mp3 em loop ao entrar em qualquer modo de desafio (Níveis 1-3, Avançado ou Contra-Tempo).
+
+
+Tocar o efeito win.mp3 ao acertar uma questão.
+
+
+Tocar o efeito lose.mp3 ao errar uma questão ou quando o tempo esgotar.
+
+
+Interromper qualquer áudio em reprodução ao sair do jogo (Opção Sair ou Ctrl+C).
+
+
+Não bloquear o terminal: o jogador deve conseguir ler a tela e digitar a resposta enquanto a música toca.
+
+
+Caso o player de áudio não esteja instalado ou o dispositivo de som não exista, o jogo deve continuar normalmente em modo silencioso.
+
+
+Cenário BDD:
+
+
+Dado que o jogador iniciou o jogo e o sistema de áudio está disponível,
+
+
+Quando ele navega pelo menu, inicia um desafio, ou responde a uma questão,
+
+
+Então o sistema deve reproduzir as músicas e efeitos correspondentes (menu, gameplay, acerto ou erro) em background, sem travar a interface do terminal, e interromper todo o áudio ao encerrar o jogo.
+
 </details>
 
 ### HU16 - Compra de Dica
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
-  Implementação de um sistema de compra de dicas durante os desafios, utilizando moedas do jogador. A tutora LOGI apresenta uma explicação contextual sem revelar diretamente a resposta, permitindo apenas uma compra por questão.
+  Cartão:
+Como jogador, quero comprar uma dica para a pergunta atual usando minhas moedas, para avançar quando estiver travado sem precisar pular a questão.
+Conversa:
+Implementar um atalho ([H]) que permite comprar uma dica durante o desafio. O sistema deve verificar se o jogador possui moedas suficientes. Ao confirmar a compra em uma tela de aviso, o saldo é debitado e a tutora LOGI exibe uma dica parcial (explicando o operador lógico) sem revelar a resposta diretamente. O limite é de uma dica comprada por questão.
+Confirmação:
+Exibir a opção [H] com o custo em moedas na tela do desafio.
+Ao acionar, exibir uma tela de confirmação ("Deseja comprar uma dica por 15 moedas?").
+Se tiver saldo, debitar as moedas e exibir o painel da LOGI com a dica.
+Se não tiver saldo, exibir mensagem "Moedas insuficientes!" e retornar à questão.
+Bloquear a compra de uma segunda dica para a mesma questão.
+A dica deve explicar a regra lógica sem dar a resposta V/F diretamente.
+Cenário BDD:
+Dado que o jogador está respondendo a um desafio e possui moedas suficientes,
+Quando ele pressiona a tecla [H] e confirma a compra,
+Então o sistema deve debitar o custo em moedas, exibir o painel da LOGI com a dica contextual e impedir uma nova compra de dica para esta mesma pergunta.
+
 </details>
 
 ### HU17 - Alteração de Pergunta
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
-  Implementação de um sistema de troca de perguntas por moedas, permitindo substituir a questão atual por outra diferente do mesmo nível e tema. No modo Contra-Tempo, o cronômetro é reiniciado após a troca.
+Cartão:
+Como jogador, quero trocar a pergunta atual por outra do mesmo nível usando minhas moedas, para continuar jogando quando a questão atual estiver fora do meu conhecimento.
+Conversa:
+Implementar o atalho [P] (Pular) durante o desafio. Ao confirmar a compra em uma tela de aviso, a pergunta atual é descartada e uma nova questão do mesmo nível e tema é gerada. Se o jogador estiver no modo Contra-Tempo, o temporizador deve ser reiniciado. A nova pergunta não pode ser idêntica à anterior. O limite é de uma troca por questão.
+Confirmação:
+Exibir a opção [P] com o custo em moedas na tela do desafio.
+Ao acionar, exibir tela de confirmação ("Deseja pular esta pergunta por 20 moedas?").
+Debitar o saldo, gerar uma nova questão do mesmo nível e renderizar na tela.
+Reiniciar o temporizador caso esteja no modo Contra-Tempo.
+Garantir que o novo enunciado seja diferente do anterior.
+Se não tiver saldo, exibir mensagem de erro e manter a pergunta atual.
+Cenário BDD:
+Dado que o jogador está respondendo a um desafio e possui moedas suficientes,
+Quando ele pressiona a tecla [P] e confirma a troca,
+Então o sistema deve debitar o custo, descartar a pergunta atual, sortear uma nova questão do mesmo nível, reiniciar o timer (se houver) e exibi-la na tela.
+
 </details>
 
 ### HU18 - Compra de Aumento de Tempo
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
-  Implementação de um recurso exclusivo do modo Contra-Tempo que permite comprar 10 segundos adicionais utilizando moedas. O cronômetro é atualizado imediatamente, permitindo continuar respondendo à questão atual.
+Cartão:
+Como jogador, quero comprar segundos adicionais para a pergunta atual usando minhas moedas, para concluir minha reflexão sem ser penalizado pelo tempo esgotado.
+Conversa:
+Implementar o atalho [T] exclusivo para o modo Contra-Tempo. Ao confirmar a compra em uma tela de aviso, o sistema debita as moedas e adiciona +10 segundos ao cronômetro atual instantaneamente. O limite é de um aumento de tempo por questão. O jogo continua de onde parou após a adição dos segundos.
+Confirmação:
+Exibir a opção [T] com o custo e os segundos extras na tela do Contra-Tempo.
+Ao acionar, exibir tela de confirmação ("Adicionar +10s por 15 moedas?").
+Debitar as moedas e incrementar a variável de tempo restante (segs_restantes += 10).
+Redesenhar o timer na tela imediatamente.
+Bloquear uma segunda compra de tempo para a mesma questão.
+Se não tiver saldo, exibir mensagem de erro e continuar a contagem regressiva.
+Cenário BDD:
+Dado que o jogador está no modo Contra-Tempo e possui moedas suficientes,
+Quando ele pressiona a tecla [T] e confirma a compra,
+Então o sistema deve debitar o custo em moedas, adicionar 10 segundos ao cronômetro atual, atualizar o timer na tela e permitir que o jogador continue respondendo à mesma questão.
+
 </details>
 
 ### HU19 - Sistema de Ranking e Recordes
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
   
-  Implementação de um sistema de ranking local que registra as pontuações dos jogadores, mantendo os cinco melhores resultados. Ao final das partidas, o Top 5 é exibido com destaque para o jogador atual e seus recordes.
+Cartão:
+Como jogador competitivo, quero visualizar um placar de líderes (Top 5) ao final das partidas, para comparar minha pontuação com a de outros jogadores e me motivar a bater recordes.
+Conversa:
+Implementar um sistema de persistência local que salva o nome e a pontuação do jogador em um arquivo oculto no diretório do usuário (~/.decifra_score). Ao final de cada partida, o sistema deve ler o arquivo, inserir a nova pontuação, ordenar o ranking de forma decrescente, manter apenas os 5 melhores e reescrever o arquivo. A tela de resultado final deve exibir o Top 5 e avisar caso o jogador tenha entrado para o ranking.
+Confirmação:
+Criar o arquivo ~/.decifra_score caso ele não exista.
+Salvar o nome, a pontuação e a data/hora da partida.
+Ordenar os jogadores pela maior pontuação.
+Exibir a tabela do "Top 5" na tela de Resultado Final.
+Destacar visualmente a linha do jogador atual se ele estiver no Top 5.
+Exibir a mensagem "Você entrou no Top 5!" ou "Você quebrou seu próprio recorde!" (se for o mesmo nome).
+Cenário BDD:
+Dado que o jogador concluiu uma partida e obteve uma pontuação,
+Quando a tela de "Resultado Final" for exibida,
+Então o sistema deve salvar a pontuação no arquivo local, ordenar os 5 melhores resultados, exibir a tabela de ranking na tela e destacar a posição do jogador atual caso ele esteja entre os 5 primeiros.
+
 </details>
 
 ### HU20 - Modo Sobrevivência (Survival)
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
+Cartão: Como jogador experiente, quero um modo de sobrevivência com vidas limitadas, para testar meu limite de conhecimento lógico sob pressão contínua.
+Conversa: Criar uma nova opção no menu (8. Modo Sobrevivência). O jogador começa com 3 vidas. Cada erro ou tempo esgotado (se usar timer) retira 1 vida. As questões são sorteadas aleatoriamente entre os níveis 1 e 4. O jogo acaba quando as vidas chegam a zero, exibindo a pontuação máxima alcançada (salva no highscore).
+Confirmação:
+Exibir opção no menu principal.
+Mostrar vidas (corações [♥♥♥]) no cabeçalho.
+Sortear questões de todos os níveis, aumentando a frequência de questões difíceis conforme os acertos.
+Exibir tela de "Game Over" quando as vidas acabarem.
+Cenário BDD:
+Dado que o jogador selecionou o Modo Sobrevivência e possui 3 vidas,
+Quando ele erra uma questão ou o tempo se esgota,
+Então o sistema deve subtrair 1 vida e continuar a rodada, até que o contador de vidas chegue a 0, encerrando a partida.
+
+</details>
+
+### HU21 - Narração contextual da LOGI
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+Cartão:
+
+Como jogador do modo básico, quero que a LOGI compartilhe uma reflexão sobre IA e lógica depois de cada desafio, para que a experiência vá além dos exercícios e eu desenvolva consciência crítica sobre sistemas inteligentes.
+
+Conversa:
+
+Aparece só no modo básico (opção 1), depois da tela de feedback de cada um dos 5 desafios. Não aparece no Avançado, no Contra-Tempo nem no Sobrevivência.
+
+Banco de 13 falas: viés algorítmico, opacidade de modelos, decisão automatizada e uma fala de fechamento sobre pensamento crítico.
+
+Animação de entrada: o cabeçalho surge com fade-in e o texto é digitado letra a letra.
+
+Qualquer tecla pula a fala, inclusive durante a digitação.
+
+Sorteio sem reposição: nenhuma fala se repete até todas terem sido exibidas na sessão. Quando o banco acaba, ele é reembaralhado sem repetir a última fala.
+
+Fora do escopo: áudio próprio para a narração.
+
+Confirmação
+
+
+
+Banco com 10 ou mais falas sobre viés algorítmico, opacidade de modelos e decisão automatizada.
+
+Fala exibida após cada desafio concluído no modo básico, com animação de entrada.
+
+O jogador pode pular a fala com qualquer tecla.
+
+Falas não se repetem na mesma sessão.
+
+A narração não aparece nos outros modos.
+
+Critérios de aceite:
+
+Cenário: Fala exibida após cada desafio do modo básico Dado que estou jogando o modo básico Quando respondo um desafio e confirmo a tela de feedback Então a LOGI exibe uma reflexão com o tema e o texto E a tela entra com animação
+
+
+
+Cenário: Pular a fala com qualquer tecla Dado que a LOGI está exibindo uma reflexão Quando pressiono qualquer tecla Então a fala é encerrada E o próximo desafio é exibido
+
+
+
+Cenário: Falas não se repetem na mesma sessão Dado que já vi algumas reflexões nesta sessão Quando a LOGI exibe uma nova reflexão Então ela é diferente de todas as já exibidas Até que as 13 falas tenham sido mostradas
+
+
+
+Cenário: Narração restrita ao modo básico Dado que estou jogando Avançado, Contra-Tempo ou Sobrevivência Quando respondo um desafio Então nenhuma reflexão da LOGI é exibida
+
+
+
   
-  Implementação de um modo de sobrevivência em que o jogador começa com três vidas e enfrenta questões aleatórias dos níveis 1 a 4. Cada erro ou tempo esgotado reduz uma vida, encerrando a partida quando todas acabam e registrando a pontuação máxima.
+  
+</details>
+### HU22 Tela de rankings consolidados por modo (básico, avançado, contra-tempo, sobrevivência)
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+US22 — Rankings consolidados por modo
+
+
+
+Cartão:
+
+Como jogador, quero ver um ranking unificado com as melhores pontuações de cada modo de jogo, para que eu compare meu desempenho entre os modos e tenha motivação para melhorar.
+
+Conversa:
+
+
+
+Acessível pela tecla R no menu principal, sem ocupar uma opção numérica (o menu continua com 8 opções).
+
+Mostra o top-5 de Básico, Avançado, Contra-Tempo e Sobrevivência em colunas lado a lado. Em terminais com menos de 80 colunas, vira uma grade 2x2.
+
+O Sobrevivência passa a ter ranking próprio (~/.decifra_score_sobrevivencia). Antes, gravava no ranking do Básico.
+
+Destaques: ★ marca o recorde de cada modo; » marca o melhor resultado do jogador atual. Uma linha final resume os recordes do jogador em cada modo.
+
+A tecla N permite escolher outro nome para destacar.
+
+Arquivo de ranking ausente vira "(sem registros)". Linhas corrompidas são ignoradas.
+
+Funciona no terminal e na interface gráfica (raylib). 
+
+
+Confirmação:
+
+Tela acessível pelo menu principal.
+
+Exibe o top-5 de cada modo em colunas separadas: Básico, Avançado, Contra-Tempo e Sobrevivência.
+
+Destaque visual para o recorde do jogador em cada coluna.
+
+Funciona mesmo com arquivos de score ausentes ou parcialmente corrompidos. 
+
+Critérios de aceite: 
+
+Funcionalidade: Rankings consolidados por modo
+
+Cenário: Abrir os rankings pelo menu Dado que estou no menu principal Quando pressiono a tecla R Então vejo o top-5 de Básico, Avançado, Contra-Tempo e Sobrevivência lado a lado
+
+Cenário: Destacar o recorde do jogador Dado que joguei uma partida com o nome "Ana" e entrei no ranking do Básico Quando abro os rankings consolidados Então a minha melhor posição no Básico aparece destacada E a linha de resumo mostra a minha pontuação em cada modo
+
+Cenário: Modo sem nenhum registro Dado que nunca joguei o modo Sobrevivência Quando abro os rankings consolidados Então a coluna Sobrevivência mostra "(sem registros)" E as outras colunas continuam sendo exibidas
+
+Cenário: Arquivo de ranking corrompido Dado que o arquivo de ranking do Básico tem uma linha inválida Quando abro os rankings consolidados Então a linha inválida é ignorada E as pontuações válidas aparecem em ordem decrescente
+
+Cenário: Sobrevivência com ranking próprio Dado que terminei uma partida no modo Sobrevivência Quando abro os rankings consolidados Então a pontuação aparece na coluna Sobrevivência E não aparece na coluna Básico
+
+
+
+</details>
+### HU23 - Conquistas
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+US23 — Conquistas
+
+
+
+Cartão: Como jogador, quero receber uma notificação quando desbloquear uma conquista durante a partida, para que eu me sinta recompensado na hora pelo meu progresso.
+
+
+
+Conversa:
+
+
+
+Cinco conquistas:
+
+Primeiro Acerto: acertar o primeiro desafio.
+
+Triplete: 3 acertos seguidos na mesma partida.
+
+Imparável: 5 acertos seguidos na mesma partida.
+
+Centena: chegar a 100 pontos numa partida.
+
+Poupador: juntar 50 moedas.
+
+A notificação aparece como aviso logo depois da tela de feedback, em todos os modos (Básico, Avançado, Contra-Tempo e Sobrevivência).
+
+Um erro zera a sequência de acertos.
+
+Cada conquista aparece uma única vez: fica salva em ~/.decifra_conquistas e não volta a ser anunciada em partidas futuras.
+
+Sem tela nova no menu: a notificação usa a tela de aviso que já existia.
+
+Confirmação:
+
+
+
+As conquistas são verificadas ao fim de cada desafio, em todos os modos.
+
+Uma conquista nova gera uma notificação com o nome e a descrição.
+
+A conquista fica salva e não é anunciada de novo, nem depois de fechar o jogo.
+
+Um erro reinicia a contagem de acertos seguidos.
+
+Critérios de aceite: 
+
+Funcionalidade: Conquistas durante a partida
+
+
+
+Cenário: Primeira conquista Dado que nunca desbloqueei conquistas Quando acerto meu primeiro desafio Então vejo "CONQUISTA DESBLOQUEADA: Primeiro Acerto" depois do feedback
+
+
+
+Cenário: Três acertos seguidos Dado que acertei dois desafios seguidos nesta partida Quando acerto o terceiro desafio Então vejo "CONQUISTA DESBLOQUEADA: Triplete"
+
+
+
+Cenário: Erro reinicia a sequência Dado que acertei dois desafios seguidos Quando erro o próximo desafio E depois acerto mais um Então a conquista Triplete não é desbloqueada
+
+
+
+Cenário: Conquista não se repete Dado que já desbloqueei a conquista Primeiro Acerto Quando fecho o jogo, abro de novo e acerto um desafio Então a conquista Primeiro Acerto não é anunciada de novo.
+</details>
+### HU24 - Resumo de desempenho por operador
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+  
+US24 — Resumo de desempenho por operador
+
+
+
+Cartão: Como jogador, quero ver no fim da partida quantos acertos tive com cada operador lógico, para que eu saiba quais regras preciso estudar mais.
+
+
+
+Conversa:
+
+
+
+Aparece na tela de Resultado Final dos modos Básico e Avançado.
+
+Para cada operador que apareceu nos desafios respondidos (AND, OR, NOT, IMPLICA, BICONDICIONAL), mostra acertos e total, por exemplo [AND 1/1] [OR 0/2].
+
+Cores: verde quando acertou todos, âmbar com pelo menos metade, vermelho abaixo disso.
+
+Uma frase indica o operador com pior desempenho: "Dica: revise o operador OR na próxima jogada!". Se não houve erro, mostra "Mandou bem em todos os operadores!".
+
+Um desafio com mais de um operador, como NOT (P OR Q), conta para cada operador que aparece nele.
+
+Não é salvo em arquivo: vale só para a partida que acabou.
+
+Fora do escopo: resultado do Contra-Tempo e game over do Sobrevivência.
+
+Confirmação:
+
+
+
+O resultado final mostra acertos e total por operador da partida.
+
+Só aparecem os operadores presentes nos desafios respondidos.
+
+Uma frase sugere revisar o operador com menor taxa de acerto.
+
+Funciona no terminal e na interface gráfica.
+
+Critérios de aceite: Funcionalidade: Resumo de desempenho por operador
+
+
+
+Cenário: Mostrar acertos por operador Dado que terminei uma partida do modo básico E acertei o desafio com AND e errei o desafio com OR Quando a tela de Resultado Final é exibida Então vejo "AND 1/1" e "OR 0/1"
+
+
+
+Cenário: Indicar o operador mais fraco Dado que errei todos os desafios com BICONDICIONAL E acertei os demais Quando a tela de Resultado Final é exibida Então vejo "Dica: revise o operador BICONDICIONAL na proxima jogada!"
+
+
+
+Cenário: Partida perfeita Dado que acertei todos os desafios da partida Quando a tela de Resultado Final é exibida Então vejo "Mandou bem em todos os operadores!”
+</details>
+
+### HU25 - Modo Hardcore
+<details>
+  <summary>Clique para visualizar mais detalhes</summary>
+  
+US25 — Modo Hardcore
+
+
+
+Cartão: Como jogador experiente, quero jogar sem ajuda da LOGI e sem pular perguntas, em troca de um bônus, para que eu tenha um desafio maior e seja recompensado por isso.
+
+
+
+Conversa:
+
+
+
+Só no modo básico: depois de digitar o nome, o jogo pergunta "Jogar sem ajuda da LOGI [H] e sem pulos [P]?" com as opções S e N.
+
+No Hardcore, as teclas H e P ficam bloqueadas. Ao apertar uma delas, aparece "Bloqueado no modo Hardcore! Responda V ou F." e o desafio volta.
+
+A tela do desafio mostra "HARDCORE: sem ajuda e sem pulo" no lugar das opções [H] e [P].
+
+No fim, a pontuação recebe +50% antes de entrar no ranking, com o aviso "Bonus Hardcore +50%: X -> Y pontos!".
+
+A escolha vale só para aquela partida: cada nova partida começa fora do Hardcore. Não é salva em perfil.
+
+Os outros modos não mudam.
+
+Confirmação:
+
+
+
+A pergunta do modo Hardcore aparece antes da partida do modo básico.
+
+No Hardcore, H e P são ignorados, com uma mensagem de bloqueio.
+
+A pontuação final recebe +50% antes de ser registrada no ranking.
+
+Respondendo N, o jogo funciona como antes, com ajuda e pulo.
+
+Critérios de aceite: Funcionalidade: Modo Hardcore opcional
+
+
+
+Cenário: Bloquear ajuda no Hardcore Dado que escolhi S na pergunta do modo Hardcore Quando pressiono H em um desafio Então vejo "Bloqueado no modo Hardcore! Responda V ou F." E o desafio continua na tela
+
+
+
+Cenário: Bônus na pontuação final Dado que estou no modo Hardcore E terminei a partida com 70 pontos Quando a partida termina Então vejo "Bonus Hardcore +50%: 70 -> 105 pontos!" E o ranking registra 105 pontos
+
+
+
+Cenário: Jogar no modo normal Dado que escolhi N na pergunta do modo Hardcore Quando pressiono H em um desafio Então o painel de ajuda da LOGI é exibido
+
+
+
+Cenário: Hardcore vale só para a partida atual Dado que terminei uma partida no modo Hardcore Quando começo uma partida do modo avançado Então as teclas H e P funcionam normalmente
 </details>
 
 ---
@@ -515,6 +944,35 @@ Abaixo estão algumas justificativas que dificultaram a execução da programaç
 
 2. **Conflito de Agenda e Distanciamento:**
    Por se tratar de um projeto universitário, os integrantes possuem rotinas acadêmicas e profissionais divergentes. A falta de sincronia de horários inviabilizou encontros diários para a codificação lado a lado (mesmo que de forma remota via compartilhamento de tela). O fato de **alguns integrantes estarem matriculados em cadeiras de períodos diferentes** tornou a experiência de sincronizar horários um pouco mais complexa.
+
+## Sprint 03 / Entrega 05 (US21 E US22)
+
+## Relato de programação em pares – Sprint 03
+
+Nesta sprint a programação em pares aconteceu de forma parcial. Registramos abaixo o que foi feito e o que impediu a prática completa.
+
+### O que foi feito
+- **US21:** implementada por Pedro Feitosa e revisada por Augusto via revisão de pull request, com comentários no próprio PR.
+<img width="1920" height="1080" alt="Captura de Tela (810)" src="https://github.com/user-attachments/assets/db00cad0-1b29-4317-b23c-840be761d611" />
+<img width="1920" height="1080" alt="Captura de Tela (812)" src="https://github.com/user-attachments/assets/149a76ff-28d8-437b-8015-c4224403b0db" />
+<img width="1920" height="1080" alt="Captura de Tela (811)" src="https://github.com/user-attachments/assets/9ca2d07e-c0e6-4180-acd0-0113039c0c49" />
+
+- **US22:** Programação em Par Parcial. Arthur ficou responsável pela história e Augusto acompanhou a integração. Na US22, os arquivos chegaram incompletos porque foram substituídos no GitHub dentro do celular. A revisão do PR detectou o problema antes do merge (a branch não compilava), a correção foi aplicada e o CI ficou verde. A partir disso, a equipe decidiu somente enviar arquivos só por upload ou pelo terminal, e aprovar PR apenas com o CI verde.
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1e043253-c3f0-4146-8d26-ed25693764c4" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f1270aeb-dd53-4ba8-a01c-58ac749df065" />
+
+- **As histórias US23, US24 E US25 não utilizaram a programação em par**.
+
+### O que impediu a programação em pares completa:
+1. **Prazo curto no fim da sprint.** As últimas histórias foram integradas a três dias da entrega, o que não deixou tempo para sessões síncronas em dupla.
+2. **Falta de computador disponível para parte da equipe.** Um integrante só tinha acesso ao celular no período, e o editor web do GitHub no celular cortou o conteúdo dos arquivos maiores. Isso inviabilizou a codificação em dupla nessa história.
+3. **Orientação pouco clara dentro da equipe.** Foi informado que seria possível colar os códigos pelo celular, o que não funcionou para arquivos grandes e gerou retrabalho.
+
+### O que aprendemos
+- Dividir as histórias no início da sprint, e não na última semana.
+- Confirmar antes se cada integrante tem ambiente para compilar e rodar `make test`.
+- Usar a revisão de PR com checklist (compila, `make test` passa, jogou a história) quando a sessão em dupla não for possível.
 
 
 ## Licença
