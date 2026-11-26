@@ -899,7 +899,10 @@ HU25: 0:07 HU24: 0:11 HU23: 0:21 HU22: 0:38 HU21: 00:55
 **Release v2.0 (Sprint 03):** https://github.com/guialveess/logi-decifra-ai/releases/tag/v2.0
 > Atualizada em 25/11/2026 para incluir a Sprint 03 (US21 a US25 e interface raylib). Esta é a release válida para a Entrega 5.
 
-**Screencast jogando a partir da release v2.0 atualizada**: https://www.youtube.com/watch?v=0ortImgsbS0
+**Screencast demonstrando histórias implementadas na sprint 03 a partir da release v2.0 atualizada**: https://www.youtube.com/watch?v=0ortImgsbS0
+
+HU22: 1:02 HU25: 1:40 HU21: 2:24 HU23: 2:58 HU24: 3:18
+
 **Screencast mostrando interface gráfica no release v2.0**: https://www.youtube.com/watch?v=toWamJgPxuw
 
 ## Storyboard(figma)
