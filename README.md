@@ -886,20 +886,21 @@ Cenário: Hardcore vale só para a partida atual Dado que terminei uma partida n
 ## Screencast
 https://youtu.be/Iltjfxjm8z0
 
-**demo HU13eHU14: https://www.youtube.com/watch?v=My1l-SniFo8
+**demo HU13eHU14**: https://www.youtube.com/watch?v=My1l-SniFo8
 
-**demo HU15: https://www.youtube.com/watch?v=jyQQGYnBtwE
+**demo HU15**: https://www.youtube.com/watch?v=jyQQGYnBtwE
 
-Screencast das Histórias de Usuário 16, 17, 18, 19, 20: https://youtu.be/4YOtXOuWV4k
+**Screencast das Histórias de Usuário 16, 17, 18, 19, 20**: https://youtu.be/4YOtXOuWV4k
 HU19 0:28 HU16 0:43 HU17 1:24 HU18 2:03 HU20 3:07
 
-Screencast testes: https://www.youtube.com/watch?v=Ugr5ZJkRhrM
+**Screencast testes**: https://www.youtube.com/watch?v=Ugr5ZJkRhrM
 HU25: 0:07 HU24: 0:11 HU23: 0:21 HU22: 0:38 HU21: 00:55
 
-**Release v3.0 (Sprint 03):** https://github.com/guialveess/logi-decifra-ai/releases/tag/v2.0
+**Release v2.0 (Sprint 03):** https://github.com/guialveess/logi-decifra-ai/releases/tag/v2.0
 > Atualizada em 25/11/2026 para incluir a Sprint 03 (US21 a US25 e interface raylib). Esta é a release válida para a Entrega 5.
 
-Screencast final, jogando a partir da release v2.0: [link]
+**Screencast jogando a partir da release v2.0 atualizada**: https://www.youtube.com/watch?v=0ortImgsbS0
+**Screencast mostrando interface gráfica no release v2.0**: https://www.youtube.com/watch?v=toWamJgPxuw
 
 ## Storyboard(figma)
 https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes-IHC?node-id=45-103&t=IGlyCabXOWPoepC9-1
