@@ -935,6 +935,9 @@ https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes
 
 <img width="1600" height="415" alt="WhatsApp Image 2026-11-04 at 21 27 09" src="https://github.com/user-attachments/assets/ab7a0aac-3c2b-47ba-9350-6865f289fd76" />
 
+<img width="1920" height="1080" alt="Captura de Tela (832)" src="https://github.com/user-attachments/assets/7393ebf9-35bb-40b5-8188-aaec87df25fc" />
+
+
 
 ## Bug Tracker
 
