@@ -236,7 +236,7 @@ Testes automatizados
 
 A saída esperada termina com `58 testes, 0 falha(s)`.
 
-Para configurar o ambiente do zero (incluindo a raylib) e contribuir, veja o [CONTRIBUTING.md](_).
+Para configurar o ambiente do zero (incluindo a raylib) e contribuir, veja o [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Interface gráfica (raylib)
 
@@ -638,6 +638,7 @@ Cenário: Narração restrita ao modo básico Dado que estou jogando Avançado, 
   
   
 </details>
+
 ### HU22 Tela de rankings consolidados por modo (básico, avançado, contra-tempo, sobrevivência)
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
@@ -695,6 +696,7 @@ Cenário: Sobrevivência com ranking próprio Dado que terminei uma partida no m
 
 
 </details>
+
 ### HU23 - Conquistas
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
@@ -762,6 +764,7 @@ Cenário: Erro reinicia a sequência Dado que acertei dois desafios seguidos Qua
 
 Cenário: Conquista não se repete Dado que já desbloqueei a conquista Primeiro Acerto Quando fecho o jogo, abro de novo e acerto um desafio Então a conquista Primeiro Acerto não é anunciada de novo.
 </details>
+
 ### HU24 - Resumo de desempenho por operador
 <details>
   <summary>Clique para visualizar mais detalhes</summary>
@@ -891,11 +894,12 @@ Screencast das Histórias de Usuário 16, 17, 18, 19, 20: https://youtu.be/4YOtX
 HU19 0:28 HU16 0:43 HU17 1:24 HU18 2:03 HU20 3:07
 
 Screencast testes: https://www.youtube.com/watch?v=Ugr5ZJkRhrM
-US25: 0:07 US24: 0:11 US23: 0:21 US22: 0:38 US21: 00:55
+HU25: 0:07 HU24: 0:11 HU23: 0:21 HU22: 0:38 HU21: 00:55
 
-**Release v3.0 (Sprint 03):** https://github.com/guialveess/logi-decifra-ai/releases/tag/v3.0
+**Release v3.0 (Sprint 03):** https://github.com/guialveess/logi-decifra-ai/releases/tag/v2.0
+> Atualizada em 25/11/2026 para incluir a Sprint 03 (US21 a US25 e interface raylib). Esta é a release válida para a Entrega 5.
 
-Screencast final, jogando a partir da release v3.0: [link]
+Screencast final, jogando a partir da release v2.0: [link]
 
 ## Storyboard(figma)
 https://www.figma.com/design/sVscUjtksFLvERPGbrisHb/LOGI-Decifra.IA---Wireframes-IHC?node-id=45-103&t=IGlyCabXOWPoepC9-1
@@ -966,7 +970,7 @@ Abaixo estão algumas justificativas que dificultaram a execução da programaç
 2. **Conflito de Agenda e Distanciamento:**
    Por se tratar de um projeto universitário, os integrantes possuem rotinas acadêmicas e profissionais divergentes. A falta de sincronia de horários inviabilizou encontros diários para a codificação lado a lado (mesmo que de forma remota via compartilhamento de tela). O fato de **alguns integrantes estarem matriculados em cadeiras de períodos diferentes** tornou a experiência de sincronizar horários um pouco mais complexa.
 
-## Sprint 03 / Entrega 05 (US21 E US22)
+## Sprint 03 / Entrega 05 
 
 ## Relato de programação em pares – Sprint 03
 

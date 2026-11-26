@@ -14,14 +14,28 @@ brew install ffmpeg raylib
 sudo apt install gcc make ffmpeg libraylib-dev
 ```
 
+Se aparecer `Unable to locate package libraylib-dev` (acontece no Ubuntu 26.04), compile a raylib pelo código-fonte:
+
+```bash
+sudo apt install -y build-essential git libasound2-dev libx11-dev libxrandr-dev libxi-dev \
+  libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev libwayland-dev libxkbcommon-dev
+git clone --depth 1 https://github.com/raysan5/raylib.git /tmp/raylib
+cd /tmp/raylib/src
+make PLATFORM=PLATFORM_DESKTOP
+sudo make install
+```
+
+No Windows, use o WSL (`wsl --install` no PowerShell) e siga os passos do Ubuntu. A janela gráfica abre pelo WSLg.
+
 ## Rodando o projeto
 
 ```bash
 git clone https://github.com/guialveess/logi-decifra-ai.git
 cd logi-decifra-ai
 
-make          # terminal
+make run      # compila e roda no terminal
 make run-gui  # interface gráfica (requer raylib)
+make test     # testes automatizados
 ```
 
 ## Estrutura do projeto
