@@ -996,7 +996,7 @@ Nesta sprint a programação em pares aconteceu de forma parcial. Registramos ab
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1e043253-c3f0-4146-8d26-ed25693764c4" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f1270aeb-dd53-4ba8-a01c-58ac749df065" />
 
-- **As histórias US23, US24 E US25 foram commitadas cada uma em uma branch diferentes e tiveram pull requests comentados por Augusto e João Bezerra**
+- **US23, US24 E US25**: não houve programação em pares. As três foram integradas a partir de merges e com uma branch para cada história, Augusto registrou comentários no PR da história 23 e João Bezerra registrou os comentários nos PRs das histórias 24 e 25 depois do merge, em 26/11/2026.
 link de Pull Requests: https://github.com/guialveess/logi-decifra-ai/pulls?q=is%3Apr+state%3Aclosed
 
 ### O que impediu a programação em pares completa:
