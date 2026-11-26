@@ -887,8 +887,10 @@ Cenário: Hardcore vale só para a partida atual Dado que terminei uma partida n
 https://youtu.be/Iltjfxjm8z0
 
 **demo HU13eHU14**: https://www.youtube.com/watch?v=My1l-SniFo8
+HU14 0:07 HU13 1:41
 
 **demo HU15**: https://www.youtube.com/watch?v=jyQQGYnBtwE
+HU15: 0:53 (demonstra as pastas de audio e cenarios de som)
 
 **Screencast das Histórias de Usuário 16, 17, 18, 19, 20**: https://youtu.be/4YOtXOuWV4k
 HU19 0:28 HU16 0:43 HU17 1:24 HU18 2:03 HU20 3:07
