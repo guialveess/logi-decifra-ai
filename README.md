@@ -997,6 +997,7 @@ Nesta sprint a programação em pares aconteceu de forma parcial. Registramos ab
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f1270aeb-dd53-4ba8-a01c-58ac749df065" />
 
 - **As histórias US23, US24 E US25 foram commitadas cada uma em uma branch diferentes e tiveram pull requests comentados por Augusto e João Bezerra**
+link de Pull Requests: https://github.com/guialveess/logi-decifra-ai/pulls?q=is%3Apr+state%3Aclosed
 
 ### O que impediu a programação em pares completa:
 1. **Prazo curto no fim da sprint.** As últimas histórias foram integradas a três dias da entrega, o que não deixou tempo para sessões síncronas em dupla.
