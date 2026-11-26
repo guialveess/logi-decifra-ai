@@ -996,7 +996,7 @@ Nesta sprint a programação em pares aconteceu de forma parcial. Registramos ab
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1e043253-c3f0-4146-8d26-ed25693764c4" />
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f1270aeb-dd53-4ba8-a01c-58ac749df065" />
 
-- **As histórias US23, US24 E US25 não utilizaram a programação em par**.
+- **As histórias US23, US24 E US25 foram commitadas cada uma em uma branch diferentes e tiveram pull requests comentados por Augusto e João Bezerra**
 
 ### O que impediu a programação em pares completa:
 1. **Prazo curto no fim da sprint.** As últimas histórias foram integradas a três dias da entrega, o que não deixou tempo para sessões síncronas em dupla.
